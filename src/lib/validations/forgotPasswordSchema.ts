@@ -1,7 +1,8 @@
 import { z } from 'zod';
+import { emailValidation } from './common';
 
 export const forgotPasswordSchema = z.object({
-  email: z.string().email('Please enter a valid email'),
+  email: emailValidation,
 });
 
 export type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
