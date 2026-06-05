@@ -62,7 +62,7 @@ export default function Sidebar() {
           </div>
 
           {/* Menu Items */}
-          <nav className="flex-1 py-6 px-3 overflow-y-auto">
+          <nav className="flex-1 py-6 px-3 ">
             {menuItems.map(item => (
               <NavLink
                 key={item.path}
@@ -96,11 +96,11 @@ export default function Sidebar() {
           </nav>
 
           {/* Bottom Actions */}
-          <div className="p-3 space-y-2">
+          <div className="p-3 pt-4 space-y-2 border-t border-slate-light/30">
             {/* Collapse Button - Desktop */}
             <button
               onClick={() => setIsExpanded(!isExpanded)}
-              className="hidden lg:flex items-center gap-4 w-full px-4 py-3 text-slate-medium hover:bg-surface-low rounded-md transition-colors"
+              className={`hidden lg:flex items-center gap-4 w-full px-4 py-3 text-slate-medium hover:bg-surface-low rounded-md transition-colors cursor-pointer `}
             >
               <ArrowIcon
                 className={`shrink-0 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
@@ -114,7 +114,7 @@ export default function Sidebar() {
             {/* Logout Button */}
             <button
               onClick={handleLogout}
-              className="flex items-center gap-4 w-full px-4 py-3 text-error hover:bg-error-low rounded-md transition-colors"
+              className={`flex items-center gap-4 w-full px-4 py-3 text-error hover:bg-error-low rounded-md transition-colors cursor-pointer `}
             >
               <LogoutIcon className="shrink-0" color="currentColor" />
               {isExpanded && (

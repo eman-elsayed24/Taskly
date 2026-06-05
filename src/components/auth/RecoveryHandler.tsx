@@ -8,9 +8,9 @@ export default function RecoveryHandler() {
       const accessToken = hashParams.get('access_token');
 
       if (type === 'recovery' && accessToken) {
-        // Clear the hash from the browser address bar cleanly
+        // Clear the hash from the browser address bar
         window.history.replaceState(null, '', window.location.pathname);
-        // Hard redirect to the reset-password page with query parameter
+        // redirect to the reset-password page with query parameter
         window.location.href = `/reset-password?access_token=${accessToken}`;
       }
     }

@@ -9,6 +9,7 @@ import { loginSchema } from '../../lib/validations/loginSchema';
 import type { LoginFormData } from '../../lib/validations/loginSchema';
 import { loginUser } from '../../api/authApi';
 import { storeTokens } from '../../lib/cookies';
+import mailIcon from '../../assets/icons/mail.svg';
 
 function Login() {
   const [isLoading, setIsLoading] = useState(false);
@@ -64,7 +65,7 @@ function Login() {
         <div className="relative">
           {/* Mail icon - Mobile only, on the right */}
           <div className="absolute right-4 top-[38px] md:hidden pointer-events-none z-10">
-            <img src="/src/assets/icons/mail.svg" alt="" className="w-5 h-5" />
+            <img src={mailIcon} alt="" className="w-5 h-5" />
           </div>
           <Input
             label="EMAIL"

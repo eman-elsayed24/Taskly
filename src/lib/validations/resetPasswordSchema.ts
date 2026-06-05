@@ -1,16 +1,16 @@
 import { z } from 'zod';
 
-const passwordRegex =
-  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
-
 export const resetPasswordSchema = z
   .object({
     password: z
       .string()
       .min(8, 'Password must be at least 8 characters')
+      .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+      .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+      .regex(/[0-9]/, 'Password must contain at least one digit')
       .regex(
-        passwordRegex,
-        'Password must contain uppercase, lowercase, number, and special character'
+        /[!@#$%^&*]/,
+        'Password must contain at least one special character'
       ),
     confirmPassword: z.string().min(1, 'Please confirm your password'),
   })

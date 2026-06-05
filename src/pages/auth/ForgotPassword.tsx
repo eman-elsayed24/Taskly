@@ -109,7 +109,7 @@ function ForgotPassword() {
           type="submit"
           variant="primary"
           fullWidth
-          disabled={isLoading || trialsLeft <= 0}
+          disabled={isLoading || remainingTime > 0 || trialsLeft <= 0}
         >
           {isLoading ? 'Sending...' : 'Send Reset Link'}
         </Button>
@@ -119,7 +119,7 @@ function ForgotPassword() {
       <div className="text-center mt-6">
         <Link
           to="/login"
-          className="inline-flex items-center gap-2 text-body-md text-primary font-medium hover:underline"
+          className="inline-flex items-center gap-2 text-body-lg text-primary font-medium hover:underline"
         >
           <img src={BackArrowIcon} alt="" className="w-4 h-4" />
           Back to log in
@@ -132,9 +132,9 @@ function ForgotPassword() {
           {/* Desktop: Separate boxes */}
           <div className="hidden md:block mt-6">
             {/* Success Message */}
-            <div className="p-4 bg-green-50 rounded-lg flex items-start gap-3 mb-6">
+            <div className="p-4 bg-green-50 rounded-md flex items-start gap-3 mb-6">
               <img src={CheckIcon} alt="" className="shrink-0" />
-              <p className="text-body-md text-green-500 flex-1">
+              <p className="text-body-lg text-success-dark flex-1">
                 {successMessage}
               </p>
             </div>

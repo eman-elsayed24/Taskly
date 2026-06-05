@@ -76,8 +76,8 @@ export default function PasswordRequirements({
         {requirements.map(req => (
           <div key={req.id} className="flex items-center gap-2">
             <div
-              className={`w-4 h-4 rounded-full flex items-center justify-center text-white text-[10px] ${
-                req.met ? 'bg-success' : 'border-2 border-slate-muted'
+              className={`w-4 h-4 rounded-full flex items-center justify-center text-success-dark text-[10px] font-bold border-2 ${
+                req.met ? ' border-success-dark' : ' border-slate-muted'
               }`}
             >
               {req.met && '✓'}

@@ -31,17 +31,14 @@ export function storeTokens(
   tokens: AuthTokens,
   rememberMe: boolean = false
 ): void {
-  // Access token expires in 1 hour (from Supabase expires_in: 3600)
-  // Convert seconds to days: 3600 / (24 * 60 * 60) ≈ 0.042 days
-  const accessTokenDays = tokens.expires_in
-    ? tokens.expires_in / (24 * 60 * 60)
-    : 0.042;
+  // Both cookies stored with same expiration
+  // The server will reject expired access_token (after 1 hour)
+  // Then we use refresh_token to get a new access_token
+  // Cookie expiration is just for browser storage, not token validation
+  const expirationDays = rememberMe ? 30 : 7;
 
-  // Refresh token can be stored longer based on remember me
-  const refreshTokenDays = rememberMe ? 30 : 7;
-
-  setCookie(ACCESS_TOKEN_KEY, tokens.access_token, accessTokenDays);
-  setCookie(REFRESH_TOKEN_KEY, tokens.refresh_token, refreshTokenDays);
+  setCookie(ACCESS_TOKEN_KEY, tokens.access_token, expirationDays);
+  setCookie(REFRESH_TOKEN_KEY, tokens.refresh_token, expirationDays);
 }
 
 export function getAccessToken(): string | null {

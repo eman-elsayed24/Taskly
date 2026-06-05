@@ -18,7 +18,7 @@
   --color-success: #6fd3a3;
   --color-success-dark: #004e32;
   --color-error: #ba1a1a;
-  --color-error-low: #ffdad6 ;
+  --color-error-low: #ffdad6;
   --color-warning: #f4a300;
 
   /* Spacing & Radius */
@@ -34,12 +34,9 @@
 }
 
 body {
-  font-family:
-    'Inter',
-    sans-serif;
+  font-family: 'Inter', sans-serif;
   color: var(--color-slate-dark);
   background-color: var(--color-background);
- 
 }
 
 /* Typography */

@@ -1,4 +1,6 @@
 import { useState, forwardRef } from 'react';
+import showPasswordIcon from '../../assets/icons/showPassword.svg';
+import hidePasswordIcon from '../../assets/icons/hidePassword.svg';
 
 type InputProps = {
   label?: string;
@@ -37,11 +39,9 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           <input
             ref={ref}
             type={inputType}
-            className={`w-full px-4 ${showEyeIcon ? 'pr-12' : 'pr-4'} py-3 rounded-sm text-body-md text-slate-dark placeholder:text-slate-muted outline-none border ${
-              error
-                ? 'border-error bg-error-low'
-                : 'border-transparent bg-surface-highest'
-            } focus:border-primary focus:ring-2 focus:ring-primary/20 ${className || ''}`}
+            className={`w-full px-4 ${showEyeIcon ? 'pr-12' : 'pr-4'} py-3 rounded-sm text-body-md text-slate-dark placeholder:text-slate-muted outline-none ${
+              error ? ' bg-error-low' : ' bg-surface-highest'
+            }   ${className || ''}`}
             {...rest}
           />
 
@@ -50,20 +50,13 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               type="button"
               onClick={() => setIsPasswordVisible(!isPasswordVisible)}
               className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer hover:opacity-70 transition-opacity"
+              aria-label={isPasswordVisible ? 'Hide password' : 'Show password'}
               tabIndex={-1}
             >
               {isPasswordVisible ? (
-                <img
-                  src="/src/assets/icons/hidePassword.svg"
-                  alt="Hide password"
-                  className="w-5 h-5"
-                />
+                <img src={hidePasswordIcon} alt="" className="w-5 h-5" />
               ) : (
-                <img
-                  src="/src/assets/icons/showPassword.svg"
-                  alt="Show password"
-                  className="w-5 h-5"
-                />
+                <img src={showPasswordIcon} alt="" className="w-5 h-5" />
               )}
             </button>
           )}

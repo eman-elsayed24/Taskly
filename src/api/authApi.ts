@@ -18,7 +18,9 @@ export async function loginUser(
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error_description || 'Invalid email or password');
+    throw new Error(
+      error.msg || error.error_description || 'Invalid email or password'
+    );
   }
 
   return response.json();
@@ -42,7 +44,7 @@ export async function signupUser(
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error_description || 'Signup failed');
+    throw new Error(error.msg || error.error_description || 'Signup failed');
   }
 
   return response.json();
@@ -89,7 +91,9 @@ export async function resetPassword(email: string): Promise<void> {
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error_description || 'Failed to send reset link');
+    throw new Error(
+      error.msg || error.error_description || 'Failed to send reset link'
+    );
   }
 }
 
@@ -109,6 +113,8 @@ export async function updatePassword(
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error_description || 'Failed to update password');
+    throw new Error(
+      error.msg || error.error_description || 'Failed to update password'
+    );
   }
 }

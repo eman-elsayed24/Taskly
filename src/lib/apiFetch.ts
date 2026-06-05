@@ -57,7 +57,7 @@ export async function apiFetch<T>(
 
   if (!response.ok) {
     throw new Error(
-      data?.message || data?.error_description || 'Request failed'
+      data?.msg || data?.message || data?.error_description || 'Request failed'
     );
   }
 

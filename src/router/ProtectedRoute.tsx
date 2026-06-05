@@ -1,6 +1,5 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import type { RootState } from '../redux/store';
 import { fetchCurrentUserThunk } from '../redux/slices/userSlice';
 import { isAuthenticated } from '../lib/cookies';
 import Spinner from '../components/ui/spinner';
@@ -8,9 +7,7 @@ import { useAppDispatch, useAppSelector } from '../redux/hooks';
 
 function ProtectedRoute() {
   const dispatch = useAppDispatch();
-  const { data: user, isLoading } = useAppSelector(
-    (state: RootState) => state.user
-  );
+  const { data: user, isLoading } = useAppSelector(state => state.user);
   const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {

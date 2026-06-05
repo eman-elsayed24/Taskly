@@ -1,12 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
 import { useAppSelector } from '../../../redux/hooks';
-import type { RootState } from '../../../redux/store';
 import { useLogout } from '../../../hooks/useLogout';
 import { LogoutIcon } from '../../ui/icons';
 import { getInitials } from '../../../utils/stringHelpers';
 
 export default function Navbar() {
-  const { data: user } = useAppSelector((state: RootState) => state.user);
+  const { data: user } = useAppSelector(state => state.user);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { logout } = useLogout();
@@ -77,7 +76,7 @@ export default function Navbar() {
             {/* Logout Button */}
             <button
               onClick={handleLogout}
-              className="flex items-center gap-3 w-full px-4 py-3 text-error hover:bg-error-low transition-colors"
+              className="flex items-center gap-3 w-full px-4 py-3 text-error hover:bg-error-low transition-colors cursor-pointer"
             >
               <LogoutIcon className="shrink-0" color="currentColor" />
               <span className="text-body-md font-medium">Logout</span>

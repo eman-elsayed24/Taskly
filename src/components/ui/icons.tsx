@@ -120,13 +120,13 @@ export function LogoutIcon({
   );
 }
 
-export function MenuIcon({ className = '' }: IconProps) {
+export function MenuIcon({
+  className = '',
+  color = 'currentColor',
+}: IconProps) {
   return (
     <Icon className={className} viewBox="0 0 26 20">
-      <path
-        d="M4 16V14H22V16H4ZM4 11V9H22V11H4ZM4 6V4H22V6H4Z"
-        fill="#041B3C"
-      />
+      <path d="M4 16V14H22V16H4ZM4 11V9H22V11H4ZM4 6V4H22V6H4Z" fill={color} />
     </Icon>
   );
 }
