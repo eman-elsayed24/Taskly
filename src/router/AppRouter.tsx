@@ -9,6 +9,7 @@ import Signup from '../pages/auth/Signup';
 import ForgotPassword from '../pages/auth/ForgotPassword';
 import ResetPassword from '../pages/auth/ResetPassword';
 import ProtectedRoute from './ProtectedRoute';
+import PublicRoute from './PublicRoute';
 import AuthLayout from '../components/auth/AuthLayout';
 import DashboardLayout from '../components/dashboard/layout/DashboardLayout';
 import Projects from '../pages/dashboard/Projects';
@@ -24,12 +25,14 @@ function AppRouter() {
         {/* Root redirects to login */}
         <Route path="/" element={<Navigate to="/login" replace />} />
 
-        {/* Auth Routes */}
-        <Route element={<AuthLayout />}>
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
+        {/* Auth Routes - Protected from logged-in users */}
+        <Route element={<PublicRoute />}>
+          <Route element={<AuthLayout />}>
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+          </Route>
         </Route>
 
         {/* Protected Routes */}
