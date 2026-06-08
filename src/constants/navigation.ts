@@ -1,15 +1,13 @@
-import {
-  ProjectsIcon,
-  EpicsIcon,
-  TasksIcon,
-  MembersIcon,
-  DetailsIcon,
-} from '../components/ui/icons';
+import ProjectsIcon from '../assets/icons/projects.svg?react';
+import EpicsIcon from '../assets/icons/epics.svg?react';
+import TasksIcon from '../assets/icons/tasks.svg?react';
+import MembersIcon from '../assets/icons/members.svg?react';
+import DetailsIcon from '../assets/icons/details.svg?react';
 
 export type MenuItem = {
   path: string;
   label: string;
-  Icon: React.ComponentType<{ className?: string; color?: string }>;
+  Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
 };
 
 export const menuItems: MenuItem[] = [

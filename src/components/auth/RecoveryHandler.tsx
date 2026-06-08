@@ -1,6 +1,9 @@
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function RecoveryHandler() {
+  const navigate = useNavigate();
+
   useEffect(() => {
     if (window.location.hash) {
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
@@ -8,13 +11,13 @@ export default function RecoveryHandler() {
       const accessToken = hashParams.get('access_token');
 
       if (type === 'recovery' && accessToken) {
-        // Clear the hash from the browser address bar
-        window.history.replaceState(null, '', window.location.pathname);
-        // redirect to the reset-password page with query parameter
-        window.location.href = `/reset-password?access_token=${accessToken}`;
+        // Navigate to reset-password page
+        navigate(`/reset-password?access_token=${accessToken}`, {
+          replace: true,
+        });
       }
     }
-  }, []);
+  }, [navigate]);
 
   return null;
 }

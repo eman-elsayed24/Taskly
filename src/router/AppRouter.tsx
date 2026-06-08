@@ -17,10 +17,12 @@ import ProjectEpics from '../pages/dashboard/ProjectEpics';
 import ProjectTasks from '../pages/dashboard/ProjectTasks';
 import ProjectMembers from '../pages/dashboard/ProjectMembers';
 import ProjectDetails from '../pages/dashboard/ProjectDetails';
+import RecoveryHandler from '../components/auth/RecoveryHandler';
 
 function AppRouter() {
   return (
     <Router>
+      <RecoveryHandler />
       <Routes>
         {/* Root redirects to login */}
         <Route path="/" element={<Navigate to="/login" replace />} />

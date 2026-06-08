@@ -1,11 +1,9 @@
 import AppRouter from './router/AppRouter';
 import { Toaster } from 'react-hot-toast';
-import RecoveryHandler from './components/auth/RecoveryHandler';
 
 function App() {
   return (
     <>
-      <RecoveryHandler />
       <AppRouter />
       <Toaster
         position="bottom-right"
