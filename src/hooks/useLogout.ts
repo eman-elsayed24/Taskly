@@ -3,6 +3,7 @@ import toast from 'react-hot-toast';
 import { logout as logoutAction } from '../redux/slices/userSlice';
 import { logoutUser } from '../api/authApi';
 import { useAppDispatch } from '../redux/hooks';
+import { ROUTES } from '../constants/routes';
 
 export function useLogout() {
   const dispatch = useAppDispatch();
@@ -13,7 +14,7 @@ export function useLogout() {
       await logoutUser();
       dispatch(logoutAction());
       toast.success('Logged out successfully');
-      navigate('/login');
+      navigate(ROUTES.LOGIN);
     } catch (error) {
       toast.error('Logout failed, please try again.');
       throw error;

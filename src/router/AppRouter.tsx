@@ -18,48 +18,38 @@ import ProjectTasks from '../pages/dashboard/ProjectTasks';
 import ProjectMembers from '../pages/dashboard/ProjectMembers';
 import ProjectDetails from '../pages/dashboard/ProjectDetails';
 import RecoveryHandler from '../components/auth/RecoveryHandler';
+import { ROUTES } from '../constants/routes';
 
 function AppRouter() {
   return (
     <Router>
       <RecoveryHandler />
       <Routes>
-        {/* Root redirects to login */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route
+          path={ROUTES.ROOT}
+          element={<Navigate to={ROUTES.LOGIN} replace />}
+        />
 
-        {/* Auth Routes - Protected from logged-in users */}
         <Route element={<PublicRoute />}>
           <Route element={<AuthLayout />}>
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path={ROUTES.LOGIN} element={<Login />} />
+            <Route path={ROUTES.SIGNUP} element={<Signup />} />
+            <Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPassword />} />
+            <Route path={ROUTES.RESET_PASSWORD} element={<ResetPassword />} />
           </Route>
         </Route>
 
-        {/* Protected Routes */}
         <Route element={<ProtectedRoute />}>
           <Route element={<DashboardLayout />}>
-            <Route
-              path="/dashboard"
-              element={<Navigate to="/dashboard/projects" replace />}
-            />
-            <Route path="/dashboard/projects" element={<Projects />} />
-            <Route path="/dashboard/project-epics" element={<ProjectEpics />} />
-            <Route path="/dashboard/project-tasks" element={<ProjectTasks />} />
-            <Route
-              path="/dashboard/project-members"
-              element={<ProjectMembers />}
-            />
-            <Route
-              path="/dashboard/project-details"
-              element={<ProjectDetails />}
-            />
+            <Route path={ROUTES.PROJECTS} element={<Projects />} />
+            <Route path={ROUTES.PROJECT_EPICS} element={<ProjectEpics />} />
+            <Route path={ROUTES.PROJECT_TASKS} element={<ProjectTasks />} />
+            <Route path={ROUTES.PROJECT_MEMBERS} element={<ProjectMembers />} />
+            <Route path={ROUTES.PROJECT_DETAILS} element={<ProjectDetails />} />
           </Route>
         </Route>
 
-        {/* 404 */}
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to={ROUTES.LOGIN} replace />} />
       </Routes>
     </Router>
   );

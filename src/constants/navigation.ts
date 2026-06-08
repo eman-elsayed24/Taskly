@@ -3,6 +3,7 @@ import EpicsIcon from '../assets/icons/epics.svg?react';
 import TasksIcon from '../assets/icons/tasks.svg?react';
 import MembersIcon from '../assets/icons/members.svg?react';
 import DetailsIcon from '../assets/icons/details.svg?react';
+import { ROUTES } from './routes';
 
 export type MenuItem = {
   path: string;
@@ -12,27 +13,27 @@ export type MenuItem = {
 
 export const menuItems: MenuItem[] = [
   {
-    path: '/dashboard/projects',
+    path: ROUTES.PROJECTS,
     label: 'Projects',
     Icon: ProjectsIcon,
   },
   {
-    path: '/dashboard/project-epics',
+    path: ROUTES.PROJECT_EPICS,
     label: 'Project Epics',
     Icon: EpicsIcon,
   },
   {
-    path: '/dashboard/project-tasks',
+    path: ROUTES.PROJECT_TASKS,
     label: 'Project Tasks',
     Icon: TasksIcon,
   },
   {
-    path: '/dashboard/project-members',
+    path: ROUTES.PROJECT_MEMBERS,
     label: 'Project Members',
     Icon: MembersIcon,
   },
   {
-    path: '/dashboard/project-details',
+    path: ROUTES.PROJECT_DETAILS,
     label: 'Project Details',
     Icon: DetailsIcon,
   },

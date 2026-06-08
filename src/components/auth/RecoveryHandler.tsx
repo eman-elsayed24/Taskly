@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '../../constants/routes';
 
 export default function RecoveryHandler() {
   const navigate = useNavigate();
@@ -11,8 +12,7 @@ export default function RecoveryHandler() {
       const accessToken = hashParams.get('access_token');
 
       if (type === 'recovery' && accessToken) {
-        // Navigate to reset-password page
-        navigate(`/reset-password?access_token=${accessToken}`, {
+        navigate(`${ROUTES.RESET_PASSWORD}?access_token=${accessToken}`, {
           replace: true,
         });
       }

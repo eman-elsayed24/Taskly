@@ -9,6 +9,7 @@ import PasswordRequirements from '../../components/auth/PasswordRequirements';
 import { resetPasswordSchema } from '../../lib/validations/resetPasswordSchema';
 import type { ResetPasswordFormData } from '../../lib/validations/resetPasswordSchema';
 import { updatePassword } from '../../api/authApi';
+import { ROUTES } from '../../constants/routes';
 
 function ResetPassword() {
   const navigate = useNavigate();
@@ -68,7 +69,7 @@ function ResetPassword() {
   useEffect(() => {
     if (successMessage) {
       const timer = setTimeout(() => {
-        navigate('/login', { replace: true });
+        navigate(ROUTES.LOGIN, { replace: true });
       }, 3000);
       return () => clearTimeout(timer);
     }
@@ -147,13 +148,13 @@ function ResetPassword() {
             type="button"
             variant="primary"
             fullWidth
-            onClick={() => navigate('/forgot-password')}
+            onClick={() => navigate(ROUTES.FORGOT_PASSWORD)}
           >
             Request New Link
           </Button>
           <button
             type="button"
-            onClick={() => navigate('/login')}
+            onClick={() => navigate(ROUTES.LOGIN)}
             className="w-full text-body-md text-slate-medium hover:text-slate-dark transition-colors"
           >
             Back to Login

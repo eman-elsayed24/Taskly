@@ -10,6 +10,7 @@ import type { LoginFormData } from '../../lib/validations/loginSchema';
 import { loginUser } from '../../api/authApi';
 import { storeTokens } from '../../lib/cookies';
 import mailIcon from '../../assets/icons/mail.svg';
+import { ROUTES } from '../../constants/routes';
 
 function Login() {
   const [isLoading, setIsLoading] = useState(false);
@@ -41,7 +42,7 @@ function Login() {
       );
 
       toast.success('Welcome back!');
-      navigate('/dashboard/projects');
+      navigate(ROUTES.PROJECTS);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Login failed');
     } finally {
@@ -98,7 +99,7 @@ function Login() {
           </label>
 
           <Link
-            to="/forgot-password"
+            to={ROUTES.FORGOT_PASSWORD}
             className="text-body-md text-primary font-medium hover:underline"
           >
             <span className="md:hidden">Forgot?</span>
@@ -117,7 +118,7 @@ function Login() {
         <p className="text-body-md text-slate-medium">
           Don't have an account?{' '}
           <Link
-            to="/signup"
+            to={ROUTES.SIGNUP}
             className="text-primary font-medium hover:underline"
           >
             Sign Up

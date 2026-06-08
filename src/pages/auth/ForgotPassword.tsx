@@ -12,6 +12,7 @@ import BackArrowIcon from '../../assets/icons/backarrow.svg';
 import TimerIcon from '../../assets/icons/timer.svg';
 import CheckIcon from '../../assets/icons/check.svg';
 import ReloadIcon from '../../assets/icons/reload.svg';
+import { ROUTES } from '../../constants/routes';
 
 function ForgotPassword() {
   const [isLoading, setIsLoading] = useState(false);
@@ -118,7 +119,7 @@ function ForgotPassword() {
       {/* Back to Login Link */}
       <div className="text-center mt-6">
         <Link
-          to="/login"
+          to={ROUTES.LOGIN}
           className="inline-flex items-center gap-2 text-body-lg text-primary font-medium hover:underline"
         >
           <img src={BackArrowIcon} alt="" className="w-4 h-4" />

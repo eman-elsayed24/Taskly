@@ -10,6 +10,7 @@ import { signupSchema } from '../../lib/validations/signupSchema';
 import type { SignupFormData } from '../../lib/validations/signupSchema';
 import { signupUser } from '../../api/authApi';
 import { storeTokens } from '../../lib/cookies';
+import { ROUTES } from '../../constants/routes';
 
 function Signup() {
   const [isLoading, setIsLoading] = useState(false);
@@ -44,7 +45,7 @@ function Signup() {
       });
 
       toast.success('Account created successfully!');
-      navigate('/dashboard/projects');
+      navigate(ROUTES.PROJECTS);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Signup failed');
     } finally {
@@ -129,7 +130,7 @@ function Signup() {
         <p className="text-body-md text-slate-medium">
           Already have an account?{' '}
           <Link
-            to="/login"
+            to={ROUTES.LOGIN}
             className="text-primary font-medium hover:underline"
           >
             Log in
