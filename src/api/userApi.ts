@@ -6,7 +6,7 @@ type SupabaseUser = {
   email: string;
   user_metadata?: {
     name?: string;
-    job_title?: string;
+    jobTitle?: string;
   };
 };
 
@@ -20,6 +20,6 @@ export async function getCurrentUser(): Promise<User> {
     id: data.id,
     email: data.email,
     name: data.user_metadata?.name,
-    jobTitle: data.user_metadata?.job_title,
+    jobTitle: data.user_metadata?.jobTitle,
   };
 }
