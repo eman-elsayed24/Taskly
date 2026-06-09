@@ -3,7 +3,7 @@ import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import Input from '../../components/ui/input';
+import FormField from '../../components/ui/FormField';
 import Button from '../../components/ui/button';
 import PasswordRequirements from '../../components/auth/PasswordRequirements';
 import { signupSchema } from '../../lib/validations/signupSchema';
@@ -16,12 +16,7 @@ function Signup() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const {
-    register,
-    handleSubmit,
-    control,
-    formState: { errors },
-  } = useForm<SignupFormData>({
+  const { control, handleSubmit } = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
     mode: 'onChange',
   });
@@ -68,51 +63,52 @@ function Signup() {
       {/* Form */}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Name Field */}
-        <Input
+        <FormField
+          control={control}
+          name="name"
           label="NAME"
           type="text"
           placeholder="Enter your full name"
-          error={errors.name?.message}
           helperText="3-50 characters, letters only."
-          {...register('name')}
         />
 
         {/* Email Field */}
-        <Input
+        <FormField
+          control={control}
+          name="email"
           label="EMAIL"
           type="email"
           placeholder="yourname@company.com"
-          error={errors.email?.message}
-          {...register('email')}
         />
 
         {/* Job Title Field (Optional) */}
-        <Input
+        <FormField
+          control={control}
+          name="jobTitle"
           label="JOB TITLE (OPTIONAL)"
           type="text"
           placeholder="e.g. Project Manager"
-          {...register('jobTitle')}
         />
 
         {/* Password Fields */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Password */}
-          <Input
+          <FormField
+            control={control}
+            name="password"
             label="PASSWORD"
             type="password"
             placeholder="Password"
-            error={errors.password?.message}
-            {...register('password')}
           />
 
           {/* Confirm Password - No toggle icon */}
-          <Input
+          <FormField
+            control={control}
+            name="confirmPassword"
             label="CONFIRM PASSWORD"
             type="password"
             placeholder="Repeat your password"
-            error={errors.confirmPassword?.message}
             showPasswordToggle={false}
-            {...register('confirmPassword')}
           />
         </div>
 

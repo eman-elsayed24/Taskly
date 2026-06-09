@@ -30,7 +30,7 @@ export default function Sidebar() {
         />
       )}
 
-      <div className="fixed top-5 left-4 flex gap-4 lg:hidden p-2  ">
+      <div className="fixed top-5 left-4 flex gap-4 lg:hidden p-2 ">
         <button
           onClick={() => setIsMobileOpen(!isMobileOpen)}
           aria-label="Toggle menu"
@@ -44,14 +44,14 @@ export default function Sidebar() {
 
       <aside
         className={`
-          fixed lg:relative top-0 h-screen bg-primary-light z-40 
+          fixed top-0 left-0 h-screen bg-primary-light z-40 
           transition-all duration-300 ease-in-out
           ${isExpanded ? 'w-64' : 'w-20'}
           ${isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
       >
-        <div className="flex flex-col h-full">
-          <div className="h-16 flex items-center px-6">
+        <div className="flex flex-col h-full overflow-hidden">
+          <div className="h-16 flex items-center px-6 shrink-0">
             {isExpanded ? (
               <Logo />
             ) : (
@@ -94,10 +94,10 @@ export default function Sidebar() {
             })}
           </nav>
 
-          <div className="p-3 pt-4 space-y-2 border-t border-slate-light/30">
+          <div className="p-3 pt-4 space-y-2 border-t border-slate-light/30 shrink-0">
             <button
               onClick={() => setIsExpanded(!isExpanded)}
-              className={`hidden lg:flex items-center gap-4 w-full px-4 py-3 text-slate-medium hover:bg-surface-low rounded-md transition-colors cursor-pointer `}
+              className="hidden lg:flex items-center gap-4 w-full px-4 py-3 text-slate-medium hover:bg-surface-low rounded-md transition-colors cursor-pointer"
             >
               <ArrowIcon
                 className={`shrink-0 w-5 h-5 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
@@ -109,7 +109,7 @@ export default function Sidebar() {
 
             <button
               onClick={handleLogout}
-              className={`flex items-center gap-4 w-full px-4 py-3 text-error hover:bg-error-low rounded-md transition-colors cursor-pointer `}
+              className="flex items-center gap-4 w-full px-4 py-3 text-error hover:bg-error-low rounded-md transition-colors cursor-pointer"
             >
               <LogoutIcon className="shrink-0 w-5 h-5" />
               {isExpanded && (

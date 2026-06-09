@@ -1,10 +1,10 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { isAuthenticated } from '../lib/cookies';
+import { ROUTES } from '../constants/routes';
 
 function PublicRoute() {
-  // If user has valid token, redirect to dashboard
   if (isAuthenticated()) {
-    return <Navigate to="/dashboard/projects" replace />;
+    return <Navigate to={ROUTES.PROJECTS} replace />;
   }
 
   return <Outlet />;

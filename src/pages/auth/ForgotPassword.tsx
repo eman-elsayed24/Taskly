@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import Input from '../../components/ui/input';
+import FormField from '../../components/ui/FormField';
 import Button from '../../components/ui/button';
 import { forgotPasswordSchema } from '../../lib/validations/forgotPasswordSchema';
 import type { ForgotPasswordFormData } from '../../lib/validations/forgotPasswordSchema';
@@ -20,11 +20,7 @@ function ForgotPassword() {
   const [remainingTime, setRemainingTime] = useState(0);
   const [trialsLeft, setTrialsLeft] = useState(3);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<ForgotPasswordFormData>({
+  const { control, handleSubmit } = useForm<ForgotPasswordFormData>({
     resolver: zodResolver(forgotPasswordSchema),
   });
 
@@ -97,12 +93,12 @@ function ForgotPassword() {
       {/* Form */}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Email Field */}
-        <Input
+        <FormField
+          control={control}
+          name="email"
           label="EMAIL ADDRESS"
           type="email"
           placeholder="Enter your email"
-          error={errors.email?.message}
-          {...register('email')}
         />
 
         {/* Submit Button */}

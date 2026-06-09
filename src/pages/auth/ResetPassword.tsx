@@ -3,7 +3,7 @@ import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import Input from '../../components/ui/input';
+import FormField from '../../components/ui/FormField';
 import Button from '../../components/ui/button';
 import PasswordRequirements from '../../components/auth/PasswordRequirements';
 import { resetPasswordSchema } from '../../lib/validations/resetPasswordSchema';
@@ -20,12 +20,7 @@ function ResetPassword() {
   const [isVerifying, setIsVerifying] = useState(true);
   const [verificationError, setVerificationError] = useState('');
 
-  const {
-    register,
-    handleSubmit,
-    control,
-    formState: { errors },
-  } = useForm<ResetPasswordFormData>({
+  const { control, handleSubmit } = useForm<ResetPasswordFormData>({
     resolver: zodResolver(resetPasswordSchema),
     mode: 'onChange',
   });
@@ -181,22 +176,22 @@ function ResetPassword() {
         {/* Password Fields */}
         <div className="space-y-4">
           {/* New Password */}
-          <Input
+          <FormField
+            control={control}
+            name="password"
             label="NEW PASSWORD"
             type="password"
             placeholder="Enter new password"
-            error={errors.password?.message}
-            {...register('password')}
           />
 
           {/* Confirm Password */}
-          <Input
+          <FormField
+            control={control}
+            name="confirmPassword"
             label="CONFIRM PASSWORD"
             type="password"
             placeholder="Confirm new password"
-            error={errors.confirmPassword?.message}
             showPasswordToggle={false}
-            {...register('confirmPassword')}
           />
         </div>
 

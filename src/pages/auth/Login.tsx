@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import Input from '../../components/ui/input';
+import FormField from '../../components/ui/FormField';
 import Button from '../../components/ui/button';
 import { loginSchema } from '../../lib/validations/loginSchema';
 import type { LoginFormData } from '../../lib/validations/loginSchema';
@@ -16,11 +16,7 @@ function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<LoginFormData>({
+  const { control, handleSubmit, register } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
 
@@ -64,27 +60,26 @@ function Login() {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Email Field */}
         <div className="relative">
-          {/* Mail icon - Mobile only, on the right */}
           <div className="absolute right-4 top-[38px] md:hidden pointer-events-none z-10">
             <img src={mailIcon} alt="" className="w-5 h-5" />
           </div>
-          <Input
+          <FormField
+            control={control}
+            name="email"
             label="EMAIL"
             type="email"
             placeholder="yourname@company.com"
-            error={errors.email?.message}
             className="md:pr-4 pr-12"
-            {...register('email')}
           />
         </div>
 
         {/* Password Field */}
-        <Input
+        <FormField
+          control={control}
+          name="password"
           label="PASSWORD"
           type="password"
           placeholder="Enter your password"
-          error={errors.password?.message}
-          {...register('password')}
         />
 
         {/* Remember Me & Forgot Password */}

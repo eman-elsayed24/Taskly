@@ -13,6 +13,7 @@ import PublicRoute from './PublicRoute';
 import AuthLayout from '../components/auth/AuthLayout';
 import DashboardLayout from '../components/dashboard/layout/DashboardLayout';
 import Projects from '../pages/dashboard/Projects';
+import AddProject from '../pages/dashboard/AddProject';
 import ProjectEpics from '../pages/dashboard/ProjectEpics';
 import ProjectTasks from '../pages/dashboard/ProjectTasks';
 import ProjectMembers from '../pages/dashboard/ProjectMembers';
@@ -42,6 +43,7 @@ function AppRouter() {
         <Route element={<ProtectedRoute />}>
           <Route element={<DashboardLayout />}>
             <Route path={ROUTES.PROJECTS} element={<Projects />} />
+            <Route path={ROUTES.ADD_PROJECT} element={<AddProject />} />
             <Route path={ROUTES.PROJECT_EPICS} element={<ProjectEpics />} />
             <Route path={ROUTES.PROJECT_TASKS} element={<ProjectTasks />} />
             <Route path={ROUTES.PROJECT_MEMBERS} element={<ProjectMembers />} />
