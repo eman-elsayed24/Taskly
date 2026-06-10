@@ -44,7 +44,7 @@ export default function Sidebar() {
 
       <aside
         className={`
-          fixed top-0 left-0 h-screen bg-primary-light z-40 
+          fixed lg:sticky top-0 left-0 h-screen bg-primary-light z-40 
           transition-all duration-300 ease-in-out
           ${isExpanded ? 'w-64' : 'w-20'}
           ${isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}

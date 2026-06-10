@@ -38,7 +38,7 @@ export default function Navbar() {
   }, [isDropdownOpen]);
 
   return (
-    <nav className="bg-white border-b border-slate-light h-16 flex items-center justify-end px-4 md:px-6">
+    <nav className=" border-b border-slate-light h-16 flex items-center justify-end px-4 md:px-6">
       <div className="relative" ref={dropdownRef}>
         <button
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}

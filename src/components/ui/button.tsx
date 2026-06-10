@@ -35,7 +35,7 @@ export default function Button({
         ${variantStyles[variant]}
  
         ${fullWidth ? 'w-full' : ''}
-        font-semibold text-[16px]  py-3 rounded-sm cursor-pointer transition-all duration-200
+        font-semibold text-[16px] px-5 py-3 rounded-sm cursor-pointer transition-all duration-200
         disabled:opacity-50 disabled:cursor-not-allowed
         ${className}
       `}

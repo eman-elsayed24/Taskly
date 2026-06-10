@@ -1,4 +1,4 @@
-import type { CreateProjectRequest } from '../types/project';
+import type { CreateProjectRequest, Project } from '../types/project';
 import { apiFetch } from '../lib/apiFetch';
 
 export async function createProject(data: CreateProjectRequest): Promise<void> {
@@ -10,4 +10,12 @@ export async function createProject(data: CreateProjectRequest): Promise<void> {
     },
     includeAuth: true,
   });
+}
+
+export async function getProjects(): Promise<Project[]> {
+  const response = await apiFetch('/rest/v1/rpc/get_projects', {
+    method: 'GET',
+    includeAuth: true,
+  });
+  return response as Project[];
 }

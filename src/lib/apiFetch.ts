@@ -8,6 +8,8 @@ type FetchOptions = {
   includeAuth?: boolean;
 };
 
+let isRefreshing = false;
+
 export async function apiFetch<T>(
   endpoint: string,
   options: FetchOptions
@@ -15,19 +17,25 @@ export async function apiFetch<T>(
   const makeRequest = async (
     includeAuth: boolean = options.includeAuth || false
   ) => {
-    return fetch(getApiUrl(endpoint), {
-      method: options.method,
-      headers: getHeaders(includeAuth),
-      body: options.body ? JSON.stringify(options.body) : undefined,
-    });
+    try {
+      return await fetch(getApiUrl(endpoint), {
+        method: options.method,
+        headers: getHeaders(includeAuth),
+        body: options.body ? JSON.stringify(options.body) : undefined,
+      });
+    } catch (error) {
+      // Network error 
+      throw new Error('Network error. Please check your connection.');
+    }
   };
 
   let response = await makeRequest(options.includeAuth);
 
-  // If 401 or 403 (Unauthorized/Forbidden), try to refresh token
+  // If 401 or 403 (Unauthorized/Forbidden), try to refresh token ONCE
   if (
     (response.status === 401 || response.status === 403) &&
-    options.includeAuth
+    options.includeAuth &&
+    !isRefreshing
   ) {
     const refreshToken = getRefreshToken();
 
@@ -37,7 +45,7 @@ export async function apiFetch<T>(
     }
 
     try {
-      // Refresh the token
+      isRefreshing = true;
       const newTokens = await refreshAccessToken(refreshToken);
 
       storeTokens({
@@ -49,7 +57,10 @@ export async function apiFetch<T>(
       response = await makeRequest(true);
     } catch (err) {
       clearTokens();
+      isRefreshing = false;
       throw new Error('SESSION_EXPIRED', { cause: err });
+    } finally {
+      isRefreshing = false;
     }
   }
 
