@@ -44,10 +44,22 @@ function AppRouter() {
           <Route element={<DashboardLayout />}>
             <Route path={ROUTES.PROJECTS} element={<Projects />} />
             <Route path={ROUTES.ADD_PROJECT} element={<AddProject />} />
-            <Route path={ROUTES.PROJECT_EPICS} element={<ProjectEpics />} />
-            <Route path={ROUTES.PROJECT_TASKS} element={<ProjectTasks />} />
-            <Route path={ROUTES.PROJECT_MEMBERS} element={<ProjectMembers />} />
-            <Route path={ROUTES.PROJECT_DETAILS} element={<ProjectDetails />} />
+            <Route
+              path={ROUTES.PROJECT_EPICS_PATTERN}
+              element={<ProjectEpics />}
+            />
+            <Route
+              path={ROUTES.PROJECT_TASKS_PATTERN}
+              element={<ProjectTasks />}
+            />
+            <Route
+              path={ROUTES.PROJECT_MEMBERS_PATTERN}
+              element={<ProjectMembers />}
+            />
+            <Route
+              path={ROUTES.PROJECT_DETAILS_PATTERN}
+              element={<ProjectDetails />}
+            />
           </Route>
         </Route>
 

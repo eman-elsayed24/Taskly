@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../../constants/routes';
 import type { Project } from '../../types/project';
 import EventIcon from '../../assets/icons/event.svg';
+import DetailsIcon from '../../assets/icons/details.svg?react';
 
 interface ProjectCardProps {
   project: Project;
@@ -19,16 +20,32 @@ export default function ProjectCard({ project }: ProjectCardProps) {
     });
   };
 
+  const handleCardClick = () => {
+    navigate(ROUTES.PROJECT_DETAILS(project.id));
+  };
+
+  const handleEditClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigate(ROUTES.PROJECT_DETAILS(project.id));
+  };
+
   return (
     <div
-      onClick={() => navigate(`${ROUTES.PROJECTS}/${project.id}`)}
+      onClick={handleCardClick}
       className="cursor-pointer flex flex-col gap-6 md:gap-6 min-h-[212px] md:min-h-[220px] bg-white p-4 pb-6 md:p-6 justify-between rounded-md hover:shadow-sm transition-shadow"
     >
       <div className="flex flex-col gap-6 md:gap-2">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-start gap-2">
           <p className="font-semibold text-lg leading-[24.75px] md:leading-7 md:font-medium text-slate-dark">
             {project.name}
           </p>
+          <button
+            onClick={handleEditClick}
+            className="shrink-0 p-1.5 hover:bg-surface-high rounded transition-colors"
+            aria-label="Edit project"
+          >
+            <DetailsIcon className="w-4 h-4 text-slate-medium" />
+          </button>
         </div>
         <p className="text-sm leading-[22.75px] text-slate-medium line-clamp-3">
           {project.description || 'No description provided'}

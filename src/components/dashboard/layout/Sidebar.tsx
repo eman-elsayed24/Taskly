@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { useState, useMemo } from 'react';
+import { NavLink, useParams, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import Logo from '../../ui/logo';
 import { useLogout } from '../../../hooks/useLogout';
@@ -7,11 +7,44 @@ import ArrowIcon from '../../../assets/icons/arrow.svg?react';
 import LogoutIcon from '../../../assets/icons/logout.svg?react';
 import MenuIcon from '../../../assets/icons/menu.svg?react';
 import { menuItems } from '../../../constants/navigation';
+import { ROUTES } from '../../../constants/routes';
 
 export default function Sidebar() {
   const [isExpanded, setIsExpanded] = useState(true);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const { logout } = useLogout();
+  const { projectId } = useParams<{ projectId: string }>();
+  const location = useLocation();
+
+  // Check if we're in a project context
+  const isInProject = useMemo(() => {
+    return location.pathname.includes('/project/') && projectId;
+  }, [location.pathname, projectId]);
+
+  // Generate menu items based on context
+  const visibleMenuItems = useMemo(() => {
+    if (!isInProject) {
+      // Only show Projects link when not in a project
+      return menuItems.filter(item => item.path === ROUTES.PROJECTS);
+    }
+
+    // Show all menu items with proper paths when in a project
+    return menuItems.map(item => {
+      if (item.path === ROUTES.PROJECTS) {
+        return item;
+      }
+
+      // Replace function routes with actual paths
+      if (typeof item.path === 'function' && projectId) {
+        return {
+          ...item,
+          path: item.path(projectId),
+        };
+      }
+
+      return item;
+    });
+  }, [isInProject, projectId]);
 
   const handleLogout = async () => {
     try {
@@ -60,12 +93,16 @@ export default function Sidebar() {
           </div>
 
           <nav className="flex-1 py-6 px-3 ">
-            {menuItems.map(item => {
+            {visibleMenuItems.map((item, index) => {
               const Icon = item.Icon;
+              const itemPath =
+                typeof item.path === 'string' ? item.path : String(item.path);
+
               return (
                 <NavLink
-                  key={item.path}
-                  to={item.path}
+                  key={`${itemPath}-${index}`}
+                  to={itemPath}
+                  end
                   onClick={() => setIsMobileOpen(false)}
                 >
                   {({ isActive }) => (

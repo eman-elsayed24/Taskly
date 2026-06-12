@@ -6,7 +6,7 @@ import DetailsIcon from '../assets/icons/details.svg?react';
 import { ROUTES } from './routes';
 
 export type MenuItem = {
-  path: string;
+  path: string | ((projectId: string) => string);
   label: string;
   Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
 };
