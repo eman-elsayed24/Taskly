@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import Button from '../../components/ui/button';
 
-import ProjectCard from '../../components/projects/ProjectCard';
-import ProjectCardSkeleton from '../../components/projects/ProjectCardSkeleton';
+import ProjectCard from '../../components/dashboard/projects/ProjectCard';
+import ProjectCardSkeleton from '../../components/dashboard/projects/ProjectCardSkeleton';
 import ErrorState from '../../components/ui/ErrorState';
 import { ROUTES } from '../../constants/routes';
 import { getProjects } from '../../api/projectApi';

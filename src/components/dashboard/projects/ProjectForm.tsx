@@ -1,14 +1,14 @@
 import { useForm, useController } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link } from 'react-router-dom';
-import FormField from '../ui/FormField';
-import Button from '../ui/button';
-import { projectSchema } from '../../lib/validations/projectSchema';
-import type { ProjectFormData } from '../../lib/validations/projectSchema';
-import { ROUTES } from '../../constants/routes';
-import ProjectInitIcon from '../../assets/icons/project-init.svg';
-import PersonAddIcon from '../../assets/icons/person-add.svg';
-import LightbulbIcon from '../../assets/icons/lightbulb.svg';
+import FormField from '../../ui/FormField';
+import Button from '../../ui/button';
+import { projectSchema } from '../../../lib/validations/projectSchema';
+import type { ProjectFormData } from '../../../lib/validations/projectSchema';
+import { ROUTES } from '../../../constants/routes';
+import ProjectInitIcon from '../../../assets/icons/project-init.svg';
+import PersonAddIcon from '../../../assets/icons/person-add.svg';
+import LightbulbIcon from '../../../assets/icons/lightbulb.svg';
 
 interface ProjectFormProps {
   mode: 'create' | 'edit';

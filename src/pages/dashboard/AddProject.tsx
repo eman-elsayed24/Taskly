@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import ProjectForm from '../../components/projects/ProjectForm';
+import ProjectForm from '../../components/dashboard/projects/ProjectForm';
 import type { ProjectFormData } from '../../lib/validations/projectSchema';
 import { createProject } from '../../api/projectApi';
 import { ROUTES } from '../../constants/routes';

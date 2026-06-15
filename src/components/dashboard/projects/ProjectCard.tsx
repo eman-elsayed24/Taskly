@@ -1,8 +1,8 @@
 import { useNavigate } from 'react-router-dom';
-import { ROUTES } from '../../constants/routes';
-import type { Project } from '../../types/project';
-import EventIcon from '../../assets/icons/event.svg';
-import DetailsIcon from '../../assets/icons/details.svg?react';
+import { ROUTES } from '../../../constants/routes';
+import type { Project } from '../../../types/project';
+import EventIcon from '../../../assets/icons/event.svg';
+import DetailsIcon from '../../../assets/icons/details.svg?react';
 
 interface ProjectCardProps {
   project: Project;
