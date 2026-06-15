@@ -144,8 +144,9 @@ export default function ProjectEpics() {
             variant="primary"
             className="flex items-center gap-2"
             onClick={() => {
-              // Navigate to create epic page when implemented
-              toast.success('Create Epic feature coming soon');
+              if (projectId) {
+                navigate(ROUTES.ADD_EPIC(projectId));
+              }
             }}
           >
             <PlusCircleIcon className="w-5 h-5" />
@@ -215,8 +216,9 @@ export default function ProjectEpics() {
             variant="primary"
             className="flex items-center gap-2 w-full sm:w-auto"
             onClick={() => {
-              // Navigate to create epic page when implemented
-              toast.success('Create Epic feature coming soon');
+              if (projectId) {
+                navigate(ROUTES.ADD_EPIC(projectId));
+              }
             }}
           >
             <span className="text-xl leading-none">+</span>
