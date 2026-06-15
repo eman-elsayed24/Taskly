@@ -223,7 +223,7 @@ export default function ProjectMembers() {
 
       {/* Mobile Cards */}
       <div className="sm:hidden space-y-4">
-        {members.map((member, index) => {
+        {members.map(member => {
           const memberName = getMemberName(member);
           const memberEmail = getMemberEmail(member);
           const initials = getInitials(memberName);
@@ -231,16 +231,16 @@ export default function ProjectMembers() {
 
           return (
             <div
-              key={`${member.user_id}-${index}`}
-              className="bg-white rounded-md p-4 flex items-center justify-between gap-3"
+              key={`${member.user_id}`}
+              className="bg-white rounded-md p-4 flex items-center gap-3 overflow-hidden"
             >
-              <div className="flex items-center gap-3 min-w-0 max-w-[60%]">
+              <div className="flex items-center gap-3 min-w-0 flex-1 overflow-hidden">
                 <div
                   className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm shrink-0 ${avatarColor}`}
                 >
                   {initials}
                 </div>
-                <div className="flex flex-col min-w-0">
+                <div className="flex flex-col min-w-0 flex-1 overflow-hidden">
                   <p className="text-body-md font-semibold text-slate-dark truncate">
                     {memberName}
                   </p>
