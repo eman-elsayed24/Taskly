@@ -4,10 +4,13 @@ import toast from 'react-hot-toast';
 import Button from '../../components/ui/button';
 import Breadcrumb from '../../components/ui/Breadcrumb';
 import ErrorState from '../../components/ui/ErrorState';
+import Pagination from '../../components/ui/Pagination';
+import InfiniteScrollLoader from '../../components/ui/InfiniteScrollLoader';
 import EpicCard from '../../components/dashboard/epics/EpicCard';
 import EpicCardSkeleton from '../../components/dashboard/epics/EpicCardSkeleton';
 import { getProjectEpics } from '../../api/epicApi';
 import { getProjectById } from '../../api/projectApi';
+import { useInfiniteScroll } from '../../hooks/useInfiniteScroll';
 import type { Epic } from '../../types/epic';
 import type { Project } from '../../types/project';
 import { ROUTES } from '../../constants/routes';
@@ -20,11 +23,34 @@ import SearchIcon from '../../assets/icons/search.svg?react';
 
 export default function ProjectEpics() {
   const { projectId } = useParams<{ projectId: string }>();
-  const [epics, setEpics] = useState<Epic[]>([]);
+  const [initialEpics, setInitialEpics] = useState<Epic[]>([]);
   const [project, setProject] = useState<Project | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const pageSize = 10;
 
+  const totalPages = Math.ceil(totalCount / pageSize);
+
+  // Infinite scroll hook for mobile
+  const {
+    items: displayedEpics,
+    loading: isLoadingMore,
+    hasMore,
+    observerTarget,
+  } = useInfiniteScroll({
+    initialItems: initialEpics,
+    totalCount: totalCount,
+    pageSize,
+    fetchMore: async (offset, limit) => {
+      if (!projectId) throw new Error('No project ID');
+      const response = await getProjectEpics(projectId, limit, offset);
+      return { data: response.data, totalCount: response.totalCount };
+    },
+  });
+
+  // Load initial data when projectId changes
   useEffect(() => {
     if (!projectId) return;
 
@@ -34,14 +60,16 @@ export default function ProjectEpics() {
       try {
         setIsLoading(true);
         setHasError(false);
-        const [projectData, epicsData] = await Promise.all([
+        setCurrentPage(1);
+        const [projectData, epicsResponse] = await Promise.all([
           getProjectById(projectId),
-          getProjectEpics(projectId),
+          getProjectEpics(projectId, pageSize, 0),
         ]);
 
         if (isMounted) {
           setProject(projectData);
-          setEpics(epicsData);
+          setInitialEpics(epicsResponse.data);
+          setTotalCount(epicsResponse.totalCount);
           setIsLoading(false);
         }
       } catch (error) {
@@ -62,16 +90,61 @@ export default function ProjectEpics() {
     };
   }, [projectId]);
 
+  // Load page when currentPage changes (desktop pagination only)
+  useEffect(() => {
+    if (!projectId || currentPage === 1) return;
+
+    let isMounted = true;
+
+    const loadPage = async () => {
+      try {
+        setIsLoading(true);
+        setHasError(false);
+        const offset = (currentPage - 1) * pageSize;
+        const epicsResponse = await getProjectEpics(
+          projectId,
+          pageSize,
+          offset
+        );
+
+        if (isMounted) {
+          setInitialEpics(epicsResponse.data);
+          setTotalCount(epicsResponse.totalCount);
+          setIsLoading(false);
+        }
+      } catch (error) {
+        if (isMounted) {
+          setHasError(true);
+          setIsLoading(false);
+          toast.error(
+            error instanceof Error ? error.message : 'Failed to load epics'
+          );
+        }
+      }
+    };
+
+    loadPage();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [projectId, currentPage]);
+
   const handleRetry = () => {
     if (!projectId) return;
 
     setIsLoading(true);
     setHasError(false);
+    const offset = (currentPage - 1) * pageSize;
 
-    Promise.all([getProjectById(projectId), getProjectEpics(projectId)])
-      .then(([projectData, epicsData]) => {
+    Promise.all([
+      getProjectById(projectId),
+      getProjectEpics(projectId, pageSize, offset),
+    ])
+      .then(([projectData, epicsResponse]) => {
         setProject(projectData);
-        setEpics(epicsData);
+        setInitialEpics(epicsResponse.data);
+        setTotalCount(epicsResponse.totalCount);
         setIsLoading(false);
       })
       .catch(error => {
@@ -81,6 +154,11 @@ export default function ProjectEpics() {
           error instanceof Error ? error.message : 'Failed to load epics'
         );
       });
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   if (isLoading) {
@@ -112,7 +190,7 @@ export default function ProjectEpics() {
   }
 
   // Empty State
-  if (!isLoading && epics.length === 0) {
+  if (!isLoading && displayedEpics.length === 0) {
     return (
       <div className="w-full h-full flex flex-col">
         <div className="flex flex-col gap-8 items-center mx-auto my-20">
@@ -224,30 +302,27 @@ export default function ProjectEpics() {
 
       {/* Epics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        {epics.map(epic => (
+        {displayedEpics.map(epic => (
           <EpicCard key={epic.id} epic={epic} />
         ))}
       </div>
 
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-auto pt-6">
-        <p className="text-body-sm text-slate-medium">
-          Showing {epics.length} of {epics.length} epics
-        </p>
-        <div className="flex items-center gap-2">
-          <button className="w-8 h-8 flex items-center justify-center rounded text-slate-medium bg-white border  border-slate-light hover:bg-surface-highest transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-            ‹
-          </button>
-          <button className="w-8 h-8 flex items-center justify-center rounded bg-primary text-white font-medium">
-            1
-          </button>
-          <button className="w-8 h-8 flex items-center justify-center rounded text-slate-medium  bg-white border  border-slate-light hover:bg-surface-highest transition-colors">
-            2
-          </button>
-          <button className="w-8 h-8 flex items-center justify-center rounded text-slate-medium bg-white border  border-slate-light hover:bg-surface-highest transition-colors">
-            ›
-          </button>
-        </div>
-      </div>
+      {/* Infinite Scroll Loader for Mobile */}
+      <InfiniteScrollLoader
+        loading={isLoadingMore}
+        hasMore={hasMore}
+        observerTarget={observerTarget}
+      />
+
+      {/* Desktop Pagination */}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalCount={totalCount}
+        pageSize={pageSize}
+        itemLabel="epics"
+        onPageChange={handlePageChange}
+      />
 
       {/* Floating Add Button - Mobile Only */}
       <Link

@@ -6,6 +6,8 @@ type FetchOptions = {
   method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
   body?: unknown;
   includeAuth?: boolean;
+  headers?: Record<string, string>;
+  returnHeaders?: boolean;
 };
 
 let isRefreshing = false;
@@ -18,13 +20,18 @@ export async function apiFetch<T>(
     includeAuth: boolean = options.includeAuth || false
   ) => {
     try {
+      const baseHeaders = getHeaders(includeAuth);
+      const mergedHeaders = options.headers
+        ? { ...baseHeaders, ...options.headers }
+        : baseHeaders;
+
       return await fetch(getApiUrl(endpoint), {
         method: options.method,
-        headers: getHeaders(includeAuth),
+        headers: mergedHeaders,
         body: options.body ? JSON.stringify(options.body) : undefined,
       });
-    } catch (error) {
-      // Network error 
+    } catch {
+      // Network error
       throw new Error('Network error. Please check your connection.');
     }
   };
@@ -68,6 +75,24 @@ export async function apiFetch<T>(
 
   if (!response.ok) {
     throw new Error(data?.msg || data?.message || 'Request failed');
+  }
+
+  // If returnHeaders is true, return both data and headers
+  if (options.returnHeaders) {
+    const contentRange = response.headers.get('Content-Range');
+    let totalCount = 0;
+
+    if (contentRange) {
+      const match = contentRange.match(/\/(\d+)$/);
+      if (match) {
+        totalCount = parseInt(match[1], 10);
+      }
+    }
+
+    return {
+      data,
+      totalCount,
+    } as T;
   }
 
   return data;
