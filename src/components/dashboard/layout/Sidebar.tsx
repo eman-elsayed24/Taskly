@@ -63,7 +63,7 @@ export default function Sidebar() {
         />
       )}
 
-      <div className="fixed top-5 left-4 flex gap-4 lg:hidden p-2 ">
+      <div className="absolute top-5 left-4 flex gap-4 lg:hidden p-2 ">
         <button
           onClick={() => setIsMobileOpen(!isMobileOpen)}
           aria-label="Toggle menu"

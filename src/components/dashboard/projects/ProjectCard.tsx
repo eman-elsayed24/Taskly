@@ -21,7 +21,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
   };
 
   const handleCardClick = () => {
-    navigate(ROUTES.PROJECT_DETAILS(project.id));
+    navigate(ROUTES.PROJECT_EPICS(project.id));
   };
 
   const handleEditClick = (e: React.MouseEvent) => {
