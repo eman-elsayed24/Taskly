@@ -1,8 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../../../constants/routes';
 import type { Project } from '../../../types/project';
+import { formatDate } from '../../../utils/formatDate';
 import EventIcon from '../../../assets/icons/event.svg';
-import DetailsIcon from '../../../assets/icons/details.svg?react';
 
 interface ProjectCardProps {
   project: Project;
@@ -10,15 +10,6 @@ interface ProjectCardProps {
 
 export default function ProjectCard({ project }: ProjectCardProps) {
   const navigate = useNavigate();
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    });
-  };
 
   const handleCardClick = () => {
     navigate(ROUTES.PROJECT_EPICS(project.id));
@@ -41,10 +32,10 @@ export default function ProjectCard({ project }: ProjectCardProps) {
           </p>
           <button
             onClick={handleEditClick}
-            className="shrink-0 p-1.5 hover:bg-surface-high rounded transition-colors"
+            className="shrink-0 p-1.5 hover:bg-surface-high rounded transition-colors text-base"
             aria-label="Edit project"
           >
-            <DetailsIcon className="w-4 h-4 text-slate-medium" />
+            ✏️
           </button>
         </div>
         <p className="text-sm leading-[22.75px] text-slate-medium line-clamp-3">

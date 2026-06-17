@@ -1,28 +1,24 @@
 import type { Epic } from '../../../types/epic';
-import { getInitials } from '../../../lib/utils/avatar';
+import { getInitials } from '../../../utils/stringHelpers';
+import { formatDate } from '../../../utils/formatDate';
 import PersonIcon from '../../../assets/icons/person.svg?react';
 import EventIcon from '../../../assets/icons/event.svg?react';
 
 interface EpicCardProps {
   epic: Epic;
+  onClick?: () => void;
 }
 
-export default function EpicCard({ epic }: EpicCardProps) {
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    });
-  };
-
+export default function EpicCard({ epic, onClick }: EpicCardProps) {
   const assigneeInitials = epic.assignee
     ? getInitials(epic.assignee.name)
     : '?';
 
   return (
-    <div className="bg-white rounded-md p-6 border-l-4 border-success-dark hover:shadow-sm transition-shadow">
+    <div
+      className="bg-white rounded-md p-6 border-l-4 border-success-dark hover:shadow-sm transition-shadow cursor-pointer"
+      onClick={onClick}
+    >
       {/* Epic ID Badge */}
       <div className="inline-block bg-success/20 text-success-dark px-3 py-1 rounded text-label-sm mb-4">
         {epic.epic_id}

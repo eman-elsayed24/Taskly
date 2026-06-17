@@ -8,6 +8,7 @@ import Pagination from '../../components/ui/Pagination';
 import InfiniteScrollLoader from '../../components/ui/InfiniteScrollLoader';
 import EpicCard from '../../components/dashboard/epics/EpicCard';
 import EpicCardSkeleton from '../../components/dashboard/epics/EpicCardSkeleton';
+import EpicDetailsModal from '../../components/dashboard/epics/EpicDetailsModal';
 import { getProjectEpics } from '../../api/epicApi';
 import { getProjectById } from '../../api/projectApi';
 import { useInfiniteScroll } from '../../hooks/useInfiniteScroll';
@@ -29,6 +30,7 @@ export default function ProjectEpics() {
   const [hasError, setHasError] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+  const [selectedEpic, setSelectedEpic] = useState<Epic | null>(null);
   const pageSize = 10;
 
   const totalPages = Math.ceil(totalCount / pageSize);
@@ -159,6 +161,14 @@ export default function ProjectEpics() {
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleEpicClick = (epic: Epic) => {
+    setSelectedEpic(epic);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedEpic(null);
   };
 
   if (isLoading) {
@@ -303,9 +313,22 @@ export default function ProjectEpics() {
       {/* Epics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         {displayedEpics.map(epic => (
-          <EpicCard key={epic.id} epic={epic} />
+          <EpicCard
+            key={epic.id}
+            epic={epic}
+            onClick={() => handleEpicClick(epic)}
+          />
         ))}
       </div>
+
+      {/* Epic Details Modal */}
+      {selectedEpic && (
+        <EpicDetailsModal
+          epic={selectedEpic}
+          projectId={projectId!}
+          onClose={handleCloseModal}
+        />
+      )}
 
       {/* Infinite Scroll Loader for Mobile */}
       <InfiniteScrollLoader
