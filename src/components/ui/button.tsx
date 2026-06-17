@@ -22,7 +22,7 @@ export default function Button({
     primary:
       'bg-gradient-to-r from-primary to-primary-container text-white hover:opacity-90 active:opacity-80',
     secondary:
-      'bg-transparent text-primary border-2 border-primary hover:bg-primary/10 active:bg-primary/20',
+      'bg-transparent text-primary   hover:bg-primary/10 active:bg-primary/20',
     ghost:
       'bg-transparent text-slate-medium hover:bg-surface-low active:bg-surface-highest',
     surface:

@@ -46,3 +46,21 @@ export async function createEpic(data: CreateEpicRequest): Promise<void> {
     includeAuth: true,
   });
 }
+
+export async function getEpicById(
+  projectId: string,
+  epicId: string
+): Promise<Epic> {
+  const url = `/rest/v1/project_epics?project_id=eq.${projectId}&id=eq.${epicId}`;
+
+  const response = await apiFetch<Epic[]>(url, {
+    method: 'GET',
+    includeAuth: true,
+  });
+
+  if (!response || response.length === 0) {
+    throw new Error('Epic not found');
+  }
+
+  return response[0];
+}

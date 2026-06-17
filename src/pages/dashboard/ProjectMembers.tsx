@@ -12,7 +12,7 @@ import type { ProjectMember } from '../../types/member';
 import { getMemberName, getMemberEmail } from '../../types/member';
 import type { Project } from '../../types/project';
 import { ROUTES } from '../../constants/routes';
-import { getInitials, getAvatarColor } from '../../lib/utils/avatar';
+import { getInitials } from '../../utils/stringHelpers';
 import PersonAddIcon from '../../assets/icons/person-add.svg?react';
 import MoreVerticalIcon from '../../assets/icons/more-vertical.svg?react';
 
@@ -173,7 +173,6 @@ export default function ProjectMembers() {
               const memberName = getMemberName(member);
               const memberEmail = getMemberEmail(member);
               const initials = getInitials(memberName);
-              const avatarColor = getAvatarColor(memberName);
 
               return (
                 <tr
@@ -182,9 +181,7 @@ export default function ProjectMembers() {
                 >
                   <td className="py-4 px-6">
                     <div className="flex items-center gap-4">
-                      <div
-                        className={`w-12 h-12 rounded-lg flex items-center justify-center font-semibold text-sm shrink-0 ${avatarColor}`}
-                      >
+                      <div className="w-12 h-12 rounded-lg bg-primary/20 text-primary flex items-center justify-center font-semibold text-sm shrink-0">
                         {initials}
                       </div>
                       <div className="min-w-0">
@@ -227,7 +224,6 @@ export default function ProjectMembers() {
           const memberName = getMemberName(member);
           const memberEmail = getMemberEmail(member);
           const initials = getInitials(memberName);
-          const avatarColor = getAvatarColor(memberName);
 
           return (
             <div
@@ -235,9 +231,7 @@ export default function ProjectMembers() {
               className="bg-white rounded-md p-4 flex items-center gap-3 overflow-hidden"
             >
               <div className="flex items-center gap-3 min-w-0 flex-1 overflow-hidden">
-                <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm shrink-0 ${avatarColor}`}
-                >
+                <div className="w-10 h-10 rounded-full bg-primary/20 text-primary flex items-center justify-center font-semibold text-sm shrink-0">
                   {initials}
                 </div>
                 <div className="flex flex-col min-w-0 flex-1 overflow-hidden">
