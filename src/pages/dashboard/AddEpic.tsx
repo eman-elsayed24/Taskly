@@ -248,18 +248,28 @@ export default function AddEpic() {
                   >
                     DEADLINE
                   </label>
-                  <input
-                    {...deadlineField}
-                    id="deadline"
-                    type="date"
-                    min={today}
-                    placeholder="mm/dd/yyyy"
-                    className={`w-full px-4 py-3 rounded-sm text-body-md text-slate-dark outline-none ${
-                      deadlineFieldState.error
-                        ? 'bg-error-low'
-                        : 'bg-surface-highest'
-                    }`}
-                  />
+                  <div
+                    className="cursor-pointer"
+                    onClick={() => {
+                      const input = document.getElementById(
+                        'deadline'
+                      ) as HTMLInputElement;
+                      input?.showPicker?.();
+                    }}
+                  >
+                    <input
+                      {...deadlineField}
+                      id="deadline"
+                      type="date"
+                      min={today}
+                      placeholder="mm/dd/yyyy"
+                      className={`w-full px-4 py-3 rounded-sm text-body-md text-slate-dark outline-none cursor-pointer ${
+                        deadlineFieldState.error
+                          ? 'bg-error-low'
+                          : 'bg-surface-highest'
+                      }`}
+                    />
+                  </div>
                   {deadlineFieldState.error && (
                     <p className="text-error text-body-sm mt-1">
                       {deadlineFieldState.error.message}

@@ -64,3 +64,21 @@ export async function getEpicById(
 
   return response[0];
 }
+
+export interface UpdateEpicRequest {
+  title?: string;
+  description?: string | null;
+  assignee_id?: string | null;
+  deadline?: string | null;
+}
+
+export async function updateEpic(
+  epicId: string,
+  data: UpdateEpicRequest
+): Promise<void> {
+  await apiFetch(`/rest/v1/epics?id=eq.${epicId}`, {
+    method: 'PATCH',
+    body: data,
+    includeAuth: true,
+  });
+}
