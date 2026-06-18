@@ -9,10 +9,13 @@ import { getProjectMembers } from '../../../api/memberApi';
 import Modal, { ModalHeader, ModalContent } from '../../ui/Modal';
 import Button from '../../ui/button';
 import EpicDetailsSkeleton from './EpicDetailsSkeleton';
+import EditableEpicTitle from './editable/EditableEpicTitle';
+import EditableEpicDescription from './editable/EditableEpicDescription';
+import EditableEpicAssignee from './editable/EditableEpicAssignee';
+import EditableEpicDeadline from './editable/EditableEpicDeadline';
 import EpicsIcon from '../../../assets/icons/epic.svg?react';
 import EventIcon from '../../../assets/icons/event.svg?react';
 import TasksListIcon from '../../../assets/icons/tasksList.svg?react';
-import UnassignedIcon from '../../../assets/icons/unassigned.svg?react';
 
 interface EpicDetailsModalProps {
   epic: Epic;
@@ -32,13 +35,6 @@ export default function EpicDetailsModal({
   const [isSaving, setIsSaving] = useState(false);
   const [projectMembers, setProjectMembers] = useState<ProjectMember[]>([]);
 
-  // Edit states
-  const [editingTitle, setEditingTitle] = useState(false);
-  const [titleValue, setTitleValue] = useState('');
-  const [editingDescription, setEditingDescription] = useState(false);
-  const [descriptionValue, setDescriptionValue] = useState('');
-  const [editingAssignee, setEditingAssignee] = useState(false);
-
   // Fetch epic details and project members when modal opens
   useEffect(() => {
     const fetchData = async () => {
@@ -49,8 +45,6 @@ export default function EpicDetailsModal({
           getProjectMembers(projectId),
         ]);
         setEpicDetails(details);
-        setTitleValue(details.title);
-        setDescriptionValue(details.description || '');
         setProjectMembers(members);
       } catch (error) {
         toast.error(
@@ -111,57 +105,22 @@ export default function EpicDetailsModal({
     }
   };
 
-  const handleTitleBlur = () => {
-    setEditingTitle(false);
-    if (titleValue.trim() && titleValue !== displayEpic.title) {
-      handleUpdateField('title', titleValue.trim());
-    } else if (!titleValue.trim()) {
-      setTitleValue(displayEpic.title);
-    }
+  const handleTitleUpdate = (value: string) => {
+    handleUpdateField('title', value);
   };
 
-  const handleTitleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.currentTarget.blur();
-    }
-    if (e.key === 'Escape') {
-      setTitleValue(displayEpic.title);
-      setEditingTitle(false);
-    }
+  const handleDescriptionUpdate = (value: string | null) => {
+    handleUpdateField('description', value);
   };
 
-  const handleDescriptionBlur = () => {
-    setEditingDescription(false);
-    if (descriptionValue !== (displayEpic.description || '')) {
-      handleUpdateField('description', descriptionValue || null);
-    }
+  const handleAssigneeUpdate = (userId: string | null) => {
+    handleUpdateField('assignee_id', userId);
   };
 
-  const handleDescriptionKeyDown = (
-    e: React.KeyboardEvent<HTMLTextAreaElement>
-  ) => {
-    if (e.key === 'Escape') {
-      setDescriptionValue(displayEpic.description || '');
-      setEditingDescription(false);
-    }
+  const handleDeadlineUpdate = (date: string | null) => {
+    handleUpdateField('deadline', date);
   };
 
-  const handleAssigneeChange = (userId: string | null) => {
-    setEditingAssignee(false);
-    if (userId !== (displayEpic.assignee?.sub || null)) {
-      handleUpdateField('assignee_id', userId);
-    }
-  };
-
-  const handleDeadlineChange = (date: string | null) => {
-    if (date !== (displayEpic.deadline || null)) {
-      handleUpdateField('deadline', date);
-    }
-  };
-
-  const assigneeInitials = displayEpic.assignee
-    ? getInitials(displayEpic.assignee.name)
-    : null;
   const creatorInitials = getInitials(displayEpic.created_by.name);
 
   return (
@@ -173,26 +132,11 @@ export default function EpicDetailsModal({
             {epic.epic_id}
           </span>
 
-          {/* Editable Title */}
-          {editingTitle ? (
-            <input
-              type="text"
-              value={titleValue}
-              onChange={e => setTitleValue(e.target.value)}
-              onBlur={handleTitleBlur}
-              onKeyDown={handleTitleKeyDown}
-              className="text-2xl font-bold text-slate-dark capitalize bg-transparent border border-primary rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary/20"
-              autoFocus
-              disabled={isSaving}
-            />
-          ) : (
-            <h3
-              onClick={() => setEditingTitle(true)}
-              className="text-2xl font-bold text-slate-dark capitalize cursor-pointer hover:bg-surface-low rounded px-2 py-1 -mx-2"
-            >
-              {displayEpic.title}
-            </h3>
-          )}
+          <EditableEpicTitle
+            title={displayEpic.title}
+            isSaving={isSaving}
+            onUpdate={handleTitleUpdate}
+          />
         </div>
       </ModalHeader>
 
@@ -203,25 +147,11 @@ export default function EpicDetailsModal({
           <>
             {/* Editable Description */}
             <section>
-              {editingDescription ? (
-                <textarea
-                  value={descriptionValue}
-                  onChange={e => setDescriptionValue(e.target.value)}
-                  onBlur={handleDescriptionBlur}
-                  onKeyDown={handleDescriptionKeyDown}
-                  className="w-full text-body-md text-slate-medium leading-relaxed bg-transparent border border-primary rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/20 min-h-[80px]"
-                  placeholder="Add a description..."
-                  autoFocus
-                  disabled={isSaving}
-                />
-              ) : (
-                <p
-                  onClick={() => setEditingDescription(true)}
-                  className="text-body-md text-slate-medium leading-relaxed cursor-pointer hover:bg-surface-low rounded px-3 py-2 -mx-3"
-                >
-                  {displayEpic.description || 'No description provided.'}
-                </p>
-              )}
+              <EditableEpicDescription
+                description={displayEpic.description}
+                isSaving={isSaving}
+                onUpdate={handleDescriptionUpdate}
+              />
             </section>
 
             {/* Details Grid */}
@@ -244,99 +174,19 @@ export default function EpicDetailsModal({
               </div>
 
               {/* Editable Assignee */}
-              <div className="space-y-3">
-                <p className="text-label-sm text-slate-light uppercase">
-                  Assignee
-                </p>
-                {editingAssignee ? (
-                  <select
-                    value={displayEpic.assignee?.sub || ''}
-                    onChange={e => handleAssigneeChange(e.target.value || null)}
-                    className="w-full px-3 py-2 border border-primary rounded focus:outline-none focus:ring-2 focus:ring-primary/20 text-body-md"
-                    autoFocus
-                    onBlur={() => setEditingAssignee(false)}
-                    disabled={isSaving}
-                  >
-                    <option value="">Unassigned</option>
-                    {projectMembers.map(member => (
-                      <option key={member.user_id} value={member.user_id}>
-                        {member.metadata.name}
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  <div
-                    onClick={() => setEditingAssignee(true)}
-                    className="flex items-center gap-3 cursor-pointer hover:bg-surface-low rounded px-3 py-2 -mx-3"
-                  >
-                    <div
-                      className={`w-9 h-9 rounded-lg flex items-center justify-center font-bold text-sm ${
-                        displayEpic.assignee
-                          ? 'bg-success/20 text-success-dark'
-                          : 'bg-slate-light/20 text-slate-muted'
-                      }`}
-                    >
-                      {displayEpic.assignee && displayEpic.assignee.name ? (
-                        assigneeInitials
-                      ) : (
-                        <UnassignedIcon className="w-4 h-4" />
-                      )}
-                    </div>
-                    <div>
-                      <h5
-                        className={`text-body-md ${
-                          displayEpic.assignee
-                            ? 'text-slate-dark'
-                            : 'text-slate-muted font-medium'
-                        }`}
-                      >
-                        {displayEpic.assignee?.name || 'Unassigned'}
-                      </h5>
-                    </div>
-                  </div>
-                )}
-              </div>
+              <EditableEpicAssignee
+                assignee={displayEpic.assignee}
+                projectMembers={projectMembers}
+                isSaving={isSaving}
+                onUpdate={handleAssigneeUpdate}
+              />
 
               {/* Editable Deadline */}
-              <div className="space-y-3">
-                <p className="text-label-sm text-slate-light uppercase">
-                  Deadline
-                </p>
-                <div className="flex items-center gap-3 relative">
-                  <div
-                    className="w-9 h-9 flex items-center justify-center cursor-pointer"
-                    onClick={() => {
-                      const input = document.getElementById(
-                        'deadline-input'
-                      ) as HTMLInputElement;
-                      input?.showPicker?.();
-                    }}
-                  >
-                    <EventIcon className="w-4 h-4 text-slate-light" />
-                  </div>
-                  <div
-                    className="flex-1 cursor-pointer"
-                    onClick={() => {
-                      const input = document.getElementById(
-                        'deadline-input'
-                      ) as HTMLInputElement;
-                      input?.showPicker?.();
-                    }}
-                  >
-                    <input
-                      id="deadline-input"
-                      type="date"
-                      value={displayEpic.deadline || ''}
-                      min={new Date().toISOString().split('T')[0]}
-                      onChange={e =>
-                        handleDeadlineChange(e.target.value || null)
-                      }
-                      className="text-body-md font-medium border-0 bg-transparent focus:outline-none focus:ring-2 focus:ring-primary/20 rounded px-2 py-1 cursor-pointer w-full [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
-                      disabled={isSaving}
-                    />
-                  </div>
-                </div>
-              </div>
+              <EditableEpicDeadline
+                deadline={displayEpic.deadline}
+                isSaving={isSaving}
+                onUpdate={handleDeadlineUpdate}
+              />
 
               {/* Created At */}
               <div className="space-y-3">
