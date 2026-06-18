@@ -17,6 +17,7 @@ import AddProject from '../pages/dashboard/AddProject';
 import ProjectEpics from '../pages/dashboard/ProjectEpics';
 import AddEpic from '../pages/dashboard/AddEpic';
 import ProjectTasks from '../pages/dashboard/ProjectTasks';
+import AddTask from '../pages/dashboard/AddTask';
 import ProjectMembers from '../pages/dashboard/ProjectMembers';
 import ProjectDetails from '../pages/dashboard/ProjectDetails';
 import RecoveryHandler from '../components/auth/RecoveryHandler';
@@ -50,6 +51,7 @@ function AppRouter() {
               path={ROUTES.PROJECT_EPICS_PATTERN}
               element={<ProjectEpics />}
             />
+            <Route path={ROUTES.ADD_TASK_PATTERN} element={<AddTask />} />
             <Route
               path={ROUTES.PROJECT_TASKS_PATTERN}
               element={<ProjectTasks />}

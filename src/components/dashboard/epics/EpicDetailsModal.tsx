@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import type { Epic, EpicUser } from '../../../types/epic';
 import type { ProjectMember } from '../../../types/member';
@@ -16,6 +17,7 @@ import EditableEpicDeadline from './editable/EditableEpicDeadline';
 import EpicsIcon from '../../../assets/icons/epic.svg?react';
 import EventIcon from '../../../assets/icons/event.svg?react';
 import TasksListIcon from '../../../assets/icons/tasksList.svg?react';
+import { ROUTES } from '../../../constants/routes';
 
 interface EpicDetailsModalProps {
   epic: Epic;
@@ -30,6 +32,7 @@ export default function EpicDetailsModal({
   onClose,
   onUpdate,
 }: EpicDetailsModalProps) {
+  const navigate = useNavigate();
   const [epicDetails, setEpicDetails] = useState<Epic | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -123,6 +126,10 @@ export default function EpicDetailsModal({
 
   const creatorInitials = getInitials(displayEpic.created_by.name);
 
+  const handleAddTask = () => {
+    navigate(`${ROUTES.ADD_TASK(projectId)}?epicId=${epic.id}`);
+  };
+
   return (
     <Modal isOpen={true} onClose={onClose} maxWidth="2xl">
       <ModalHeader onClose={onClose}>
@@ -210,7 +217,11 @@ export default function EpicDetailsModal({
                 <h4 className="text-title-md text-slate-dark capitalize">
                   Tasks
                 </h4>
-                <Button variant="secondary" className="capitalize text-body-md">
+                <Button
+                  variant="secondary"
+                  className="capitalize text-body-md"
+                  onClick={handleAddTask}
+                >
                   + Add Task
                 </Button>
               </div>
@@ -223,7 +234,9 @@ export default function EpicDetailsModal({
                 <p className="text-title-md text-slate-dark text-center">
                   No tasks have been added to this epic yet
                 </p>
-                <Button className="text-body-md">+ Add Task</Button>
+                <Button className="text-body-md" onClick={handleAddTask}>
+                  + Add Task
+                </Button>
               </div>
             </section>
           </>
