@@ -1,13 +1,15 @@
-export enum TaskStatus {
-  TO_DO = 'TO_DO',
-  IN_PROGRESS = 'IN_PROGRESS',
-  BLOCKED = 'BLOCKED',
-  IN_REVIEW = 'IN_REVIEW',
-  REOPENED = 'REOPENED',
-  READY_FOR_QA = 'READY_FOR_QA',
-  READY_FOR_PRODUCTION = 'READY_FOR_PRODUCTION',
-  DONE = 'DONE',
-}
+export const TaskStatus = {
+  TO_DO: 'TO_DO',
+  IN_PROGRESS: 'IN_PROGRESS',
+  BLOCKED: 'BLOCKED',
+  IN_REVIEW: 'IN_REVIEW',
+  REOPENED: 'REOPENED',
+  READY_FOR_QA: 'READY_FOR_QA',
+  READY_FOR_PRODUCTION: 'READY_FOR_PRODUCTION',
+  DONE: 'DONE',
+} as const;
+
+export type TaskStatus = (typeof TaskStatus)[keyof typeof TaskStatus];
 
 export const TASK_STATUS_LABELS: Record<TaskStatus, string> = {
   [TaskStatus.TO_DO]: 'TO DO',
