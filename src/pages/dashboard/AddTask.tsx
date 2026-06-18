@@ -1,4 +1,6 @@
+import { useState, useEffect } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { useForm, useController } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import FormField from '../../components/ui/FormField';
@@ -8,12 +10,24 @@ import { taskSchema } from '../../lib/validations/taskSchema';
 import type { TaskFormData } from '../../lib/validations/taskSchema';
 import { TaskStatus, TASK_STATUS_LABELS } from '../../types/task';
 import { ROUTES } from '../../constants/routes';
+import { createTask, getEpicsByProject } from '../../api/taskApi';
+import { getProjectMembers } from '../../api/memberApi';
+import { getProjectById } from '../../api/projectApi';
+import { getMemberName } from '../../types/member';
+import type { ProjectMember } from '../../types/member';
+import type { Project } from '../../types/project';
+import type { Epic } from '../../types/epic';
 
 export default function AddTask() {
   const { projectId } = useParams<{ projectId: string }>();
   const [searchParams] = useSearchParams();
   const epicIdFromUrl = searchParams.get('epicId');
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+  const [members, setMembers] = useState<ProjectMember[]>([]);
+  const [epics, setEpics] = useState<Epic[]>([]);
+  const [project, setProject] = useState<Project | null>(null);
+  const [isDataLoading, setIsDataLoading] = useState(true);
 
   const { control, handleSubmit } = useForm<TaskFormData>({
     resolver: zodResolver(taskSchema),
@@ -54,16 +68,54 @@ export default function AddTask() {
     control,
   });
 
-  const onSubmit = (data: TaskFormData) => {
-    console.log('Task data:', {
-      project_id: projectId,
-      title: data.title,
-      status: data.status,
-      description: data.description,
-      assignee_id: data.assignee_id,
-      epic_id: data.epic_id,
-      due_date: data.due_date,
-    });
+  useEffect(() => {
+    if (!projectId) return;
+
+    const loadData = async () => {
+      try {
+        const [projectData, membersData, epicsData] = await Promise.all([
+          getProjectById(projectId),
+          getProjectMembers(projectId),
+          getEpicsByProject(projectId),
+        ]);
+        setProject(projectData);
+        setMembers(membersData);
+        setEpics(epicsData);
+      } catch {
+        toast.error('Failed to load project data');
+      } finally {
+        setIsDataLoading(false);
+      }
+    };
+
+    loadData();
+  }, [projectId]);
+
+  const onSubmit = async (data: TaskFormData) => {
+    if (!projectId) return;
+
+    setIsLoading(true);
+
+    try {
+      await createTask({
+        project_id: projectId,
+        title: data.title,
+        status: data.status,
+        description: data.description,
+        assignee_id: data.assignee_id,
+        epic_id: data.epic_id,
+        due_date: data.due_date,
+      });
+
+      toast.success('Task created successfully!');
+      navigate(ROUTES.PROJECT_TASKS(projectId));
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to create task'
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleCancel = () => {
@@ -77,6 +129,11 @@ export default function AddTask() {
   // Get today's date in YYYY-MM-DD format for min attribute
   const today = new Date().toISOString().split('T')[0];
 
+  // Truncate epic title if longer than 100 characters
+  const truncateEpicTitle = (title: string) => {
+    return title.length > 100 ? `${title.substring(0, 100)}...` : title;
+  };
+
   return (
     <div className="w-full h-full flex flex-col">
       <div className="mb-6">
@@ -84,7 +141,7 @@ export default function AddTask() {
           items={[
             { label: 'PROJECTS', href: ROUTES.PROJECTS },
             {
-              label: 'PROJECT ALPHA',
+              label: project?.name || 'PROJECT',
               href: projectId ? ROUTES.PROJECT_DETAILS(projectId) : undefined,
             },
             {
@@ -177,13 +234,19 @@ export default function AddTask() {
                 <select
                   {...assigneeField}
                   id="assignee_id"
-                  className={`w-full px-4 py-3 rounded-sm text-body-md outline-none cursor-pointer ${
+                  disabled={isDataLoading}
+                  className={`w-full px-4 py-3 rounded-sm text-body-md outline-none ${
                     assigneeFieldState.error
                       ? 'bg-error-low'
                       : 'bg-surface-highest'
-                  } ${!assigneeField.value ? 'text-slate-muted' : 'text-slate-dark'}`}
+                  } ${isDataLoading ? 'cursor-wait' : 'cursor-pointer'} ${!assigneeField.value ? 'text-slate-muted' : 'text-slate-dark'}`}
                 >
                   <option value="">Select Team Member</option>
+                  {members.map(member => (
+                    <option key={member.user_id} value={member.user_id}>
+                      {getMemberName(member)}
+                    </option>
+                  ))}
                 </select>
                 {assigneeFieldState.error && (
                   <p className="text-error text-body-sm mt-1">
@@ -204,11 +267,17 @@ export default function AddTask() {
               <select
                 {...epicField}
                 id="epic_id"
-                className={`w-full px-4 py-3 rounded-sm text-body-md outline-none cursor-pointer ${
+                disabled={isDataLoading}
+                className={`w-full px-4 py-3 rounded-sm text-body-md outline-none ${
                   epicFieldState.error ? 'bg-error-low' : 'bg-surface-highest'
-                } ${!epicField.value ? 'text-slate-muted' : 'text-slate-dark'}`}
+                } ${isDataLoading ? 'cursor-wait' : 'cursor-pointer'} ${!epicField.value ? 'text-slate-muted' : 'text-slate-dark'}`}
               >
                 <option value="">Select Epic Link</option>
+                {epics.map(epic => (
+                  <option key={epic.id} value={epic.id}>
+                    {epic.epic_id} {truncateEpicTitle(epic.title)}
+                  </option>
+                ))}
               </select>
               {epicFieldState.error && (
                 <p className="text-error text-body-sm mt-1">
@@ -294,12 +363,13 @@ export default function AddTask() {
                 type="button"
                 variant="ghost"
                 onClick={handleCancel}
+                disabled={isLoading}
                 className="text-slate-medium"
               >
                 Back
               </Button>
-              <Button type="submit" variant="primary">
-                Create Task
+              <Button type="submit" variant="primary" disabled={isLoading}>
+                {isLoading ? 'Creating...' : 'Create Task'}
               </Button>
             </div>
           </form>
