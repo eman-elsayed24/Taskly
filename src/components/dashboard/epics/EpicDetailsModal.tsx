@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import type { Epic } from '../../../types/epic';
+import type { Epic, EpicUser } from '../../../types/epic';
 import type { ProjectMember } from '../../../types/member';
 import { formatDate } from '../../../utils/formatDate';
 import { getInitials } from '../../../utils/stringHelpers';
@@ -73,11 +73,16 @@ export default function EpicDetailsModal({
   ) => {
     if (!epicDetails) return;
 
-    const previousValue = epicDetails[field];
+    // Store previous value for rollback
+    const previousValue =
+      field === 'assignee_id'
+        ? epicDetails.assignee
+        : epicDetails[field as keyof Epic];
 
-    // Optimistic update
-    const updatedEpic = { ...epicDetails, [field]: value };
-    setEpicDetails(updatedEpic);
+    // Optimistic update - for assignee_id we'll update after API call
+    if (field !== 'assignee_id') {
+      setEpicDetails({ ...epicDetails, [field]: value } as Epic);
+    }
 
     try {
       setIsSaving(true);
@@ -92,7 +97,14 @@ export default function EpicDetailsModal({
       }
     } catch {
       // Revert on error
-      setEpicDetails({ ...epicDetails, [field]: previousValue });
+      if (field === 'assignee_id') {
+        setEpicDetails({
+          ...epicDetails,
+          assignee: previousValue as EpicUser | null,
+        });
+      } else {
+        setEpicDetails({ ...epicDetails, [field]: previousValue } as Epic);
+      }
       toast.error('Failed to update epic. Please try again.');
     } finally {
       setIsSaving(false);
@@ -151,7 +163,6 @@ export default function EpicDetailsModal({
     ? getInitials(displayEpic.assignee.name)
     : null;
   const creatorInitials = getInitials(displayEpic.created_by.name);
-
 
   return (
     <Modal isOpen={true} onClose={onClose} maxWidth="2xl">
