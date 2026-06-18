@@ -171,6 +171,15 @@ export default function ProjectEpics() {
     setSelectedEpic(null);
   };
 
+  const handleEpicUpdate = (updatedEpic: Epic) => {
+    // Update the epic in the displayed list
+    setInitialEpics(prevEpics =>
+      prevEpics.map(epic => (epic.id === updatedEpic.id ? updatedEpic : epic))
+    );
+    // Update selected epic to reflect changes
+    setSelectedEpic(updatedEpic);
+  };
+
   if (isLoading) {
     return (
       <div className="w-full h-full flex flex-col">
@@ -327,6 +336,7 @@ export default function ProjectEpics() {
           epic={selectedEpic}
           projectId={projectId!}
           onClose={handleCloseModal}
+          onUpdate={handleEpicUpdate}
         />
       )}
 
