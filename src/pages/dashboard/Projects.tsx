@@ -2,22 +2,46 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import Button from '../../components/ui/button';
-
+import Pagination from '../../components/ui/Pagination';
+import InfiniteScrollLoader from '../../components/ui/InfiniteScrollLoader';
 import ProjectCard from '../../components/dashboard/projects/ProjectCard';
 import ProjectCardSkeleton from '../../components/dashboard/projects/ProjectCardSkeleton';
 import ErrorState from '../../components/ui/ErrorState';
 import { ROUTES } from '../../constants/routes';
 import { getProjects } from '../../api/projectApi';
+import { useInfiniteScroll } from '../../hooks/useInfiniteScroll';
 import type { Project } from '../../types/project';
 import EmptyIcon from '../../assets/icons/empty.svg';
 import PlusCircleIcon from '../../assets/icons/plusCircle.svg?react';
 
 export default function Projects() {
   const navigate = useNavigate();
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [initialProjects, setInitialProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const pageSize = 9; // 3x3 grid
 
+  const totalPages = Math.ceil(totalCount / pageSize);
+
+  // Infinite scroll hook for mobile
+  const {
+    items: displayedProjects,
+    loading: isLoadingMore,
+    hasMore,
+    observerTarget,
+  } = useInfiniteScroll({
+    initialItems: initialProjects,
+    totalCount: totalCount,
+    pageSize,
+    fetchMore: async (offset, limit) => {
+      const response = await getProjects(limit, offset);
+      return { data: response.data, totalCount: response.totalCount };
+    },
+  });
+
+  // Load initial data
   useEffect(() => {
     let isMounted = true;
 
@@ -25,9 +49,12 @@ export default function Projects() {
       try {
         setIsLoading(true);
         setHasError(false);
-        const data = await getProjects();
+        setCurrentPage(1);
+        const response = await getProjects(pageSize, 0);
+
         if (isMounted) {
-          setProjects(data);
+          setInitialProjects(response.data);
+          setTotalCount(response.totalCount);
           setIsLoading(false);
         }
       } catch (error) {
@@ -48,13 +75,51 @@ export default function Projects() {
     };
   }, []);
 
+  // Load page when currentPage changes (desktop pagination only)
+  useEffect(() => {
+    if (currentPage === 1) return;
+
+    let isMounted = true;
+
+    const loadPage = async () => {
+      try {
+        setIsLoading(true);
+        setHasError(false);
+        const offset = (currentPage - 1) * pageSize;
+        const response = await getProjects(pageSize, offset);
+
+        if (isMounted) {
+          setInitialProjects(response.data);
+          setTotalCount(response.totalCount);
+          setIsLoading(false);
+        }
+      } catch (error) {
+        if (isMounted) {
+          setHasError(true);
+          setIsLoading(false);
+          toast.error(
+            error instanceof Error ? error.message : 'Failed to load projects'
+          );
+        }
+      }
+    };
+
+    loadPage();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [currentPage]);
+
   const handleRetry = () => {
     setIsLoading(true);
     setHasError(false);
+    const offset = (currentPage - 1) * pageSize;
 
-    getProjects()
-      .then(data => {
-        setProjects(data);
+    getProjects(pageSize, offset)
+      .then(response => {
+        setInitialProjects(response.data);
+        setTotalCount(response.totalCount);
         setIsLoading(false);
       })
       .catch(error => {
@@ -64,6 +129,11 @@ export default function Projects() {
           error instanceof Error ? error.message : 'Failed to load projects'
         );
       });
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   if (isLoading) {
@@ -86,7 +156,8 @@ export default function Projects() {
     );
   }
 
-  if (!isLoading && projects.length === 0) {
+  // Empty State
+  if (!isLoading && displayedProjects.length === 0) {
     return (
       <div className="w-full h-full flex flex-col">
         <div className="flex items-center justify-between mb-8">
@@ -119,6 +190,7 @@ export default function Projects() {
     );
   }
 
+  // Projects List
   return (
     <div className="w-full h-full flex flex-col">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
@@ -139,7 +211,7 @@ export default function Projects() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        {projects.map(project => (
+        {displayedProjects.map(project => (
           <ProjectCard key={project.id} project={project} />
         ))}
 
@@ -156,25 +228,22 @@ export default function Projects() {
         </button>
       </div>
 
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-auto pt-6 ">
-        <p className="text-body-sm text-slate-medium">
-          Showing {projects.length} of {projects.length} active projects
-        </p>
-        <div className="flex items-center gap-2">
-          <button className="w-8 h-8 flex items-center justify-center rounded text-slate-medium hover:bg-surface-highest transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-            ‹
-          </button>
-          <button className="w-8 h-8 flex items-center justify-center rounded bg-primary text-white font-medium">
-            1
-          </button>
-          <button className="w-8 h-8 flex items-center justify-center rounded text-slate-medium hover:bg-surface-highest transition-colors">
-            2
-          </button>
-          <button className="w-8 h-8 flex items-center justify-center rounded text-slate-medium hover:bg-surface-highest transition-colors">
-            ›
-          </button>
-        </div>
-      </div>
+      {/* Infinite Scroll Loader for Mobile */}
+      <InfiniteScrollLoader
+        loading={isLoadingMore}
+        hasMore={hasMore}
+        observerTarget={observerTarget}
+      />
+
+      {/* Desktop Pagination */}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalCount={totalCount}
+        pageSize={pageSize}
+        itemLabel="projects"
+        onPageChange={handlePageChange}
+      />
     </div>
   );
 }
