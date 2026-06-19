@@ -15,7 +15,8 @@ export default function Pagination({
   itemLabel = 'items',
   onPageChange,
 }: PaginationProps) {
-  if (totalCount === 0) return null;
+  // Don't show pagination if there are no items or if total items don't exceed page size
+  if (totalCount === 0 || totalCount <= pageSize) return null;
 
   return (
     <div className="hidden sm:flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 pt-6">
