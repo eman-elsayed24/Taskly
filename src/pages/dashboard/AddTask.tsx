@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { useForm, useController } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import FormField from '../../components/ui/FormField';
+import SelectField from '../../components/ui/SelectField';
+import TextareaField from '../../components/ui/TextareaField';
 import Button from '../../components/ui/button';
 import Breadcrumb from '../../components/ui/Breadcrumb';
 import { taskSchema } from '../../lib/validations/taskSchema';
@@ -39,33 +41,6 @@ export default function AddTask() {
       due_date: '',
       description: '',
     },
-  });
-
-  const { field: descriptionField, fieldState: descriptionFieldState } =
-    useController({
-      name: 'description',
-      control,
-    });
-
-  const { field: assigneeField, fieldState: assigneeFieldState } =
-    useController({
-      name: 'assignee_id',
-      control,
-    });
-
-  const { field: epicField, fieldState: epicFieldState } = useController({
-    name: 'epic_id',
-    control,
-  });
-
-  const { field: dueDateField, fieldState: dueDateFieldState } = useController({
-    name: 'due_date',
-    control,
-  });
-
-  const { field: statusField, fieldState: statusFieldState } = useController({
-    name: 'status',
-    control,
   });
 
   useEffect(() => {
@@ -191,100 +166,51 @@ export default function AddTask() {
             {/* Status and Assignee Row */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Status Field */}
-              <div>
-                <div className="flex items-center gap-1 mb-2">
-                  <label
-                    htmlFor="status"
-                    className="block text-label-sm text-slate-medium"
-                  >
-                    STATUS
-                  </label>
-                  <span className="text-error text-sm">*</span>
-                </div>
-                <select
-                  {...statusField}
-                  id="status"
-                  className={`w-full px-4 py-3 rounded-sm text-body-md text-slate-dark outline-none cursor-pointer ${
-                    statusFieldState.error
-                      ? 'bg-error-low'
-                      : 'bg-surface-highest'
-                  }`}
-                >
-                  {Object.entries(TASK_STATUS_LABELS).map(([value, label]) => (
-                    <option key={value} value={value}>
-                      {label}
-                    </option>
-                  ))}
-                </select>
-                {statusFieldState.error && (
-                  <p className="text-error text-body-sm mt-1">
-                    {statusFieldState.error.message}
-                  </p>
-                )}
-              </div>
+              <SelectField
+                control={control}
+                name="status"
+                label="STATUS"
+                required
+              >
+                {Object.entries(TASK_STATUS_LABELS).map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </SelectField>
 
               {/* Assignee Field */}
-              <div>
-                <label
-                  htmlFor="assignee_id"
-                  className="block text-label-sm text-slate-medium mb-2"
-                >
-                  ASSIGNEE
-                </label>
-                <select
-                  {...assigneeField}
-                  id="assignee_id"
-                  disabled={isDataLoading}
-                  className={`w-full px-4 py-3 rounded-sm text-body-md outline-none ${
-                    assigneeFieldState.error
-                      ? 'bg-error-low'
-                      : 'bg-surface-highest'
-                  } ${isDataLoading ? 'cursor-wait' : 'cursor-pointer'} ${!assigneeField.value ? 'text-slate-muted' : 'text-slate-dark'}`}
-                >
-                  <option value="">Select Team Member</option>
-                  {members.map(member => (
-                    <option key={member.user_id} value={member.user_id}>
-                      {getMemberName(member)}
-                    </option>
-                  ))}
-                </select>
-                {assigneeFieldState.error && (
-                  <p className="text-error text-body-sm mt-1">
-                    {assigneeFieldState.error.message}
-                  </p>
-                )}
-              </div>
+              <SelectField
+                control={control}
+                name="assignee_id"
+                label="ASSIGNEE"
+                disabled={isDataLoading}
+                className={isDataLoading ? 'cursor-wait' : ''}
+              >
+                <option value="">Select Team Member</option>
+                {members.map(member => (
+                  <option key={member.user_id} value={member.user_id}>
+                    {getMemberName(member)}
+                  </option>
+                ))}
+              </SelectField>
             </div>
 
             {/* Epic Field */}
-            <div>
-              <label
-                htmlFor="epic_id"
-                className="block text-label-sm text-slate-medium mb-2"
-              >
-                EPIC
-              </label>
-              <select
-                {...epicField}
-                id="epic_id"
-                disabled={isDataLoading}
-                className={`w-full px-4 py-3 rounded-sm text-body-md outline-none ${
-                  epicFieldState.error ? 'bg-error-low' : 'bg-surface-highest'
-                } ${isDataLoading ? 'cursor-wait' : 'cursor-pointer'} ${!epicField.value ? 'text-slate-muted' : 'text-slate-dark'}`}
-              >
-                <option value="">Select Epic Link</option>
-                {epics.map(epic => (
-                  <option key={epic.id} value={epic.id}>
-                    {epic.epic_id} {truncateEpicTitle(epic.title)}
-                  </option>
-                ))}
-              </select>
-              {epicFieldState.error && (
-                <p className="text-error text-body-sm mt-1">
-                  {epicFieldState.error.message}
-                </p>
-              )}
-            </div>
+            <SelectField
+              control={control}
+              name="epic_id"
+              label="EPIC"
+              disabled={isDataLoading}
+              className={isDataLoading ? 'cursor-wait' : ''}
+            >
+              <option value="">Select Epic Link</option>
+              {epics.map(epic => (
+                <option key={epic.id} value={epic.id}>
+                  {epic.epic_id} {truncateEpicTitle(epic.title)}
+                </option>
+              ))}
+            </SelectField>
 
             {/* Due Date Field */}
             <div>
@@ -294,68 +220,27 @@ export default function AddTask() {
               >
                 DUE DATE
               </label>
-              <div
+              <FormField
+                control={control}
+                name="due_date"
+                type="date"
+                min={today}
+                placeholder="mm/dd/yyyy"
                 className="cursor-pointer"
-                onClick={() => {
-                  const input = document.getElementById(
-                    'due_date'
-                  ) as HTMLInputElement;
-                  input?.showPicker?.();
-                }}
-              >
-                <input
-                  {...dueDateField}
-                  id="due_date"
-                  type="date"
-                  min={today}
-                  placeholder="mm/dd/yyyy"
-                  className={`w-full px-4 py-3 rounded-sm text-body-md outline-none cursor-pointer ${
-                    dueDateFieldState.error
-                      ? 'bg-error-low'
-                      : 'bg-surface-highest'
-                  } ${!dueDateField.value ? 'text-slate-muted' : 'text-slate-dark'}`}
-                />
-              </div>
-              {dueDateFieldState.error && (
-                <p className="text-error text-body-sm mt-1">
-                  {dueDateFieldState.error.message}
-                </p>
-              )}
+              />
             </div>
 
             {/* Description Field */}
-            <div>
-              <label
-                htmlFor="description"
-                className="block text-label-sm text-slate-medium mb-2"
-              >
-                DESCRIPTION
-              </label>
-              <textarea
-                {...descriptionField}
-                id="description"
-                placeholder="Provide detailed context for this task..."
-                className={`w-full px-4 py-3 rounded-sm text-body-md text-slate-dark placeholder:text-slate-muted outline-none resize-none ${
-                  descriptionFieldState.error
-                    ? 'bg-error-low'
-                    : 'bg-surface-highest'
-                }`}
-                rows={6}
-                maxLength={1000}
-              />
-              <div className="flex items-center justify-between mt-1">
-                {descriptionFieldState.error ? (
-                  <p className="text-error text-body-sm">
-                    {descriptionFieldState.error.message}
-                  </p>
-                ) : (
-                  <span />
-                )}
-                <p className="text-sm text-slate-light">
-                  {descriptionField.value?.length || 0} / 1000 characters
-                </p>
-              </div>
-            </div>
+            <TextareaField
+              control={control}
+              name="description"
+              label="DESCRIPTION"
+              placeholder="Provide detailed context for this task..."
+              rows={6}
+              maxLength={1000}
+              showCharCount
+              maxCharCount={1000}
+            />
 
             {/* Action Buttons */}
             <div className="flex items-center justify-between pt-4">

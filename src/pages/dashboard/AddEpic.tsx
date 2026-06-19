@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { useForm, useController } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import FormField from '../../components/ui/FormField';
+import SelectField from '../../components/ui/SelectField';
+import TextareaField from '../../components/ui/TextareaField';
 import Button from '../../components/ui/button';
 import Breadcrumb from '../../components/ui/Breadcrumb';
 import { epicSchema } from '../../lib/validations/epicSchema';
@@ -33,24 +35,6 @@ export default function AddEpic() {
       deadline: '',
     },
   });
-
-  const { field: descriptionField, fieldState: descriptionFieldState } =
-    useController({
-      name: 'description',
-      control,
-    });
-
-  const { field: assigneeField, fieldState: assigneeFieldState } =
-    useController({
-      name: 'assignee_id',
-      control,
-    });
-
-  const { field: deadlineField, fieldState: deadlineFieldState } =
-    useController({
-      name: 'deadline',
-      control,
-    });
 
   useEffect(() => {
     if (!projectId) return;
@@ -168,40 +152,20 @@ export default function AddEpic() {
             {/* Description Field */}
             <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-start">
               <div className="flex items-center justify-between md:justify-start md:gap-2">
-                <label
-                  htmlFor="description"
-                  className="block text-label-sm text-slate-medium"
-                >
+                <label className="block text-label-sm text-slate-medium">
                   DESCRIPTION
                 </label>
                 <span className="text-sm text-slate-light">Optional</span>
               </div>
-              <div>
-                <textarea
-                  {...descriptionField}
-                  id="description"
-                  placeholder="Describe the scope and objectives of this epic..."
-                  className={`w-full px-4 py-3 rounded-sm text-body-md text-slate-dark placeholder:text-slate-muted outline-none resize-none ${
-                    descriptionFieldState.error
-                      ? 'bg-error-low'
-                      : 'bg-surface-highest'
-                  }`}
-                  rows={6}
-                  maxLength={500}
-                />
-                <div className="flex items-center justify-between mt-1">
-                  {descriptionFieldState.error ? (
-                    <p className="text-error text-body-sm">
-                      {descriptionFieldState.error.message}
-                    </p>
-                  ) : (
-                    <span />
-                  )}
-                  <p className="text-sm text-slate-light">
-                    {descriptionField.value?.length || 0} / 500 characters
-                  </p>
-                </div>
-              </div>
+              <TextareaField
+                control={control}
+                name="description"
+                placeholder="Describe the scope and objectives of this epic..."
+                rows={6}
+                maxLength={500}
+                showCharCount
+                maxCharCount={500}
+              />
             </div>
 
             {/* Assignee and Deadline Row */}
@@ -209,36 +173,20 @@ export default function AddEpic() {
               <div></div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {/* Assignee Field */}
-                <div>
-                  <label
-                    htmlFor="assignee_id"
-                    className="block text-label-sm text-slate-medium mb-2"
-                  >
-                    ASSIGNEE
-                  </label>
-                  <select
-                    {...assigneeField}
-                    id="assignee_id"
-                    disabled={isMembersLoading}
-                    className={`w-full px-4 py-3 rounded-sm text-body-md text-slate-dark outline-none ${
-                      assigneeFieldState.error
-                        ? 'bg-error-low'
-                        : 'bg-surface-highest'
-                    } ${isMembersLoading ? 'cursor-wait' : 'cursor-pointer'}`}
-                  >
-                    <option value="">Select a member...</option>
-                    {members.map(member => (
-                      <option key={member.user_id} value={member.user_id}>
-                        {getMemberName(member)}
-                      </option>
-                    ))}
-                  </select>
-                  {assigneeFieldState.error && (
-                    <p className="text-error text-body-sm mt-1">
-                      {assigneeFieldState.error.message}
-                    </p>
-                  )}
-                </div>
+                <SelectField
+                  control={control}
+                  name="assignee_id"
+                  label="ASSIGNEE"
+                  disabled={isMembersLoading}
+                  className={isMembersLoading ? 'cursor-wait' : ''}
+                >
+                  <option value="">Select a member...</option>
+                  {members.map(member => (
+                    <option key={member.user_id} value={member.user_id}>
+                      {getMemberName(member)}
+                    </option>
+                  ))}
+                </SelectField>
 
                 {/* Deadline Field */}
                 <div>
@@ -248,33 +196,14 @@ export default function AddEpic() {
                   >
                     DEADLINE
                   </label>
-                  <div
+                  <FormField
+                    control={control}
+                    name="deadline"
+                    type="date"
+                    min={today}
+                    placeholder="mm/dd/yyyy"
                     className="cursor-pointer"
-                    onClick={() => {
-                      const input = document.getElementById(
-                        'deadline'
-                      ) as HTMLInputElement;
-                      input?.showPicker?.();
-                    }}
-                  >
-                    <input
-                      {...deadlineField}
-                      id="deadline"
-                      type="date"
-                      min={today}
-                      placeholder="mm/dd/yyyy"
-                      className={`w-full px-4 py-3 rounded-sm text-body-md text-slate-dark outline-none cursor-pointer ${
-                        deadlineFieldState.error
-                          ? 'bg-error-low'
-                          : 'bg-surface-highest'
-                      }`}
-                    />
-                  </div>
-                  {deadlineFieldState.error && (
-                    <p className="text-error text-body-sm mt-1">
-                      {deadlineFieldState.error.message}
-                    </p>
-                  )}
+                  />
                 </div>
               </div>
             </div>

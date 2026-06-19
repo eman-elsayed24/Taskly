@@ -1,7 +1,8 @@
-import { useForm, useController } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link } from 'react-router-dom';
 import FormField from '../../ui/FormField';
+import TextareaField from '../../ui/TextareaField';
 import Button from '../../ui/button';
 import { projectSchema } from '../../../lib/validations/projectSchema';
 import type { ProjectFormData } from '../../../lib/validations/projectSchema';
@@ -29,12 +30,6 @@ export default function ProjectForm({
     resolver: zodResolver(projectSchema),
     defaultValues,
   });
-
-  const { field: descriptionField, fieldState: descriptionFieldState } =
-    useController({
-      name: 'description',
-      control,
-    });
 
   const isEditMode = mode === 'edit';
   const title = isEditMode ? 'Edit Project' : 'Add New Project';
@@ -105,41 +100,17 @@ export default function ProjectForm({
                 placeholder="Enter project title"
               />
 
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label
-                    htmlFor="description"
-                    className="block text-label-sm text-slate-medium"
-                  >
-                    DESCRIPTION
-                  </label>
-                  <span className="text-sm text-slate-light">Optional</span>
-                </div>
-                <textarea
-                  {...descriptionField}
-                  id="description"
-                  placeholder="Provide a high-level overview of the project's architectural objectives and key milestones..."
-                  className={`w-full px-4 py-3 rounded-sm text-body-md text-slate-dark placeholder:text-slate-muted outline-none resize-none ${
-                    descriptionFieldState.error
-                      ? 'bg-error-low'
-                      : 'bg-surface-highest'
-                  }`}
-                  rows={6}
-                  maxLength={500}
-                />
-                <div className="flex items-center justify-between mt-1">
-                  {descriptionFieldState.error ? (
-                    <p className="text-error text-body-sm">
-                      {descriptionFieldState.error.message}
-                    </p>
-                  ) : (
-                    <span />
-                  )}
-                  <p className="text-sm text-slate-light">
-                    {descriptionField.value?.length || 0} / 500 characters
-                  </p>
-                </div>
-              </div>
+              <TextareaField
+                control={control}
+                name="description"
+                label="DESCRIPTION"
+                showOptional
+                placeholder="Provide a high-level overview of the project's architectural objectives and key milestones..."
+                rows={6}
+                maxLength={500}
+                showCharCount
+                maxCharCount={500}
+              />
             </div>
 
             <div className="flex items-center justify-between pt-6 ">
