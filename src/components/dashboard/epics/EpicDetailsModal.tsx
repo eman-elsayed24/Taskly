@@ -98,8 +98,20 @@ export default function EpicDetailsModal({
         ? epicDetails.assignee
         : epicDetails[field as keyof Epic];
 
-    // Optimistic update - for assignee_id we'll update after API call
-    if (field !== 'assignee_id') {
+    // Optimistic update for all fields
+    if (field === 'assignee_id') {
+      // For assignee, find the member data to show immediately
+      const selectedMember = projectMembers.find(m => m.user_id === value);
+      const assigneeData = selectedMember
+        ? {
+            sub: selectedMember.metadata.sub,
+            name: selectedMember.metadata.name,
+            email: selectedMember.metadata.email,
+            department: selectedMember.metadata.jobTitle || null,
+          }
+        : null;
+      setEpicDetails({ ...epicDetails, assignee: assigneeData });
+    } else {
       setEpicDetails({ ...epicDetails, [field]: value } as Epic);
     }
 
@@ -108,11 +120,23 @@ export default function EpicDetailsModal({
       await updateEpic(epicDetails.id, { [field]: value });
       toast.success('Epic updated successfully');
 
-      // Refresh epic details to get updated data with relationships
-      const refreshedEpic = await getEpicById(projectId, epicDetails.id);
-      setEpicDetails(refreshedEpic);
+      // Update parent component without refetching from API
       if (onUpdate) {
-        onUpdate(refreshedEpic);
+        const updatedEpic = { ...epicDetails };
+        if (field === 'assignee_id') {
+          const selectedMember = projectMembers.find(m => m.user_id === value);
+          updatedEpic.assignee = selectedMember
+            ? {
+                sub: selectedMember.metadata.sub,
+                name: selectedMember.metadata.name,
+                email: selectedMember.metadata.email,
+                department: selectedMember.metadata.jobTitle || null,
+              }
+            : null;
+        } else {
+          (updatedEpic as any)[field] = value;
+        }
+        onUpdate(updatedEpic);
       }
     } catch {
       // Revert on error
@@ -170,7 +194,7 @@ export default function EpicDetailsModal({
       </ModalHeader>
 
       <ModalContent className="space-y-6">
-        {isLoading ? (
+        {isLoading && !epicDetails ? (
           <EpicDetailsSkeleton />
         ) : (
           <>
@@ -222,7 +246,7 @@ export default function EpicDetailsModal({
                 <p className="text-label-sm text-slate-light uppercase">
                   Created At
                 </p>
-                <div className="flex items-center gap-3 text-slate-dark">
+                <div className="flex items-center  text-slate-dark">
                   <div className="w-9 h-9 flex items-center justify-center">
                     <EventIcon className="w-4 h-4 text-slate-light" />
                   </div>

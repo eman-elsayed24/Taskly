@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface EditableEpicDescriptionProps {
   description: string | null | undefined;
@@ -14,6 +14,13 @@ export default function EditableEpicDescription({
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState(description || '');
 
+  // Sync with prop changes only when not editing
+  useEffect(() => {
+    if (!isEditing) {
+      setValue(description || '');
+    }
+  }, [description, isEditing]);
+
   const handleBlur = () => {
     setIsEditing(false);
     if (value !== (description || '')) {
@@ -27,11 +34,6 @@ export default function EditableEpicDescription({
       setIsEditing(false);
     }
   };
-
-  // Update local value when prop changes
-  if (value !== (description || '') && !isEditing) {
-    setValue(description || '');
-  }
 
   return isEditing ? (
     <textarea

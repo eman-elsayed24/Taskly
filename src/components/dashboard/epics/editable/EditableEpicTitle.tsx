@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface EditableEpicTitleProps {
   title: string;
@@ -13,6 +13,13 @@ export default function EditableEpicTitle({
 }: EditableEpicTitleProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState(title);
+
+  // Sync with prop changes only when not editing
+  useEffect(() => {
+    if (!isEditing) {
+      setValue(title);
+    }
+  }, [title, isEditing]);
 
   const handleBlur = () => {
     setIsEditing(false);
@@ -32,11 +39,6 @@ export default function EditableEpicTitle({
       setIsEditing(false);
     }
   };
-
-  // Update local value when prop changes
-  if (value !== title && !isEditing) {
-    setValue(title);
-  }
 
   return isEditing ? (
     <input

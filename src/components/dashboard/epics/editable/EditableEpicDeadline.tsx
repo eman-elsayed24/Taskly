@@ -25,7 +25,7 @@ export default function EditableEpicDeadline({
   return (
     <div className="space-y-3">
       <p className="text-label-sm text-slate-light uppercase">Deadline</p>
-      <div className="flex items-center gap-3 relative">
+      <div className="flex items-center  relative">
         <div
           className="w-9 h-9 flex items-center justify-center cursor-pointer"
           onClick={handleClick}
