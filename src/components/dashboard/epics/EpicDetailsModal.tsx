@@ -7,16 +7,16 @@ import { formatDate } from '../../../utils/formatDate';
 import { getInitials } from '../../../utils/stringHelpers';
 import { getEpicById, updateEpic } from '../../../api/epicApi';
 import { getProjectMembers } from '../../../api/memberApi';
+import { getEpicTasks, type EpicTask } from '../../../api/taskApi';
 import Modal, { ModalHeader, ModalContent } from '../../ui/Modal';
-import Button from '../../ui/button';
 import EpicDetailsSkeleton from './EpicDetailsSkeleton';
 import EditableEpicTitle from './editable/EditableEpicTitle';
 import EditableEpicDescription from './editable/EditableEpicDescription';
 import EditableEpicAssignee from './editable/EditableEpicAssignee';
 import EditableEpicDeadline from './editable/EditableEpicDeadline';
+import EpicTasksList from './EpicTasksList';
 import EpicsIcon from '../../../assets/icons/epic.svg?react';
 import EventIcon from '../../../assets/icons/event.svg?react';
-import TasksListIcon from '../../../assets/icons/tasksList.svg?react';
 import { ROUTES } from '../../../constants/routes';
 
 interface EpicDetailsModalProps {
@@ -37,6 +37,9 @@ export default function EpicDetailsModal({
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [projectMembers, setProjectMembers] = useState<ProjectMember[]>([]);
+  const [tasks, setTasks] = useState<EpicTask[]>([]);
+  const [isTasksLoading, setIsTasksLoading] = useState(true);
+  const [tasksError, setTasksError] = useState(false);
 
   // Fetch epic details and project members when modal opens
   useEffect(() => {
@@ -61,6 +64,25 @@ export default function EpicDetailsModal({
 
     fetchData();
   }, [epic.id, projectId, onClose]);
+
+  // Fetch tasks for this epic
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        setIsTasksLoading(true);
+        setTasksError(false);
+        const epicTasks = await getEpicTasks(epic.id);
+        setTasks(epicTasks);
+      } catch (error) {
+        setTasksError(true);
+        console.error('Failed to load tasks:', error);
+      } finally {
+        setIsTasksLoading(false);
+      }
+    };
+
+    fetchTasks();
+  }, [epic.id]);
 
   const displayEpic = epicDetails || epic;
 
@@ -212,33 +234,12 @@ export default function EpicDetailsModal({
             </div>
 
             {/* Tasks Section */}
-            <section className="space-y-4 pt-4">
-              <div className="flex justify-between items-center">
-                <h4 className="text-title-md text-slate-dark capitalize">
-                  Tasks
-                </h4>
-                <Button
-                  variant="secondary"
-                  className="capitalize text-body-md"
-                  onClick={handleAddTask}
-                >
-                  + Add Task
-                </Button>
-              </div>
-
-              {/* Empty State */}
-              <div className="bg-surface-low flex flex-col items-center gap-6 rounded-lg p-10">
-                <div className="bg-surface-highest rounded-xl p-3">
-                  <TasksListIcon className="w-5 h-5 text-primary" />
-                </div>
-                <p className="text-title-md text-slate-dark text-center">
-                  No tasks have been added to this epic yet
-                </p>
-                <Button className="text-body-md" onClick={handleAddTask}>
-                  + Add Task
-                </Button>
-              </div>
-            </section>
+            <EpicTasksList
+              tasks={tasks}
+              isLoading={isTasksLoading}
+              hasError={tasksError}
+              onAddTask={handleAddTask}
+            />
           </>
         )}
       </ModalContent>
