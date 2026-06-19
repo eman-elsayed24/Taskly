@@ -27,3 +27,26 @@ export async function getEpicsByProject(projectId: string): Promise<any[]> {
 
   return response;
 }
+
+export interface EpicTask {
+  id: string;
+  title: string;
+  assignee: {
+    sub: string;
+    name: string;
+    email: string;
+  } | null;
+  due_date: string | null;
+  status: string;
+}
+
+export async function getEpicTasks(epicId: string): Promise<EpicTask[]> {
+  const url = `/rest/v1/project_tasks?epic_id=eq.${epicId}`;
+
+  const response = await apiFetch<EpicTask[]>(url, {
+    method: 'GET',
+    includeAuth: true,
+  });
+
+  return response;
+}
