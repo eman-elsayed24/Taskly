@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { useProject } from '../../hooks/useProject';
 import Button from '../../components/ui/button';
 import Breadcrumb from '../../components/ui/Breadcrumb';
 import ErrorState from '../../components/ui/ErrorState';
@@ -10,10 +11,8 @@ import EpicCard from '../../components/dashboard/epics/EpicCard';
 import EpicCardSkeleton from '../../components/dashboard/epics/EpicCardSkeleton';
 import EpicDetailsModal from '../../components/dashboard/epics/EpicDetailsModal';
 import { getProjectEpics } from '../../api/epicApi';
-import { getProjectById } from '../../api/projectApi';
 import { useInfiniteScroll } from '../../hooks/useInfiniteScroll';
 import type { Epic } from '../../types/epic';
-import type { Project } from '../../types/project';
 import { ROUTES } from '../../constants/routes';
 import EmptyEpicsIcon from '../../assets/icons/emptyEpics.svg';
 import RocketIcon from '../../assets/icons/rocket.svg?react';
@@ -25,7 +24,7 @@ import SearchIcon from '../../assets/icons/search.svg?react';
 export default function ProjectEpics() {
   const { projectId } = useParams<{ projectId: string }>();
   const [initialEpics, setInitialEpics] = useState<Epic[]>([]);
-  const [project, setProject] = useState<Project | null>(null);
+  const { project } = useProject(projectId);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -63,13 +62,9 @@ export default function ProjectEpics() {
         setIsLoading(true);
         setHasError(false);
         setCurrentPage(1);
-        const [projectData, epicsResponse] = await Promise.all([
-          getProjectById(projectId),
-          getProjectEpics(projectId, pageSize, 0),
-        ]);
+        const epicsResponse = await getProjectEpics(projectId, pageSize, 0);
 
         if (isMounted) {
-          setProject(projectData);
           setInitialEpics(epicsResponse.data);
           setTotalCount(epicsResponse.totalCount);
           setIsLoading(false);
@@ -139,12 +134,8 @@ export default function ProjectEpics() {
     setHasError(false);
     const offset = (currentPage - 1) * pageSize;
 
-    Promise.all([
-      getProjectById(projectId),
-      getProjectEpics(projectId, pageSize, offset),
-    ])
-      .then(([projectData, epicsResponse]) => {
-        setProject(projectData);
+    getProjectEpics(projectId, pageSize, offset)
+      .then(epicsResponse => {
         setInitialEpics(epicsResponse.data);
         setTotalCount(epicsResponse.totalCount);
         setIsLoading(false);

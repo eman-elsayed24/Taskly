@@ -1,16 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { useProject } from '../../hooks/useProject';
 import Button from '../../components/ui/button';
 import Badge from '../../components/ui/badge';
 import Breadcrumb from '../../components/ui/Breadcrumb';
 import ErrorState from '../../components/ui/ErrorState';
 import MemberTableSkeleton from '../../components/dashboard/members/MemberTableSkeleton';
 import { getProjectMembers } from '../../api/memberApi';
-import { getProjectById } from '../../api/projectApi';
 import type { ProjectMember } from '../../types/member';
 import { getMemberName, getMemberEmail } from '../../types/member';
-import type { Project } from '../../types/project';
 import { ROUTES } from '../../constants/routes';
 import { getInitials } from '../../utils/stringHelpers';
 import PersonAddIcon from '../../assets/icons/person-add.svg?react';
@@ -30,7 +29,7 @@ function normalizeRole(role: string): string {
 export default function ProjectMembers() {
   const { projectId } = useParams<{ projectId: string }>();
   const [members, setMembers] = useState<ProjectMember[]>([]);
-  const [project, setProject] = useState<Project | null>(null);
+  const { project } = useProject(projectId);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
 
@@ -43,13 +42,9 @@ export default function ProjectMembers() {
       try {
         setIsLoading(true);
         setHasError(false);
-        const [projectData, membersData] = await Promise.all([
-          getProjectById(projectId),
-          getProjectMembers(projectId),
-        ]);
+        const membersData = await getProjectMembers(projectId);
 
         if (isMounted) {
-          setProject(projectData);
           setMembers(membersData);
           setIsLoading(false);
         }
@@ -79,9 +74,8 @@ export default function ProjectMembers() {
     setIsLoading(true);
     setHasError(false);
 
-    Promise.all([getProjectById(projectId), getProjectMembers(projectId)])
-      .then(([projectData, membersData]) => {
-        setProject(projectData);
+    getProjectMembers(projectId)
+      .then(membersData => {
         setMembers(membersData);
         setIsLoading(false);
       })

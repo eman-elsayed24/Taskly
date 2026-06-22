@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
+import { useProject } from '../../hooks/useProject';
 import TasksBoard from '../../components/dashboard/tasks/TasksBoard';
 import TasksList from '../../components/dashboard/tasks/TasksList';
 import TaskViewSelect from '../../components/dashboard/tasks/TaskViewSelect';
@@ -12,6 +13,7 @@ export default function ProjectTasks() {
   const { projectId } = useParams<{ projectId: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
+  const { project } = useProject(projectId);
 
   const view = searchParams.get('view') || 'board';
 
@@ -26,7 +28,7 @@ export default function ProjectTasks() {
         items={[
           { label: 'PROJECTS', href: ROUTES.PROJECTS },
           {
-            label: 'PROJECT ALPHA',
+            label: project?.name || 'PROJECT',
             href: projectId ? ROUTES.PROJECT_DETAILS(projectId) : undefined,
           },
           { label: 'TASKS' },
