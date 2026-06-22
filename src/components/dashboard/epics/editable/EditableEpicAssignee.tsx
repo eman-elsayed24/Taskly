@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import type { EpicUser } from '../../../../types/epic';
 import type { ProjectMember } from '../../../../types/member';
-import { getInitials } from '../../../../utils/stringHelpers';
 import UserAvatar from '../../../ui/UserAvatar';
 
 interface EditableEpicAssigneeProps {
