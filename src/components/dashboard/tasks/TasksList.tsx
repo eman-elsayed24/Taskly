@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Badge from '../../ui/badge';
+import TaskListItemSkeleton from './TaskListItemSkeleton';
 import { TaskStatus, TASK_STATUS_LABELS } from '../../../types/task';
 import { getAllProjectTasks } from '../../../api/taskApi';
 import { formatDate } from '../../../utils/formatDate';
 import toast from 'react-hot-toast';
-import Spinner from '../../ui/spinner';
 
 interface TaskData {
   id: string;
@@ -32,7 +32,7 @@ const TasksList: React.FC = () => {
       try {
         const data = await getAllProjectTasks(projectId);
         setTasks(data);
-      } catch (error) {
+      } catch {
         toast.error('Failed to load tasks');
       } finally {
         setIsLoading(false);
@@ -93,22 +93,6 @@ const TasksList: React.FC = () => {
     return colors[index];
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Spinner />
-      </div>
-    );
-  }
-
-  if (tasks.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20">
-        <p className="text-slate-medium text-body-lg">No tasks found</p>
-      </div>
-    );
-  }
-
   return (
     <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-surface-high">
       <div className="overflow-x-auto">
@@ -122,45 +106,62 @@ const TasksList: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {tasks.map(task => (
-              <tr
-                key={task.id}
-                className="border-b border-surface-low hover:bg-surface-low/20 transition-colors"
-              >
-                <td className={tdStyle}>
-                  <h3 className="font-medium text-slate-dark line-clamp-2">
-                    {task.title}
-                  </h3>
-                </td>
-                <td className={tdStyle}>
-                  <Badge
-                    className={`py-1 px-3 text-label-sm ${getStatusBadgeStyle(task.status)}`}
-                  >
-                    {TASK_STATUS_LABELS[task.status as TaskStatus] ||
-                      task.status}
-                  </Badge>
-                </td>
-                <td className={`${tdStyle} text-slate-medium`}>
-                  {task.due_date ? formatDate(task.due_date) : '-'}
-                </td>
-                <td className={tdStyle}>
-                  {task.assignee ? (
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={`w-8 h-8 rounded-lg flex items-center justify-center text-white text-label-sm font-bold ${getAvatarColor(task.assignee.name)}`}
-                      >
-                        {getInitials(task.assignee.name)}
-                      </div>
-                      <span className="text-slate-dark">
-                        {task.assignee.name}
-                      </span>
-                    </div>
-                  ) : (
-                    <span className="text-slate-medium">Unassigned</span>
-                  )}
+            {isLoading ? (
+             
+              <>
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <TaskListItemSkeleton key={index} />
+                ))}
+              </>
+            ) : tasks.length === 0 ? (
+              <tr>
+                <td colSpan={4} className="py-20 text-center">
+                  <p className="text-slate-medium text-body-lg">
+                    No tasks found
+                  </p>
                 </td>
               </tr>
-            ))}
+            ) : (
+              tasks.map(task => (
+                <tr
+                  key={task.id}
+                  className="border-b border-surface-low hover:bg-surface-low/20 transition-colors"
+                >
+                  <td className={tdStyle}>
+                    <h3 className="font-medium text-slate-dark line-clamp-2">
+                      {task.title}
+                    </h3>
+                  </td>
+                  <td className={tdStyle}>
+                    <Badge
+                      className={`py-1 px-3 text-label-sm ${getStatusBadgeStyle(task.status)}`}
+                    >
+                      {TASK_STATUS_LABELS[task.status as TaskStatus] ||
+                        task.status}
+                    </Badge>
+                  </td>
+                  <td className={`${tdStyle} text-slate-medium`}>
+                    {task.due_date ? formatDate(task.due_date) : '-'}
+                  </td>
+                  <td className={tdStyle}>
+                    {task.assignee ? (
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`w-8 h-8 rounded-lg flex items-center justify-center text-white text-label-sm font-bold ${getAvatarColor(task.assignee.name)}`}
+                        >
+                          {getInitials(task.assignee.name)}
+                        </div>
+                        <span className="text-slate-dark">
+                          {task.assignee.name}
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-slate-medium">Unassigned</span>
+                    )}
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

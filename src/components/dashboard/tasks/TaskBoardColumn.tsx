@@ -3,10 +3,10 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { TaskStatus, TASK_STATUS_LABELS } from '../../../types/task';
 import { getTasksByStatus } from '../../../api/taskApi';
 import TaskCard from './TaskCard';
+import TaskCardSkeleton from './TaskCardSkeleton';
 import toast from 'react-hot-toast';
 import { ROUTES } from '../../../constants/routes';
 import PlusCircleIcon from '../../../assets/icons/plusCircle.svg?react';
-import Spinner from '../../ui/spinner';
 
 interface TaskBoardColumnProps {
   status: TaskStatus;
@@ -37,7 +37,7 @@ const TaskBoardColumn: React.FC<TaskBoardColumnProps> = ({ status }) => {
       try {
         const data = await getTasksByStatus(projectId, status);
         setTasks(data);
-      } catch (error) {
+      } catch {
         toast.error('Failed to load tasks');
       } finally {
         setIsLoading(false);
@@ -94,7 +94,7 @@ const TaskBoardColumn: React.FC<TaskBoardColumnProps> = ({ status }) => {
             {TASK_STATUS_LABELS[status]}
           </h3>
           <span
-            className={`text-label-sm font-bold px-1.5 py-0.5 rounded-sm min-w-[1.25rem] flex items-center justify-center ${getCountBadgeStyle()}`}
+            className={`text-label-sm font-bold px-1.5 py-0.5 rounded-sm min-w-5 flex items-center justify-center ${getCountBadgeStyle()}`}
           >
             {tasks.length}
           </span>
@@ -120,9 +120,11 @@ const TaskBoardColumn: React.FC<TaskBoardColumnProps> = ({ status }) => {
         </button>
 
         {isLoading ? (
-          <div className="flex items-center justify-center py-8">
-            <Spinner />
-          </div>
+          <>
+            {Array.from({ length: 3 }).map((_, index) => (
+              <TaskCardSkeleton key={index} />
+            ))}
+          </>
         ) : tasks.length === 0 ? (
           <div className="flex items-center justify-center py-8">
             <p className="text-slate-medium text-body-sm">No tasks</p>
