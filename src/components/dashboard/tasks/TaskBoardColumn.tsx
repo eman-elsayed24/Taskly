@@ -53,7 +53,6 @@ const TaskBoardColumn: React.FC<TaskBoardColumnProps> = ({ status }) => {
   };
 
   // Status color mapping
-  
 
   const getHeaderDotColor = () => {
     switch (status) {
@@ -110,9 +109,7 @@ const TaskBoardColumn: React.FC<TaskBoardColumnProps> = ({ status }) => {
       </div>
 
       {/* Tasks List */}
-      <div
-        className=" flex flex-col gap-3 p-3 rounded-lg min-h-[400px]"
-      >
+      <div className=" flex flex-col gap-3 p-3 rounded-lg min-h-[400px]">
         {/* Add New Task Button */}
         <button
           onClick={handleAddTask}
@@ -124,7 +121,7 @@ const TaskBoardColumn: React.FC<TaskBoardColumnProps> = ({ status }) => {
 
         {isLoading ? (
           <div className="flex items-center justify-center py-8">
-            <Spinner size="md" />
+            <Spinner />
           </div>
         ) : tasks.length === 0 ? (
           <div className="flex items-center justify-center py-8">

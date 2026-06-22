@@ -31,7 +31,7 @@ const TaskViewSelect: React.FC<TaskViewSelectProps> = ({ value, onChange }) => {
     options.find(option => option.value === value) || options[0];
 
   const customStyles = {
-    control: (provided, state) => ({
+    control: (provided: any, state: any) => ({
       ...provided,
       backgroundColor: 'white',
       border: '1px solid rgba(195, 198, 214, 0.2)',
@@ -49,14 +49,14 @@ const TaskViewSelect: React.FC<TaskViewSelectProps> = ({ value, onChange }) => {
     indicatorSeparator: () => ({
       display: 'none',
     }),
-    dropdownIndicator: (provided, state) => ({
+    dropdownIndicator: (provided: any, state: any) => ({
       ...provided,
       color: '#04183c',
       padding: '0',
       transition: 'transform 0.2s',
       transform: state.selectProps.menuIsOpen ? 'rotate(180deg)' : 'rotate(0)',
     }),
-    menu: provided => ({
+    menu: (provided: any) => ({
       ...provided,
       border: '1px solid rgba(195, 198, 214, 0.2)',
       boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
@@ -64,7 +64,7 @@ const TaskViewSelect: React.FC<TaskViewSelectProps> = ({ value, onChange }) => {
       overflow: 'hidden',
       marginTop: '8px',
     }),
-    option: (provided, state) => ({
+    option: (provided: any, state: any) => ({
       ...provided,
       backgroundColor: state.isSelected
         ? 'rgba(241, 245, 255, 1)'
@@ -81,12 +81,12 @@ const TaskViewSelect: React.FC<TaskViewSelectProps> = ({ value, onChange }) => {
         backgroundColor: 'rgba(241, 245, 255, 1)',
       },
     }),
-    valueContainer: provided => ({
+    valueContainer: (provided: any) => ({
       ...provided,
       padding: '0',
       gap: '8px',
     }),
-    singleValue: provided => ({
+    singleValue: (provided: any) => ({
       ...provided,
       margin: 0,
       display: 'flex',

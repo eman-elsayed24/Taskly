@@ -10,7 +10,7 @@ import Spinner from '../../ui/spinner';
 interface TaskData {
   id: string;
   title: string;
-  status: TaskStatus;
+  status: string;
   due_date: string | null;
   assignee: {
     sub: string;
@@ -46,7 +46,7 @@ const TasksList: React.FC = () => {
     'text-secondary py-4 px-6 font-bold text-label-sm uppercase tracking-wide text-left';
   const tdStyle = 'py-4 px-6 text-body text-slate-dark';
 
-  const getStatusBadgeStyle = (status: TaskStatus) => {
+  const getStatusBadgeStyle = (status: string) => {
     switch (status) {
       case TaskStatus.TO_DO:
         return 'bg-slate-light/30 text-slate-dark';
@@ -96,7 +96,7 @@ const TasksList: React.FC = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Spinner size="lg" />
+        <Spinner />
       </div>
     );
   }
@@ -136,7 +136,8 @@ const TasksList: React.FC = () => {
                   <Badge
                     className={`py-1 px-3 text-label-sm ${getStatusBadgeStyle(task.status)}`}
                   >
-                    {TASK_STATUS_LABELS[task.status]}
+                    {TASK_STATUS_LABELS[task.status as TaskStatus] ||
+                      task.status}
                   </Badge>
                 </td>
                 <td className={`${tdStyle} text-slate-medium`}>
