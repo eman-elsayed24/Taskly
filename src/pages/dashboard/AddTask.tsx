@@ -24,6 +24,7 @@ export default function AddTask() {
   const { projectId } = useParams<{ projectId: string }>();
   const [searchParams] = useSearchParams();
   const epicIdFromUrl = searchParams.get('epicId');
+  const statusFromUrl = searchParams.get('status');
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [members, setMembers] = useState<ProjectMember[]>([]);
@@ -35,7 +36,7 @@ export default function AddTask() {
     resolver: zodResolver(taskSchema),
     defaultValues: {
       title: '',
-      status: TaskStatus.TO_DO,
+      status: (statusFromUrl as TaskStatus) || TaskStatus.TO_DO,
       assignee_id: '',
       epic_id: epicIdFromUrl || '',
       due_date: '',

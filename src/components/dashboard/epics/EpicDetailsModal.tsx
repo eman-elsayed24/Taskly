@@ -134,7 +134,10 @@ export default function EpicDetailsModal({
               }
             : null;
         } else {
-          (updatedEpic as any)[field] = value;
+          // Type-safe update using type narrowing
+          updatedEpic[
+            field as keyof Pick<Epic, 'title' | 'description' | 'deadline'>
+          ] = value;
         }
         onUpdate(updatedEpic);
       }

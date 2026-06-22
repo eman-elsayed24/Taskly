@@ -50,3 +50,53 @@ export async function getEpicTasks(epicId: string): Promise<EpicTask[]> {
 
   return response;
 }
+
+export interface TaskByStatus {
+  id: string;
+  title: string;
+  due_date: string | null;
+  assignee: {
+    sub: string;
+    name: string;
+    email: string;
+  } | null;
+}
+
+export async function getTasksByStatus(
+  projectId: string,
+  status: string
+): Promise<TaskByStatus[]> {
+  const url = `/rest/v1/project_tasks?project_id=eq.${projectId}&status=eq.${status}`;
+
+  const response = await apiFetch<TaskByStatus[]>(url, {
+    method: 'GET',
+    includeAuth: true,
+  });
+
+  return response;
+}
+
+export interface ProjectTask {
+  id: string;
+  title: string;
+  status: string;
+  due_date: string | null;
+  assignee: {
+    sub: string;
+    name: string;
+    email: string;
+  } | null;
+}
+
+export async function getAllProjectTasks(
+  projectId: string
+): Promise<ProjectTask[]> {
+  const url = `/rest/v1/project_tasks?project_id=eq.${projectId}`;
+
+  const response = await apiFetch<ProjectTask[]>(url, {
+    method: 'GET',
+    includeAuth: true,
+  });
+
+  return response;
+}
