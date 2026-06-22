@@ -1,6 +1,6 @@
 import type { Epic } from '../../../types/epic';
-import { getInitials } from '../../../utils/stringHelpers';
 import { formatDate } from '../../../utils/formatDate';
+import UserAvatar from '../../ui/UserAvatar';
 import PersonIcon from '../../../assets/icons/person.svg?react';
 import EventIcon from '../../../assets/icons/event.svg?react';
 
@@ -10,10 +10,6 @@ interface EpicCardProps {
 }
 
 export default function EpicCard({ epic, onClick }: EpicCardProps) {
-  const assigneeInitials = epic.assignee
-    ? getInitials(epic.assignee.name)
-    : '?';
-
   return (
     <div
       className="bg-white rounded-md p-6 border-l-4 border-success-dark hover:shadow-sm transition-shadow cursor-pointer"
@@ -30,9 +26,7 @@ export default function EpicCard({ epic, onClick }: EpicCardProps) {
       {/* Assignee Section */}
       <div className="mb-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg flex items-center justify-center font-semibold text-sm bg-success">
-            {assigneeInitials}
-          </div>
+          <UserAvatar name={epic.assignee?.name} size="lg" variant="success" />
           <div>
             <p className="text-body-sm text-slate-light uppercase tracking-wide">
               Assignee

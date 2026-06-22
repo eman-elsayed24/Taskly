@@ -1,4 +1,5 @@
 import { formatDate } from '../../../utils/formatDate';
+import UserAvatar from '../../ui/UserAvatar';
 
 interface TaskCardProps {
   id: string;
@@ -12,32 +13,6 @@ interface TaskCardProps {
 }
 
 const TaskCard: React.FC<TaskCardProps> = ({ title, dueDate, assignee }) => {
-  // Generate a color for avatar based on assignee name
-  const getAvatarColor = (name: string | null | undefined) => {
-    if (!name) return 'bg-slate-400';
-    const colors = [
-      'bg-blue-500',
-      'bg-purple-500',
-      'bg-pink-500',
-      'bg-indigo-500',
-      'bg-teal-500',
-      'bg-orange-500',
-      'bg-cyan-500',
-    ];
-    const index = name.charCodeAt(0) % colors.length;
-    return colors[index];
-  };
-
-  // Get initials from name
-  const getInitials = (name: string | null | undefined) => {
-    if (!name) return '?';
-    const parts = name.split(' ');
-    if (parts.length >= 2) {
-      return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
-    }
-    return name.substring(0, 2).toUpperCase();
-  };
-
   // Check if date is overdue
   const isOverdue = (date: string | null) => {
     if (!date) return false;
@@ -75,15 +50,20 @@ const TaskCard: React.FC<TaskCardProps> = ({ title, dueDate, assignee }) => {
   };
 
   // Get avatar style based on date
-  const getAvatarStyle = () => {
+  const getAvatarVariantAndClass = (): {
+    variant: 'auto' | 'primary';
+    className?: string;
+  } => {
     if (isToday(dueDate)) {
-      return 'bg-primary-container text-white border border-white';
+      return {
+        variant: 'primary',
+        className: 'bg-primary-container text-white border border-white',
+      };
     }
-    if (assignee) {
-      return `${getAvatarColor(assignee.name)} text-white`;
-    }
-    return 'bg-surface-high text-slate-dark';
+    return { variant: 'auto' };
   };
+
+  const avatarConfig = getAvatarVariantAndClass();
 
   return (
     <div
@@ -133,18 +113,12 @@ const TaskCard: React.FC<TaskCardProps> = ({ title, dueDate, assignee }) => {
         </div>
 
         {/* Assignee Avatar */}
-        {assignee ? (
-          <div
-            className={`w-8 h-8 rounded-full flex items-center justify-center text-label-sm font-bold ${getAvatarStyle()}`}
-            title={assignee.name}
-          >
-            {getInitials(assignee.name)}
-          </div>
-        ) : (
-          <div className="w-8 h-8 rounded-full bg-slate-light/50 flex items-center justify-center">
-            <span className="text-slate-medium text-label-sm">?</span>
-          </div>
-        )}
+        <UserAvatar
+          name={assignee?.name}
+          size="sm"
+          variant={avatarConfig.variant}
+          className={avatarConfig.className}
+        />
       </div>
     </div>
   );

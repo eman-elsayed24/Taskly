@@ -4,11 +4,11 @@ import toast from 'react-hot-toast';
 import type { Epic, EpicUser } from '../../../types/epic';
 import type { ProjectMember } from '../../../types/member';
 import { formatDate } from '../../../utils/formatDate';
-import { getInitials } from '../../../utils/stringHelpers';
 import { getEpicById, updateEpic } from '../../../api/epicApi';
 import { getProjectMembers } from '../../../api/memberApi';
 import { getEpicTasks, type EpicTask } from '../../../api/taskApi';
 import Modal, { ModalHeader, ModalContent } from '../../ui/Modal';
+import UserAvatar from '../../ui/UserAvatar';
 import EpicDetailsSkeleton from './EpicDetailsSkeleton';
 import EditableEpicTitle from './editable/EditableEpicTitle';
 import EditableEpicDescription from './editable/EditableEpicDescription';
@@ -173,8 +173,6 @@ export default function EpicDetailsModal({
     handleUpdateField('deadline', date);
   };
 
-  const creatorInitials = getInitials(displayEpic.created_by.name);
-
   const handleAddTask = () => {
     navigate(`${ROUTES.ADD_TASK(projectId)}?epicId=${epic.id}`);
   };
@@ -218,9 +216,11 @@ export default function EpicDetailsModal({
                   Created By
                 </p>
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-primary/20 text-primary flex items-center justify-center font-bold text-sm">
-                    {creatorInitials}
-                  </div>
+                  <UserAvatar
+                    name={displayEpic.created_by.name}
+                    size="md"
+                    variant="primary"
+                  />
                   <div>
                     <h5 className="text-slate-dark text-body-md ">
                       {displayEpic.created_by.name}

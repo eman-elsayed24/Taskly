@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { EpicUser } from '../../../../types/epic';
 import type { ProjectMember } from '../../../../types/member';
 import { getInitials } from '../../../../utils/stringHelpers';
-import UnassignedIcon from '../../../../assets/icons/unassigned.svg?react';
+import UserAvatar from '../../../ui/UserAvatar';
 
 interface EditableEpicAssigneeProps {
   assignee: EpicUser | null;
@@ -25,8 +25,6 @@ export default function EditableEpicAssignee({
       onUpdate(userId);
     }
   };
-
-  const assigneeInitials = assignee ? getInitials(assignee.name) : null;
 
   return (
     <div className="space-y-3">
@@ -52,19 +50,7 @@ export default function EditableEpicAssignee({
           onClick={() => setIsEditing(true)}
           className="flex items-center gap-3 cursor-pointer hover:bg-surface-low rounded px-3 py-2 -mx-3"
         >
-          <div
-            className={`w-9 h-9 rounded-lg flex items-center justify-center font-bold text-sm ${
-              assignee
-                ? 'bg-success/20 text-success-dark'
-                : 'bg-slate-light/20 text-slate-muted'
-            }`}
-          >
-            {assignee && assignee.name ? (
-              assigneeInitials
-            ) : (
-              <UnassignedIcon className="w-4 h-4" />
-            )}
-          </div>
+          <UserAvatar name={assignee?.name} size="md" variant="success" />
           <div>
             <h5
               className={`text-body-md ${
