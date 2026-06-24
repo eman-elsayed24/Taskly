@@ -18,7 +18,7 @@ export default function TasksPagination({
   // Don't show pagination if there are no items or only one page
   if (totalCount === 0 || totalPages <= 1) return null;
 
-  const startItem = Math.min((currentPage - 1) * pageSize + 1, totalCount);
+  
   const endItem = Math.min(currentPage * pageSize, totalCount);
 
   return (
