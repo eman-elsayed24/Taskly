@@ -74,7 +74,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ title, dueDate, assignee }) => {
         {title}
       </h4>
 
-      {/* Task Footer */}
+
       <div className="flex items-center justify-between">
         {/* Due Date */}
         <div className="flex items-center gap-2">

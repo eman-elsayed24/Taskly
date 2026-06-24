@@ -18,7 +18,7 @@ export default function ProjectTasks() {
   };
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-5 pb-40 lg:pb-0">
       <TasksHeader
         view={view}
         onViewChange={handleViewChange}

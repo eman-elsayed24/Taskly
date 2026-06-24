@@ -62,15 +62,30 @@ export interface TaskByStatus {
   } | null;
 }
 
+export interface GetTasksByStatusResponse {
+  data: TaskByStatus[];
+  totalCount: number;
+}
+
 export async function getTasksByStatus(
   projectId: string,
-  status: string
-): Promise<TaskByStatus[]> {
-  const url = `/rest/v1/project_tasks?project_id=eq.${projectId}&status=eq.${status}`;
+  status: string,
+  limit?: number,
+  offset?: number
+): Promise<GetTasksByStatusResponse> {
+  let url = `/rest/v1/project_tasks?project_id=eq.${projectId}&status=eq.${status}`;
 
-  const response = await apiFetch<TaskByStatus[]>(url, {
+  if (limit !== undefined && offset !== undefined) {
+    url += `&limit=${limit}&offset=${offset}`;
+  }
+
+  const response = await apiFetch<GetTasksByStatusResponse>(url, {
     method: 'GET',
     includeAuth: true,
+    headers: {
+      Prefer: 'count=exact',
+    },
+    returnHeaders: true,
   });
 
   return response;
@@ -89,14 +104,29 @@ export interface ProjectTask {
   } | null;
 }
 
-export async function getAllProjectTasks(
-  projectId: string
-): Promise<ProjectTask[]> {
-  const url = `/rest/v1/project_tasks?project_id=eq.${projectId}`;
+export interface GetProjectTasksResponse {
+  data: ProjectTask[];
+  totalCount: number;
+}
 
-  const response = await apiFetch<ProjectTask[]>(url, {
+export async function getAllProjectTasks(
+  projectId: string,
+  limit?: number,
+  offset?: number
+): Promise<GetProjectTasksResponse> {
+  let url = `/rest/v1/project_tasks?project_id=eq.${projectId}`;
+
+  if (limit !== undefined && offset !== undefined) {
+    url += `&limit=${limit}&offset=${offset}`;
+  }
+
+  const response = await apiFetch<GetProjectTasksResponse>(url, {
     method: 'GET',
     includeAuth: true,
+    headers: {
+      Prefer: 'count=exact',
+    },
+    returnHeaders: true,
   });
 
   return response;

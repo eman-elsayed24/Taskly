@@ -18,22 +18,29 @@ export default function Pagination({
   // Don't show pagination if there are no items or if total items don't exceed page size
   if (totalCount === 0 || totalCount <= pageSize) return null;
 
+  const startItem = Math.min((currentPage - 1) * pageSize + 1, totalCount);
+  const endItem = Math.min(currentPage * pageSize, totalCount);
+
   return (
-    <div className="hidden sm:flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 pt-6">
+    <div className="hidden sm:flex flex-col sm:flex-row items-center justify-between gap-4 py-4">
+      {/* Left side - Showing text */}
       <p className="text-body-sm text-slate-medium">
-        Showing {Math.min((currentPage - 1) * pageSize + 1, totalCount)}-
-        {Math.min(currentPage * pageSize, totalCount)} of {totalCount}{' '}
-        {itemLabel}
+        Showing {startItem}-{endItem} of {totalCount} {itemLabel}
       </p>
+
+      {/* Right side - Pagination controls */}
       <div className="flex items-center gap-2">
+        {/* Previous Button */}
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className="w-8 h-8 flex items-center justify-center rounded text-slate-medium bg-white border border-slate-light hover:bg-surface-highest transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-3 py-1.5 flex items-center justify-center rounded text-body-sm font-medium text-slate-dark bg-white border border-slate-light/60 hover:bg-slate-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white"
           aria-label="Previous page"
         >
           ‹
         </button>
+
+        {/* Page Numbers */}
         {Array.from({ length: totalPages }, (_, i) => i + 1)
           .filter(page => {
             // Show first page, last page, current page, and pages around current
@@ -51,14 +58,14 @@ export default function Pagination({
             return (
               <div key={page} className="flex items-center gap-2">
                 {showEllipsis && (
-                  <span className="text-slate-medium px-2">...</span>
+                  <span className="text-slate-medium text-body-sm">...</span>
                 )}
                 <button
                   onClick={() => onPageChange(page)}
-                  className={`w-8 h-8 flex items-center justify-center rounded font-medium transition-colors ${
+                  className={`min-w-[32px] h-8 px-3 flex items-center justify-center rounded text-body-sm font-medium transition-colors ${
                     currentPage === page
-                      ? 'bg-primary text-white'
-                      : 'text-slate-medium bg-white border border-slate-light hover:bg-surface-highest'
+                      ? 'bg-primary text-white shadow-sm'
+                      : 'text-slate-dark bg-white border border-slate-light/60 hover:bg-slate-50'
                   }`}
                   aria-label={`Page ${page}`}
                   aria-current={currentPage === page ? 'page' : undefined}
@@ -68,10 +75,12 @@ export default function Pagination({
               </div>
             );
           })}
+
+        {/* Next Button */}
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className="w-8 h-8 flex items-center justify-center rounded text-slate-medium bg-white border border-slate-light hover:bg-surface-highest transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-3 py-1.5 flex items-center justify-center rounded text-body-sm font-medium text-slate-dark bg-white border border-slate-light/60 hover:bg-slate-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white"
           aria-label="Next page"
         >
           ›
