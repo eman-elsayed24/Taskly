@@ -78,6 +78,7 @@ export async function getTasksByStatus(
 
 export interface ProjectTask {
   id: string;
+  task_id: string;
   title: string;
   status: string;
   due_date: string | null;
