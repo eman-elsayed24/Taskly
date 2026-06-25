@@ -266,6 +266,7 @@ export default function EpicDetailsModal({
               isLoading={isTasksLoading}
               hasError={tasksError}
               onAddTask={handleAddTask}
+              projectId={projectId}
             />
           </>
         )}

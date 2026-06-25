@@ -1,9 +1,15 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
+import {
+  openTaskDetails,
+  closeTaskDetails,
+} from '../../../redux/slices/taskModalSlice';
 import { TaskStatus, TASK_STATUS_LABELS } from '../../../types/task';
 import { getTasksByStatus } from '../../../api/taskApi';
 import TaskCard from './TaskCard';
 import TaskCardSkeleton from './TaskCardSkeleton';
+import TaskDetailsModal from './TaskDetailsModal';
 import { getStatusDotColor } from '../../../constants/taskStyles';
 import toast from 'react-hot-toast';
 import { ROUTES } from '../../../constants/routes';
@@ -27,6 +33,10 @@ interface TaskData {
 const TaskBoardColumn: React.FC<TaskBoardColumnProps> = ({ status }) => {
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const selectedTaskId = useAppSelector(
+    state => state.taskModal.selectedTaskId
+  );
   const [tasks, setTasks] = useState<TaskData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -175,6 +185,7 @@ const TaskBoardColumn: React.FC<TaskBoardColumnProps> = ({ status }) => {
                       title={task.title}
                       dueDate={task.due_date}
                       assignee={task.assignee}
+                      onClick={() => dispatch(openTaskDetails(task.id))}
                     />
                   </div>
                 );
@@ -186,6 +197,7 @@ const TaskBoardColumn: React.FC<TaskBoardColumnProps> = ({ status }) => {
                   title={task.title}
                   dueDate={task.due_date}
                   assignee={task.assignee}
+                  onClick={() => dispatch(openTaskDetails(task.id))}
                 />
               );
             })}
@@ -198,6 +210,15 @@ const TaskBoardColumn: React.FC<TaskBoardColumnProps> = ({ status }) => {
           </>
         )}
       </div>
+
+      {/* Task Details Modal */}
+      {selectedTaskId && projectId && (
+        <TaskDetailsModal
+          taskId={selectedTaskId}
+          projectId={projectId}
+          onClose={() => dispatch(closeTaskDetails())}
+        />
+      )}
     </div>
   );
 };

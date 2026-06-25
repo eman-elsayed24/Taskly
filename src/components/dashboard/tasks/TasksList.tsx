@@ -1,10 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
+import {
+  openTaskDetails,
+  closeTaskDetails,
+} from '../../../redux/slices/taskModalSlice';
 import Badge from '../../ui/badge';
 import UserAvatar from '../../ui/UserAvatar';
 import TasksPagination from './TasksPagination';
 import InfiniteScrollLoader from '../../ui/InfiniteScrollLoader';
 import TasksListSkeleton from './TasksListSkeleton';
+import TaskDetailsModal from './TaskDetailsModal';
 import { TaskStatus, TASK_STATUS_LABELS } from '../../../types/task';
 import { getAllProjectTasks } from '../../../api/taskApi';
 import { useInfiniteScroll } from '../../../hooks/useInfiniteScroll';
@@ -29,6 +35,10 @@ interface TaskData {
 
 const TasksList: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
+  const dispatch = useAppDispatch();
+  const selectedTaskId = useAppSelector(
+    state => state.taskModal.selectedTaskId
+  );
   const [initialTasks, setInitialTasks] = useState<TaskData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -161,7 +171,8 @@ const TasksList: React.FC = () => {
               {initialTasks.map(task => (
                 <tr
                   key={task.id}
-                  className="border-b border-slate-light/20 hover:bg-surface-low/20 transition-colors"
+                  className="border-b border-slate-light/20 hover:bg-surface-low/20 transition-colors cursor-pointer"
+                  onClick={() => dispatch(openTaskDetails(task.id))}
                 >
                   <td className={tdStyle}>
                     <span className="uppercase text-primary font-medium">
@@ -231,7 +242,8 @@ const TasksList: React.FC = () => {
         {displayedTasks.map(task => (
           <div
             key={task.id}
-            className="bg-white rounded-lg p-4 border border-surface-high"
+            className="bg-white rounded-lg p-4 border border-surface-high cursor-pointer"
+            onClick={() => dispatch(openTaskDetails(task.id))}
           >
             <div className="flex items-start justify-between mb-3">
               <p className="text-label-sm text-secondary uppercase font-semibold">
@@ -280,6 +292,15 @@ const TasksList: React.FC = () => {
         hasMore={hasMore}
         observerTarget={observerTarget}
       />
+
+      {/* Task Details Modal */}
+      {selectedTaskId && projectId && (
+        <TaskDetailsModal
+          taskId={selectedTaskId}
+          projectId={projectId}
+          onClose={() => dispatch(closeTaskDetails())}
+        />
+      )}
     </>
   );
 };
