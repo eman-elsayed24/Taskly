@@ -44,3 +44,25 @@ export interface CreateTaskPayload {
   due_date?: string;
   status?: string;
 }
+
+export interface TaskDetails {
+  id: string;
+  task_id: string;
+  title: string;
+  description: string | null;
+  status: string;
+  due_date: string | null;
+  created_at: string;
+  epic_id: string | null;
+  assignee: {
+    sub: string;
+    name: string;
+    email: string;
+    jobTitle?: string;
+  } | null;
+  reporter: {
+    sub: string;
+    name: string;
+    email: string;
+  } | null;
+}

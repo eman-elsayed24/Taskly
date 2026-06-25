@@ -1,5 +1,17 @@
-import type { CreateTaskPayload } from '../types/task';
+import type { CreateTaskPayload, TaskDetails } from '../types/task';
 import { apiFetch } from '../lib/apiFetch';
+
+// Shared response type for paginated task lists
+interface PaginatedTasksResponse<T> {
+  data: T[];
+  totalCount: number;
+}
+
+// Minimal task info for epic tasks list
+export type EpicTask = Pick<
+  TaskDetails,
+  'id' | 'title' | 'assignee' | 'due_date' | 'status'
+>;
 
 export async function createTask(data: CreateTaskPayload): Promise<void> {
   await apiFetch('/rest/v1/tasks', {
@@ -17,27 +29,23 @@ export async function createTask(data: CreateTaskPayload): Promise<void> {
   });
 }
 
-export async function getEpicsByProject(projectId: string): Promise<any[]> {
+export interface EpicOption {
+  id: string;
+  epic_id: string;
+  title: string;
+}
+
+export async function getEpicsByProject(
+  projectId: string
+): Promise<EpicOption[]> {
   const url = `/rest/v1/epics?project_id=eq.${projectId}&select=id,epic_id,title`;
 
-  const response = await apiFetch<any[]>(url, {
+  const response = await apiFetch<EpicOption[]>(url, {
     method: 'GET',
     includeAuth: true,
   });
 
   return response;
-}
-
-export interface EpicTask {
-  id: string;
-  title: string;
-  assignee: {
-    sub: string;
-    name: string;
-    email: string;
-  } | null;
-  due_date: string | null;
-  status: string;
 }
 
 export async function getEpicTasks(epicId: string): Promise<EpicTask[]> {
@@ -51,35 +59,19 @@ export async function getEpicTasks(epicId: string): Promise<EpicTask[]> {
   return response;
 }
 
-export interface TaskByStatus {
-  id: string;
-  title: string;
-  due_date: string | null;
-  assignee: {
-    sub: string;
-    name: string;
-    email: string;
-  } | null;
-}
-
-export interface GetTasksByStatusResponse {
-  data: TaskByStatus[];
-  totalCount: number;
-}
-
 export async function getTasksByStatus(
   projectId: string,
   status: string,
   limit?: number,
   offset?: number
-): Promise<GetTasksByStatusResponse> {
+): Promise<PaginatedTasksResponse<EpicTask>> {
   let url = `/rest/v1/project_tasks?project_id=eq.${projectId}&status=eq.${status}`;
 
   if (limit !== undefined && offset !== undefined) {
     url += `&limit=${limit}&offset=${offset}`;
   }
 
-  const response = await apiFetch<GetTasksByStatusResponse>(url, {
+  const response = await apiFetch<PaginatedTasksResponse<EpicTask>>(url, {
     method: 'GET',
     includeAuth: true,
     headers: {
@@ -91,36 +83,21 @@ export async function getTasksByStatus(
   return response;
 }
 
-export interface ProjectTask {
-  id: string;
-  task_id: string;
-  title: string;
-  status: string;
-  due_date: string | null;
-  assignee: {
-    sub: string;
-    name: string;
-    email: string;
-  } | null;
-}
-
-export interface GetProjectTasksResponse {
-  data: ProjectTask[];
-  totalCount: number;
-}
+// Task with task_id for list views
+export type TaskListItem = EpicTask & { task_id: string };
 
 export async function getAllProjectTasks(
   projectId: string,
   limit?: number,
   offset?: number
-): Promise<GetProjectTasksResponse> {
+): Promise<PaginatedTasksResponse<TaskListItem>> {
   let url = `/rest/v1/project_tasks?project_id=eq.${projectId}`;
 
   if (limit !== undefined && offset !== undefined) {
     url += `&limit=${limit}&offset=${offset}`;
   }
 
-  const response = await apiFetch<GetProjectTasksResponse>(url, {
+  const response = await apiFetch<PaginatedTasksResponse<TaskListItem>>(url, {
     method: 'GET',
     includeAuth: true,
     headers: {
@@ -130,4 +107,22 @@ export async function getAllProjectTasks(
   });
 
   return response;
+}
+
+export async function getTaskById(
+  projectId: string,
+  taskId: string
+): Promise<TaskDetails> {
+  const url = `/rest/v1/project_tasks?project_id=eq.${projectId}&id=eq.${taskId}`;
+
+  const response = await apiFetch<TaskDetails[]>(url, {
+    method: 'GET',
+    includeAuth: true,
+  });
+
+  if (!response || response.length === 0) {
+    throw new Error('Task not found');
+  }
+
+  return response[0];
 }

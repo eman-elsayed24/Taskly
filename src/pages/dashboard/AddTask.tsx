@@ -12,11 +12,14 @@ import { taskSchema } from '../../lib/validations/taskSchema';
 import type { TaskFormData } from '../../lib/validations/taskSchema';
 import { TaskStatus, TASK_STATUS_LABELS } from '../../types/task';
 import { ROUTES } from '../../constants/routes';
-import { createTask, getEpicsByProject } from '../../api/taskApi';
+import {
+  createTask,
+  getEpicsByProject,
+  type EpicOption,
+} from '../../api/taskApi';
 import { getProjectMembers } from '../../api/memberApi';
 import { getMemberName } from '../../types/member';
 import type { ProjectMember } from '../../types/member';
-import type { Epic } from '../../types/epic';
 
 export default function AddTask() {
   const { projectId } = useParams<{ projectId: string }>();
@@ -26,7 +29,7 @@ export default function AddTask() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [members, setMembers] = useState<ProjectMember[]>([]);
-  const [epics, setEpics] = useState<Epic[]>([]);
+  const [epics, setEpics] = useState<EpicOption[]>([]);
   const [isDataLoading, setIsDataLoading] = useState(true);
 
   const { control, handleSubmit } = useForm<TaskFormData>({
