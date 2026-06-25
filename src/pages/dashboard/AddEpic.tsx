@@ -12,10 +12,8 @@ import { epicSchema } from '../../lib/validations/epicSchema';
 import type { EpicFormData } from '../../lib/validations/epicSchema';
 import { createEpic } from '../../api/epicApi';
 import { getProjectMembers } from '../../api/memberApi';
-import { getProjectById } from '../../api/projectApi';
 import { getMemberName } from '../../types/member';
 import type { ProjectMember } from '../../types/member';
-import type { Project } from '../../types/project';
 import { ROUTES } from '../../constants/routes';
 
 export default function AddEpic() {
@@ -23,7 +21,6 @@ export default function AddEpic() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [members, setMembers] = useState<ProjectMember[]>([]);
-  const [project, setProject] = useState<Project | null>(null);
   const [isMembersLoading, setIsMembersLoading] = useState(true);
 
   const { control, handleSubmit } = useForm<EpicFormData>({
@@ -41,13 +38,9 @@ export default function AddEpic() {
 
     const loadData = async () => {
       try {
-        const [projectData, membersData] = await Promise.all([
-          getProjectById(projectId),
-          getProjectMembers(projectId),
-        ]);
-        setProject(projectData);
+        const membersData = await getProjectMembers(projectId);
         setMembers(membersData);
-      } catch (error) {
+      } catch {
         toast.error('Failed to load project data');
       } finally {
         setIsMembersLoading(false);
@@ -90,7 +83,7 @@ export default function AddEpic() {
     }
   };
 
-  // Get today's date in YYYY-MM-DD format for min attribute
+  // Get today's date in YYYY-MM-DD format
   const today = new Date().toISOString().split('T')[0];
 
   return (
@@ -98,11 +91,6 @@ export default function AddEpic() {
       <div className="mb-6">
         <Breadcrumb
           items={[
-            { label: 'PROJECTS', href: ROUTES.PROJECTS },
-            {
-              label: project?.name || 'PROJECT',
-              href: projectId ? ROUTES.PROJECT_DETAILS(projectId) : undefined,
-            },
             {
               label: 'EPICS',
               href: projectId ? ROUTES.PROJECT_EPICS(projectId) : undefined,

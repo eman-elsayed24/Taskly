@@ -14,10 +14,8 @@ import { TaskStatus, TASK_STATUS_LABELS } from '../../types/task';
 import { ROUTES } from '../../constants/routes';
 import { createTask, getEpicsByProject } from '../../api/taskApi';
 import { getProjectMembers } from '../../api/memberApi';
-import { getProjectById } from '../../api/projectApi';
 import { getMemberName } from '../../types/member';
 import type { ProjectMember } from '../../types/member';
-import type { Project } from '../../types/project';
 import type { Epic } from '../../types/epic';
 
 export default function AddTask() {
@@ -29,7 +27,6 @@ export default function AddTask() {
   const [isLoading, setIsLoading] = useState(false);
   const [members, setMembers] = useState<ProjectMember[]>([]);
   const [epics, setEpics] = useState<Epic[]>([]);
-  const [project, setProject] = useState<Project | null>(null);
   const [isDataLoading, setIsDataLoading] = useState(true);
 
   const { control, handleSubmit } = useForm<TaskFormData>({
@@ -49,12 +46,10 @@ export default function AddTask() {
 
     const loadData = async () => {
       try {
-        const [projectData, membersData, epicsData] = await Promise.all([
-          getProjectById(projectId),
+        const [membersData, epicsData] = await Promise.all([
           getProjectMembers(projectId),
           getEpicsByProject(projectId),
         ]);
-        setProject(projectData);
         setMembers(membersData);
         setEpics(epicsData);
       } catch {
@@ -115,11 +110,6 @@ export default function AddTask() {
       <div className="mb-6">
         <Breadcrumb
           items={[
-            { label: 'PROJECTS', href: ROUTES.PROJECTS },
-            {
-              label: project?.name || 'PROJECT',
-              href: projectId ? ROUTES.PROJECT_DETAILS(projectId) : undefined,
-            },
             {
               label: 'TASKS',
               href: projectId ? ROUTES.PROJECT_TASKS(projectId) : undefined,
@@ -164,9 +154,7 @@ export default function AddTask() {
               />
             </div>
 
-            {/* Status and Assignee Row */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Status Field */}
               <SelectField
                 control={control}
                 name="status"
@@ -180,7 +168,6 @@ export default function AddTask() {
                 ))}
               </SelectField>
 
-              {/* Assignee Field */}
               <SelectField
                 control={control}
                 name="assignee_id"
@@ -197,7 +184,6 @@ export default function AddTask() {
               </SelectField>
             </div>
 
-            {/* Epic Field */}
             <SelectField
               control={control}
               name="epic_id"
@@ -213,7 +199,6 @@ export default function AddTask() {
               ))}
             </SelectField>
 
-            {/* Due Date Field */}
             <div>
               <label
                 htmlFor="due_date"
@@ -231,7 +216,6 @@ export default function AddTask() {
               />
             </div>
 
-            {/* Description Field */}
             <TextareaField
               control={control}
               name="description"
@@ -243,7 +227,6 @@ export default function AddTask() {
               maxCharCount={1000}
             />
 
-            {/* Action Buttons */}
             <div className="flex items-center justify-between pt-4">
               <Button
                 type="button"

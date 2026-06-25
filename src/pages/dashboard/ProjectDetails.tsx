@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import ProjectForm from '../../components/dashboard/projects/ProjectForm';
 import Spinner from '../../components/ui/spinner';
 import ErrorState from '../../components/ui/ErrorState';
+import Breadcrumb from '../../components/ui/Breadcrumb';
 import type { ProjectFormData } from '../../lib/validations/projectSchema';
 import { getProjectById, updateProject } from '../../api/projectApi';
 import { ROUTES } from '../../constants/routes';
@@ -89,12 +90,15 @@ export default function ProjectDetails() {
   }
 
   return (
-    <ProjectForm
-      mode="edit"
-      defaultValues={defaultValues}
-      onSubmit={handleSubmit}
-      isLoading={isLoading}
-      onCancel={handleCancel}
-    />
+    <>
+      <Breadcrumb items={[{ label: 'DETAILS' }]} />
+      <ProjectForm
+        mode="edit"
+        defaultValues={defaultValues}
+        onSubmit={handleSubmit}
+        isLoading={isLoading}
+        onCancel={handleCancel}
+      />
+    </>
   );
 }

@@ -28,8 +28,8 @@ function normalizeRole(role: string): string {
 
 export default function ProjectMembers() {
   const { projectId } = useParams<{ projectId: string }>();
-  const [members, setMembers] = useState<ProjectMember[]>([]);
   const { project } = useProject(projectId);
+  const [members, setMembers] = useState<ProjectMember[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
 

@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { useProject } from '../../hooks/useProject';
 import Button from '../../components/ui/button';
 import Breadcrumb from '../../components/ui/Breadcrumb';
+import SearchInput from '../../components/ui/SearchInput';
 import ErrorState from '../../components/ui/ErrorState';
 import Pagination from '../../components/ui/Pagination';
 import InfiniteScrollLoader from '../../components/ui/InfiniteScrollLoader';
@@ -19,17 +20,17 @@ import RocketIcon from '../../assets/icons/rocket.svg?react';
 import GoalsIcon from '../../assets/icons/goals.svg?react';
 import HubIcon from '../../assets/icons/hub.svg?react';
 import TrackVelocityIcon from '../../assets/icons/track Velocity.svg?react';
-import SearchIcon from '../../assets/icons/search.svg?react';
 
 export default function ProjectEpics() {
   const { projectId } = useParams<{ projectId: string }>();
-  const [initialEpics, setInitialEpics] = useState<Epic[]>([]);
   const { project } = useProject(projectId);
+  const [initialEpics, setInitialEpics] = useState<Epic[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [selectedEpic, setSelectedEpic] = useState<Epic | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const pageSize = 10;
 
   const totalPages = Math.ceil(totalCount / pageSize);
@@ -284,14 +285,12 @@ export default function ProjectEpics() {
 
           <div className="flex items-center gap-3">
             {/* Search Input */}
-            <div className="relative w-64 hidden sm:block">
-              <input
-                type="text"
-                placeholder="Search epics..."
-                className="w-full  px-4 py-3 pl-10 rounded-sm text-body-md text-slate-dark placeholder:text-slate-muted bg-surface-highest outline-none border border-transparent focus:border-primary/20"
-              />
-              <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-muted pointer-events-none" />
-            </div>
+            <SearchInput
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Search epics..."
+              className="w-64 hidden sm:block"
+            />
 
             {/* New Epic Button - Desktop Only */}
             <Link
