@@ -10,9 +10,15 @@ interface TaskCardProps {
     name: string;
     email: string;
   } | null;
+  onClick?: () => void;
 }
 
-const TaskCard: React.FC<TaskCardProps> = ({ title, dueDate, assignee }) => {
+const TaskCard: React.FC<TaskCardProps> = ({
+  title,
+  dueDate,
+  assignee,
+  onClick,
+}) => {
   // Check if date is overdue
   const isOverdue = (date: string | null) => {
     if (!date) return false;
@@ -68,12 +74,12 @@ const TaskCard: React.FC<TaskCardProps> = ({ title, dueDate, assignee }) => {
   return (
     <div
       className={`p-4 rounded-lg shadow-sm hover:shadow-md transition-all cursor-pointer border ${getCardStyle()} ${getTodayBorder()}`}
+      onClick={onClick}
     >
       {/* Task Title */}
       <h4 className="text-body font-medium text-slate-dark mb-4 line-clamp-2 leading-5">
         {title}
       </h4>
-
 
       <div className="flex items-center justify-between">
         {/* Due Date */}

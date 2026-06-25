@@ -9,6 +9,7 @@ import { TaskStatus, TASK_STATUS_LABELS } from '../../../types/task';
 import { getAllProjectTasks } from '../../../api/taskApi';
 import { useInfiniteScroll } from '../../../hooks/useInfiniteScroll';
 import { formatDate } from '../../../utils/formatDate';
+import { getStatusBadgeStyle } from '../../../constants/taskStyles';
 import toast from 'react-hot-toast';
 import MoreVerticalIcon from '../../../assets/icons/more-vertical.svg?react';
 import MoreHorizontalIcon from '../../../assets/icons/more-horizontal.svg?react';
@@ -127,29 +128,6 @@ const TasksList: React.FC = () => {
   const thStyle =
     'text-secondary py-3 px-6 font-bold text-label-sm uppercase tracking-wide text-left';
   const tdStyle = 'py-3.5 px-6 text-body text-slate-dark';
-
-  const getStatusBadgeStyle = (status: string) => {
-    switch (status) {
-      case TaskStatus.TO_DO:
-        return 'bg-slate-light/30 text-slate-dark';
-      case TaskStatus.IN_PROGRESS:
-        return 'bg-blue-100 text-blue-700';
-      case TaskStatus.BLOCKED:
-        return 'bg-error-background text-error-dark';
-      case TaskStatus.IN_REVIEW:
-        return 'bg-yellow-100 text-yellow-700';
-      case TaskStatus.READY_FOR_QA:
-        return 'bg-purple-100 text-purple-700';
-      case TaskStatus.REOPENED:
-        return 'bg-orange-100 text-orange-700';
-      case TaskStatus.READY_FOR_PRODUCTION:
-        return 'bg-teal-100 text-teal-700';
-      case TaskStatus.DONE:
-        return 'bg-success-background text-success-dark';
-      default:
-        return 'bg-slate-light/30 text-slate-dark';
-    }
-  };
 
   if (isLoading) {
     return <TasksListSkeleton />;
