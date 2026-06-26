@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useProject } from '../../hooks/useProject';
+import { useDebounce } from '../../hooks/useDebounce';
 import Button from '../../components/ui/button';
 import Breadcrumb from '../../components/ui/Breadcrumb';
 import SearchInput from '../../components/ui/SearchInput';
@@ -38,6 +39,12 @@ export default function ProjectEpics() {
   );
   const pageSize = 10;
 
+  // Debounce the search query with 400ms delay
+  const debouncedSearchQuery = useDebounce(searchQuery, 400);
+
+  // Track the previous debounced search to detect real changes
+  const prevDebouncedSearchRef = useRef(debouncedSearchQuery);
+
   const totalPages = Math.ceil(totalCount / pageSize);
 
   // Infinite scroll hook for mobile
@@ -52,35 +59,67 @@ export default function ProjectEpics() {
     pageSize,
     fetchMore: async (offset, limit) => {
       if (!projectId) throw new Error('No project ID');
-      const response = await getProjectEpics(projectId, limit, offset);
+      const response = await getProjectEpics(
+        projectId,
+        limit,
+        offset,
+        debouncedSearchQuery
+      );
       return { data: response.data, totalCount: response.totalCount };
     },
   });
 
-  // Load initial data when projectId changes
+  // Unified effect for loading epics - handles both search and pagination
   useEffect(() => {
     if (!projectId) return;
 
     let isMounted = true;
 
+    // Check if the debounced search actually changed
+    const searchHasChanged =
+      prevDebouncedSearchRef.current !== debouncedSearchQuery;
+
+    // Update ref for next comparison
+    if (searchHasChanged) {
+      prevDebouncedSearchRef.current = debouncedSearchQuery;
+    }
+
     const loadData = async () => {
       try {
         setIsLoading(true);
         setHasError(false);
-        setCurrentPage(1);
-        const epicsResponse = await getProjectEpics(projectId, pageSize, 0);
+
+        // If search changed, fetch page 1, otherwise use currentPage
+        const pageToFetch = searchHasChanged ? 1 : currentPage;
+        const offset = (pageToFetch - 1) * pageSize;
+
+        const epicsResponse = await getProjectEpics(
+          projectId,
+          pageSize,
+          offset,
+          debouncedSearchQuery
+        );
 
         if (isMounted) {
           setInitialEpics(epicsResponse.data);
           setTotalCount(epicsResponse.totalCount);
           setIsLoading(false);
+
+          // Reset currentPage state AFTER fetch if search changed
+          if (searchHasChanged && currentPage !== 1) {
+            setCurrentPage(1);
+          }
         }
       } catch (error) {
         if (isMounted) {
           setHasError(true);
           setIsLoading(false);
           toast.error(
-            error instanceof Error ? error.message : 'Failed to load epics'
+            error instanceof Error
+              ? error.message
+              : debouncedSearchQuery
+                ? 'Failed to search epics'
+                : 'Failed to load epics'
           );
         }
       }
@@ -91,47 +130,7 @@ export default function ProjectEpics() {
     return () => {
       isMounted = false;
     };
-  }, [projectId]);
-
-  // Load page when currentPage changes (desktop pagination only)
-  useEffect(() => {
-    if (!projectId || currentPage === 1) return;
-
-    let isMounted = true;
-
-    const loadPage = async () => {
-      try {
-        setIsLoading(true);
-        setHasError(false);
-        const offset = (currentPage - 1) * pageSize;
-        const epicsResponse = await getProjectEpics(
-          projectId,
-          pageSize,
-          offset
-        );
-
-        if (isMounted) {
-          setInitialEpics(epicsResponse.data);
-          setTotalCount(epicsResponse.totalCount);
-          setIsLoading(false);
-        }
-      } catch (error) {
-        if (isMounted) {
-          setHasError(true);
-          setIsLoading(false);
-          toast.error(
-            error instanceof Error ? error.message : 'Failed to load epics'
-          );
-        }
-      }
-    };
-
-    loadPage();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [projectId, currentPage]);
+  }, [projectId, currentPage, debouncedSearchQuery]);
 
   const handleRetry = () => {
     if (!projectId) return;
@@ -140,7 +139,7 @@ export default function ProjectEpics() {
     setHasError(false);
     const offset = (currentPage - 1) * pageSize;
 
-    getProjectEpics(projectId, pageSize, offset)
+    getProjectEpics(projectId, pageSize, offset, debouncedSearchQuery)
       .then(epicsResponse => {
         setInitialEpics(epicsResponse.data);
         setTotalCount(epicsResponse.totalCount);
@@ -150,7 +149,11 @@ export default function ProjectEpics() {
         setHasError(true);
         setIsLoading(false);
         toast.error(
-          error instanceof Error ? error.message : 'Failed to load epics'
+          error instanceof Error
+            ? error.message
+            : debouncedSearchQuery
+              ? 'Failed to search epics'
+              : 'Failed to load epics'
         );
       });
   };
@@ -158,6 +161,10 @@ export default function ProjectEpics() {
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
   };
 
   const handleEpicClick = (epic: Epic) => {
@@ -180,10 +187,17 @@ export default function ProjectEpics() {
   if (isLoading) {
     return (
       <div className="w-full h-full flex flex-col">
-        <div className="mb-8">
+        {/* Breadcrumb - Desktop Only */}
+        <div className="mb-4 hidden sm:block">
           <div className="h-6 w-64 bg-surface-highest rounded mb-4 animate-pulse" />
+        </div>
+
+        {/* Header */}
+        <div className="mb-8">
           <div className="h-10 w-48 bg-surface-highest rounded animate-pulse" />
         </div>
+
+        {/* Skeleton Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {Array.from({ length: 4 }).map((_, i) => (
             <EpicCardSkeleton key={i} />
@@ -207,94 +221,101 @@ export default function ProjectEpics() {
 
   // Empty State
   if (!isLoading && displayedEpics.length === 0) {
-    return (
-      <div className="w-full h-full flex flex-col">
-        <div className="flex flex-col gap-8 items-center mx-auto my-20">
-          <img src={EmptyEpicsIcon} alt="No epics" className="w-64 h-64" />
-          <h1 className="text-headline-lg text-slate-dark">
-            No epics in this project yet.
-          </h1>
-          <p className="text-body-md text-slate-medium text-center font-semibold max-w-md">
-            Break down your large project into manageable epics to track
-            progress better and maintain architectural clarity.
-          </p>
-          <Link
-            to={projectId ? ROUTES.ADD_EPIC(projectId) : '#'}
-            className="inline-block"
-          >
-            <Button variant="primary" className="flex items-center gap-2">
-              <RocketIcon className="w-5 h-5" />
-              <span>Create First Epic</span>
-            </Button>
-          </Link>
+    // Show full empty state for projects with no epics (and no active search)
+    if (!debouncedSearchQuery.trim()) {
+      return (
+        <div className="w-full h-full flex flex-col">
+          <div className="flex flex-col gap-8 items-center mx-auto my-20">
+            <img src={EmptyEpicsIcon} alt="No epics" className="w-64 h-64" />
+            <h1 className="text-headline-lg text-slate-dark">
+              No epics in this project yet.
+            </h1>
+            <p className="text-body-md text-slate-medium text-center font-semibold max-w-md">
+              Break down your large project into manageable epics to track
+              progress better and maintain architectural clarity.
+            </p>
+            <Link
+              to={projectId ? ROUTES.ADD_EPIC(projectId) : '#'}
+              className="inline-block"
+            >
+              <Button variant="primary" className="flex items-center gap-2">
+                <RocketIcon className="w-5 h-5" />
+                <span>Create First Epic</span>
+              </Button>
+            </Link>
 
-          {/* Feature Cards */}
-          <section className="flex flex-col sm:flex-row items-stretch gap-6 mt-10">
-            <div className="w-full sm:w-72 p-6 bg-surface-low space-y-3 rounded-md">
-              <div className="bg-white p-2.5 w-10 h-10 rounded flex items-center justify-center">
-                <GoalsIcon className="w-5 h-5 text-primary" />
+            {/* Feature Cards */}
+            <section className="flex flex-col sm:flex-row items-stretch gap-6 mt-10">
+              <div className="w-full sm:w-72 p-6 bg-surface-low space-y-3 rounded-md">
+                <div className="bg-white p-2.5 w-10 h-10 rounded flex items-center justify-center">
+                  <GoalsIcon className="w-5 h-5 text-primary" />
+                </div>
+                <h5 className="text-slate-dark text-title-md">
+                  High-Level Goals
+                </h5>
+                <p className="text-slate-medium text-body-md">
+                  Define the broad objectives that span across multiple cycles.
+                </p>
               </div>
-              <h5 className="text-slate-dark text-title-md">
-                High-Level Goals
-              </h5>
-              <p className="text-slate-medium text-body-md">
-                Define the broad objectives that span across multiple cycles.
-              </p>
-            </div>
-            <div className="w-full sm:w-72 p-6 bg-surface-low space-y-3 rounded-md">
-              <div className="bg-white p-2.5 w-10 h-10 rounded flex items-center justify-center">
-                <HubIcon className="w-5 h-5 text-primary" />
+              <div className="w-full sm:w-72 p-6 bg-surface-low space-y-3 rounded-md">
+                <div className="bg-white p-2.5 w-10 h-10 rounded flex items-center justify-center">
+                  <HubIcon className="w-5 h-5 text-primary" />
+                </div>
+                <h5 className="text-slate-dark text-title-md">
+                  Hierarchy Design
+                </h5>
+                <p className="text-slate-medium text-body-md">
+                  Link individual tasks to parent epics for a consolidated view.
+                </p>
               </div>
-              <h5 className="text-slate-dark text-title-md">
-                Hierarchy Design
-              </h5>
-              <p className="text-slate-medium text-body-md">
-                Link individual tasks to parent epics for a consolidated view.
-              </p>
-            </div>
-            <div className="w-full sm:w-72 p-6 bg-surface-low space-y-3 rounded-md">
-              <div className="bg-white p-2.5 w-10 h-10 rounded flex items-center justify-center">
-                <TrackVelocityIcon className="w-5 h-5 text-primary" />
+              <div className="w-full sm:w-72 p-6 bg-surface-low space-y-3 rounded-md">
+                <div className="bg-white p-2.5 w-10 h-10 rounded flex items-center justify-center">
+                  <TrackVelocityIcon className="w-5 h-5 text-primary" />
+                </div>
+                <h5 className="text-slate-dark text-title-md">
+                  Track Velocity
+                </h5>
+                <p className="text-slate-medium text-body-md">
+                  Visualize percentage completion at a macro project level.
+                </p>
               </div>
-              <h5 className="text-slate-dark text-title-md">Track Velocity</h5>
-              <p className="text-slate-medium text-body-md">
-                Visualize percentage completion at a macro project level.
-              </p>
-            </div>
-          </section>
+            </section>
+          </div>
         </div>
-      </div>
-    );
+      );
+    }
   }
 
   // Epics List
   return (
     <div className="w-full h-full flex flex-col">
-      {/* Header Section */}
+      {/* Header Section - Always Visible */}
       <div className="mb-8">
-        {/* Breadcrumb */}
-        <Breadcrumb
-          items={[
-            { label: 'PROJECTS', href: ROUTES.PROJECTS },
-            {
-              label: project?.name || 'PROJECT',
-              href: projectId ? ROUTES.PROJECT_DETAILS(projectId) : undefined,
-            },
-            { label: 'EPICS' },
-          ]}
-        />
+        {/* Breadcrumb - Desktop Only */}
+        <div className="hidden sm:block">
+          <Breadcrumb
+            items={[
+              { label: 'PROJECTS', href: ROUTES.PROJECTS },
+              {
+                label: project?.name || 'PROJECT',
+                href: projectId ? ROUTES.PROJECT_DETAILS(projectId) : undefined,
+              },
+              { label: 'EPICS' },
+            ]}
+          />
+        </div>
 
         {/* Title, Search and Button */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <h1 className="text-heading-xl text-slate-dark">Project Epics</h1>
 
           <div className="flex items-center gap-3">
-            {/* Search Input */}
+            {/* Search Input - Visible on Both Mobile and Desktop */}
             <SearchInput
               value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
+              onChange={handleSearchChange}
               placeholder="Search epics..."
-              className="w-64 hidden sm:block"
+              className="flex-1 sm:w-64"
             />
 
             {/* New Epic Button - Desktop Only */}
@@ -314,16 +335,54 @@ export default function ProjectEpics() {
         </div>
       </div>
 
-      {/* Epics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        {displayedEpics.map(epic => (
-          <EpicCard
-            key={epic.id}
-            epic={epic}
-            onClick={() => handleEpicClick(epic)}
+      {/* Content Area */}
+      {!isLoading &&
+      displayedEpics.length === 0 &&
+      debouncedSearchQuery.trim() ? (
+        // No Search Results
+        <div className="flex flex-col items-center justify-center py-20">
+          <div className="bg-surface-low rounded-full p-6 mb-4">
+            <RocketIcon className="w-16 h-16 text-slate-medium" />
+          </div>
+          <h2 className="text-headline-lg text-slate-dark mb-2">
+            No epics found
+          </h2>
+          <p className="text-body-md text-slate-medium text-center max-w-md">
+            No epics found matching "{debouncedSearchQuery}". Try a different
+            search term.
+          </p>
+        </div>
+      ) : (
+        <>
+          {/* Epics Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            {displayedEpics.map(epic => (
+              <EpicCard
+                key={epic.id}
+                epic={epic}
+                onClick={() => handleEpicClick(epic)}
+              />
+            ))}
+          </div>
+
+          {/* Infinite Scroll Loader for Mobile */}
+          <InfiniteScrollLoader
+            loading={isLoadingMore}
+            hasMore={hasMore}
+            observerTarget={observerTarget}
           />
-        ))}
-      </div>
+
+          {/* Desktop Pagination */}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalCount={totalCount}
+            pageSize={pageSize}
+            itemLabel="epics"
+            onPageChange={handlePageChange}
+          />
+        </>
+      )}
 
       {/* Epic Details Modal */}
       {selectedEpic && (
@@ -336,23 +395,6 @@ export default function ProjectEpics() {
       )}
 
       {selectedTaskId && <TaskDetailsModal />}
-
-      {/* Infinite Scroll Loader for Mobile */}
-      <InfiniteScrollLoader
-        loading={isLoadingMore}
-        hasMore={hasMore}
-        observerTarget={observerTarget}
-      />
-
-      {/* Desktop Pagination */}
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        totalCount={totalCount}
-        pageSize={pageSize}
-        itemLabel="epics"
-        onPageChange={handlePageChange}
-      />
 
       {/* Floating Add Button - Mobile Only */}
       <Link
