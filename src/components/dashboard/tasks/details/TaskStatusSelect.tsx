@@ -4,25 +4,28 @@ import { TASK_STATUS_LABELS } from '../../../../types/task';
 interface TaskStatusSelectProps {
   value: string;
   onChange: (value: string) => void;
+  isDisabled?: boolean;
 }
+
+const statusOptions = Object.entries(TASK_STATUS_LABELS).map(
+  ([value, label]) => ({
+    value,
+    label,
+  })
+);
 
 const TaskStatusSelect: React.FC<TaskStatusSelectProps> = ({
   value,
   onChange,
+  isDisabled = false,
 }) => {
-  const statusOptions = Object.entries(TASK_STATUS_LABELS).map(
-    ([value, label]) => ({
-      value,
-      label,
-    })
-  );
-
   return (
     <Select
       value={statusOptions.find(opt => opt.value === value)}
       onChange={option => option && onChange(option.value)}
       options={statusOptions}
       isSearchable={false}
+      isDisabled={isDisabled}
       components={{
         IndicatorSeparator: () => null,
       }}

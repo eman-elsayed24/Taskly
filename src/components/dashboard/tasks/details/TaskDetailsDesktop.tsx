@@ -17,9 +17,7 @@ export default function TaskDetailsDesktop({
 }: TaskDetailsDesktopProps) {
   return (
     <div className="h-full grid grid-cols-[1fr_320px]">
-     
       <div className="flex flex-col">
-    
         <div className="border-b border-slate-light/20 p-8">
           <div className="mb-4 flex items-center gap-3">
             <span className="rounded-md bg-primary/10 px-3 py-1 text-xs font-bold text-primary uppercase">
@@ -39,7 +37,6 @@ export default function TaskDetailsDesktop({
           </h1>
         </div>
 
-      
         <div className="flex-1 p-8 overflow-y-auto">
           <h3 className="mb-4 text-xs font-bold uppercase tracking-wider text-slate-medium">
             Description
@@ -55,7 +52,6 @@ export default function TaskDetailsDesktop({
           )}
         </div>
 
-      
         <div className="bg-surface-low flex items-center justify-between border-t border-slate-light/20 px-8 py-5">
           <button className="flex items-center gap-2 text-sm text-slate-medium hover:text-primary transition-colors">
             <CopyIcon className="w-4 h-4" />
@@ -79,11 +75,14 @@ export default function TaskDetailsDesktop({
               Status
             </p>
             <div className={`rounded-lg ${getStatusBadgeStyle(task.status)}`}>
-              <TaskStatusSelect value={task.status} onChange={() => {}} />
+              <TaskStatusSelect
+                value={task.status}
+                onChange={() => {}}
+                isDisabled={true}
+              />
             </div>
           </div>
 
-        
           <div>
             <p className="mb-3 text-xs font-bold uppercase tracking-wide text-slate-medium">
               Assignee
@@ -98,7 +97,6 @@ export default function TaskDetailsDesktop({
             </div>
           </div>
 
-       
           <div>
             <p className="mb-3 text-xs font-bold uppercase tracking-wide text-slate-medium">
               Reporter
@@ -117,7 +115,6 @@ export default function TaskDetailsDesktop({
 
           <hr className="border-slate-light/20" />
 
-       
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-sm text-slate-medium">Due Date</span>
