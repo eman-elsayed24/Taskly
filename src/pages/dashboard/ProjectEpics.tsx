@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useProject } from '../../hooks/useProject';
@@ -42,6 +42,9 @@ export default function ProjectEpics() {
   // Debounce the search query with 400ms delay
   const debouncedSearchQuery = useDebounce(searchQuery, 400);
 
+  // Track the previous debounced search to detect real changes
+  const prevDebouncedSearchRef = useRef(debouncedSearchQuery);
+
   const totalPages = Math.ceil(totalCount / pageSize);
 
   // Infinite scroll hook for mobile
@@ -72,11 +75,24 @@ export default function ProjectEpics() {
 
     let isMounted = true;
 
+    // Check if the debounced search actually changed
+    const searchHasChanged =
+      prevDebouncedSearchRef.current !== debouncedSearchQuery;
+
+    // Update ref for next comparison
+    if (searchHasChanged) {
+      prevDebouncedSearchRef.current = debouncedSearchQuery;
+    }
+
     const loadData = async () => {
       try {
         setIsLoading(true);
         setHasError(false);
-        const offset = (currentPage - 1) * pageSize;
+
+        // If search changed, fetch page 1, otherwise use currentPage
+        const pageToFetch = searchHasChanged ? 1 : currentPage;
+        const offset = (pageToFetch - 1) * pageSize;
+
         const epicsResponse = await getProjectEpics(
           projectId,
           pageSize,
@@ -88,6 +104,11 @@ export default function ProjectEpics() {
           setInitialEpics(epicsResponse.data);
           setTotalCount(epicsResponse.totalCount);
           setIsLoading(false);
+
+          // Reset currentPage state AFTER fetch if search changed
+          if (searchHasChanged && currentPage !== 1) {
+            setCurrentPage(1);
+          }
         }
       } catch (error) {
         if (isMounted) {
@@ -144,10 +165,6 @@ export default function ProjectEpics() {
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
-    // Reset to page 1 when search changes
-    if (currentPage !== 1) {
-      setCurrentPage(1);
-    }
   };
 
   const handleEpicClick = (epic: Epic) => {
