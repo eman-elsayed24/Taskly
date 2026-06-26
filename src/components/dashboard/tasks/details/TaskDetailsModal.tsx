@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import TaskDetailsSkeleton from './TaskDetailsSkeleton';
 import TaskDetailsDesktop from './TaskDetailsDesktop';
@@ -38,7 +38,9 @@ export default function TaskDetailsModal() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
 
-  const onClose = () => dispatch(closeTaskDetails());
+  const onClose = useCallback(() => {
+    dispatch(closeTaskDetails());
+  }, [dispatch]);
 
   useEffect(() => {
     if (!taskId || !projectId) return;
@@ -73,6 +75,20 @@ export default function TaskDetailsModal() {
     };
   }, [taskId, projectId]);
 
+  useEffect(() => {
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscKey);
+
+    return () => {
+      document.removeEventListener('keydown', handleEscKey);
+    };
+  }, [onClose]);
+
   if (!taskId || !projectId) return null;
 
   return (
@@ -80,7 +96,7 @@ export default function TaskDetailsModal() {
       onClick={onClose}
       className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm"
     >
-      {/* Desktop - Centered Modal */}
+      {/* Desktop  */}
       <div className="hidden md:flex md:items-center md:justify-center md:h-full md:p-4">
         <div
           onClick={e => e.stopPropagation()}
@@ -98,7 +114,7 @@ export default function TaskDetailsModal() {
         </div>
       </div>
 
-      {/* Mobile - Bottom Sheet */}
+      {/* Mobile  */}
       <div className="md:hidden flex items-end h-full">
         <div
           onClick={e => e.stopPropagation()}
