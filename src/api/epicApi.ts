@@ -9,9 +9,15 @@ export interface GetProjectEpicsResponse {
 export async function getProjectEpics(
   projectId: string,
   limit: number = 10,
-  offset: number = 0
+  offset: number = 0,
+  searchTerm?: string
 ): Promise<GetProjectEpicsResponse> {
-  const url = `/rest/v1/project_epics?project_id=eq.${projectId}&limit=${limit}&offset=${offset}`;
+  let url = `/rest/v1/project_epics?project_id=eq.${projectId}&limit=${limit}&offset=${offset}`;
+
+  // Add search filter if search term exists
+  if (searchTerm && searchTerm.trim()) {
+    url += `&title=ilike.%25${encodeURIComponent(searchTerm.trim())}%25`;
+  }
 
   const response = await apiFetch<GetProjectEpicsResponse>(url, {
     method: 'GET',
