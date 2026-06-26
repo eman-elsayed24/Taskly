@@ -1,6 +1,6 @@
-import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useProject } from '../../../hooks/useProject';
+import { useTasksSearch } from '../../../hooks/useTasksSearch';
 import Breadcrumb from '../../ui/Breadcrumb';
 import SearchInput from '../../ui/SearchInput';
 import TaskViewSelect from './TaskViewSelect';
@@ -15,11 +15,10 @@ interface TasksHeaderProps {
 export default function TasksHeader({ view, onViewChange }: TasksHeaderProps) {
   const { projectId } = useParams<{ projectId: string }>();
   const { project } = useProject(projectId);
-  const [searchQuery, setSearchQuery] = useState('');
+  const { searchQuery, setSearchQuery } = useTasksSearch();
 
   return (
     <>
-   
       <Breadcrumb
         items={[
           { label: 'PROJECTS', href: ROUTES.PROJECTS },
@@ -43,7 +42,6 @@ export default function TasksHeader({ view, onViewChange }: TasksHeaderProps) {
         </div>
 
         <div className="flex items-center gap-3">
-         
           <SearchInput
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
@@ -51,7 +49,6 @@ export default function TasksHeader({ view, onViewChange }: TasksHeaderProps) {
             className="w-64 hidden sm:block"
           />
 
-   
           <div className="hidden xl:block">
             <TaskViewSelect value={view} onChange={onViewChange} />
           </div>

@@ -1,9 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '../../../redux/hooks';
-import {
-  openTaskDetails,
-} from '../../../redux/slices/taskModalSlice';
+import { useTasksSearch } from '../../../hooks/useTasksSearch';
+import { openTaskDetails } from '../../../redux/slices/taskModalSlice';
 import { TaskStatus, TASK_STATUS_LABELS } from '../../../types/task';
 import { getTasksByStatus } from '../../../api/taskApi';
 import TaskCard from './TaskCard';
@@ -30,6 +29,7 @@ const TaskBoardColumn: React.FC<TaskBoardColumnProps> = ({ status }) => {
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const { debouncedSearch } = useTasksSearch();
   const [tasks, setTasks] = useState<TaskData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -47,8 +47,15 @@ const TaskBoardColumn: React.FC<TaskBoardColumnProps> = ({ status }) => {
 
     const fetchTasks = async () => {
       setIsLoading(true);
+      setTasks([]); // Reset tasks when search changes
       try {
-        const response = await getTasksByStatus(projectId, status, pageSize, 0);
+        const response = await getTasksByStatus(
+          projectId,
+          status,
+          pageSize,
+          0,
+          debouncedSearch
+        );
         if (isMounted) {
           setTasks(response.data);
           setTotalCount(response.totalCount);
@@ -69,7 +76,7 @@ const TaskBoardColumn: React.FC<TaskBoardColumnProps> = ({ status }) => {
     return () => {
       isMounted = false;
     };
-  }, [projectId, status]);
+  }, [projectId, status, debouncedSearch]);
 
   // Load more tasks
   const loadMore = useCallback(async () => {
@@ -82,7 +89,8 @@ const TaskBoardColumn: React.FC<TaskBoardColumnProps> = ({ status }) => {
         projectId,
         status,
         pageSize,
-        offset
+        offset,
+        debouncedSearch
       );
 
       setTasks(prev => [...prev, ...response.data]);
@@ -92,7 +100,14 @@ const TaskBoardColumn: React.FC<TaskBoardColumnProps> = ({ status }) => {
     } finally {
       setIsLoadingMore(false);
     }
-  }, [projectId, status, tasks.length, isLoadingMore, hasMore]);
+  }, [
+    projectId,
+    status,
+    tasks.length,
+    isLoadingMore,
+    hasMore,
+    debouncedSearch,
+  ]);
 
   // Intersection Observer for infinite scroll
   const lastTaskRef = useCallback(

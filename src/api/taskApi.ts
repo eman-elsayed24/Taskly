@@ -63,9 +63,14 @@ export async function getTasksByStatus(
   projectId: string,
   status: string,
   limit?: number,
-  offset?: number
+  offset?: number,
+  searchTerm?: string
 ): Promise<PaginatedTasksResponse<EpicTask>> {
   let url = `/rest/v1/project_tasks?project_id=eq.${projectId}&status=eq.${status}`;
+
+  if (searchTerm && searchTerm.trim()) {
+    url += `&title=ilike.%25${encodeURIComponent(searchTerm.trim())}%25`;
+  }
 
   if (limit !== undefined && offset !== undefined) {
     url += `&limit=${limit}&offset=${offset}`;
@@ -89,9 +94,14 @@ export type TaskListItem = EpicTask & { task_id: string };
 export async function getAllProjectTasks(
   projectId: string,
   limit?: number,
-  offset?: number
+  offset?: number,
+  searchTerm?: string
 ): Promise<PaginatedTasksResponse<TaskListItem>> {
   let url = `/rest/v1/project_tasks?project_id=eq.${projectId}`;
+
+  if (searchTerm && searchTerm.trim()) {
+    url += `&title=ilike.%25${encodeURIComponent(searchTerm.trim())}%25`;
+  }
 
   if (limit !== undefined && offset !== undefined) {
     url += `&limit=${limit}&offset=${offset}`;

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAppDispatch } from '../../../redux/hooks';
+import { useTasksSearch } from '../../../hooks/useTasksSearch';
 import { openTaskDetails } from '../../../redux/slices/taskModalSlice';
 import Badge from '../../ui/badge';
 import UserAvatar from '../../ui/UserAvatar';
@@ -30,6 +31,7 @@ interface TaskData {
 const TasksList: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const dispatch = useAppDispatch();
+  const { debouncedSearch } = useTasksSearch();
   const [initialTasks, setInitialTasks] = useState<TaskData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -50,12 +52,17 @@ const TasksList: React.FC = () => {
     pageSize,
     fetchMore: async (offset, limit) => {
       if (!projectId) throw new Error('No project ID');
-      const response = await getAllProjectTasks(projectId, limit, offset);
+      const response = await getAllProjectTasks(
+        projectId,
+        limit,
+        offset,
+        debouncedSearch
+      );
       return { data: response.data, totalCount: response.totalCount };
     },
   });
 
-  // Load initial data when projectId changes
+  // Load initial data when projectId or debouncedSearch changes
   useEffect(() => {
     if (!projectId) return;
 
@@ -65,7 +72,12 @@ const TasksList: React.FC = () => {
       setIsLoading(true);
       setCurrentPage(1);
       try {
-        const response = await getAllProjectTasks(projectId, pageSize, 0);
+        const response = await getAllProjectTasks(
+          projectId,
+          pageSize,
+          0,
+          debouncedSearch
+        );
         if (isMounted) {
           setInitialTasks(response.data);
           setTotalCount(response.totalCount);
@@ -86,7 +98,7 @@ const TasksList: React.FC = () => {
     return () => {
       isMounted = false;
     };
-  }, [projectId]);
+  }, [projectId, debouncedSearch]);
 
   // Load page when currentPage changes (desktop pagination only)
   useEffect(() => {
@@ -98,7 +110,12 @@ const TasksList: React.FC = () => {
       setIsLoading(true);
       try {
         const offset = (currentPage - 1) * pageSize;
-        const response = await getAllProjectTasks(projectId, pageSize, offset);
+        const response = await getAllProjectTasks(
+          projectId,
+          pageSize,
+          offset,
+          debouncedSearch
+        );
         if (isMounted) {
           setInitialTasks(response.data);
           setTotalCount(response.totalCount);
@@ -119,7 +136,7 @@ const TasksList: React.FC = () => {
     return () => {
       isMounted = false;
     };
-  }, [projectId, currentPage]);
+  }, [projectId, currentPage, debouncedSearch]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -137,7 +154,11 @@ const TasksList: React.FC = () => {
   if (displayedTasks.length === 0) {
     return (
       <div className="bg-white rounded-lg p-20 text-center border border-surface-high">
-        <p className="text-slate-medium text-body-lg">No tasks found</p>
+        <p className="text-slate-medium text-body-lg">
+          {debouncedSearch
+            ? 'No tasks found matching your search'
+            : 'No tasks found'}
+        </p>
       </div>
     );
   }
