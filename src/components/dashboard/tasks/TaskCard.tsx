@@ -6,13 +6,17 @@ interface TaskCardProps {
   title: string;
   dueDate: string | null;
   assignee: {
-    sub: string;
     name: string;
-    email: string;
   } | null;
+  onClick?: () => void;
 }
 
-const TaskCard: React.FC<TaskCardProps> = ({ title, dueDate, assignee }) => {
+const TaskCard: React.FC<TaskCardProps> = ({
+  title,
+  dueDate,
+  assignee,
+  onClick,
+}) => {
   // Check if date is overdue
   const isOverdue = (date: string | null) => {
     if (!date) return false;
@@ -51,16 +55,16 @@ const TaskCard: React.FC<TaskCardProps> = ({ title, dueDate, assignee }) => {
 
   // Get avatar style based on date
   const getAvatarVariantAndClass = (): {
-    variant: 'auto' | 'primary';
+    variant: 'primary' | 'info';
     className?: string;
   } => {
     if (isToday(dueDate)) {
       return {
         variant: 'primary',
-        className: 'bg-primary-container text-white border border-white',
+        className: 'border border-white',
       };
     }
-    return { variant: 'auto' };
+    return { variant: 'info' };
   };
 
   const avatarConfig = getAvatarVariantAndClass();
@@ -68,12 +72,12 @@ const TaskCard: React.FC<TaskCardProps> = ({ title, dueDate, assignee }) => {
   return (
     <div
       className={`p-4 rounded-lg shadow-sm hover:shadow-md transition-all cursor-pointer border ${getCardStyle()} ${getTodayBorder()}`}
+      onClick={onClick}
     >
       {/* Task Title */}
       <h4 className="text-body font-medium text-slate-dark mb-4 line-clamp-2 leading-5">
         {title}
       </h4>
-
 
       <div className="flex items-center justify-between">
         {/* Due Date */}

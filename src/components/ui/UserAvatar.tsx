@@ -2,10 +2,11 @@ import { getInitials } from '../../utils/stringHelpers';
 import UnassignedIcon from '../../assets/icons/unassigned.svg?react';
 
 type AvatarSize = 'xs' | 'sm' | 'md' | 'lg';
-type AvatarVariant = 'primary' | 'success' | 'slate' | 'auto';
+type AvatarVariant = 'primary' | 'success' | 'info';
 
 interface UserAvatarProps {
   name?: string | null;
+  jobTitle?: string | null;
   size?: AvatarSize;
   variant?: AvatarVariant;
   showName?: boolean;
@@ -24,51 +25,28 @@ const sizeClasses: Record<
   lg: { container: 'w-10 h-10', icon: 'w-5 h-5', text: 'text-sm' },
 };
 
-// Color mappings for auto variant (based on name hash)
-const autoColors = [
-  'bg-blue-500 text-white',
-  'bg-purple-500 text-white',
-  'bg-pink-500 text-white',
-  'bg-indigo-500 text-white',
-  'bg-teal-500 text-white',
-  'bg-orange-500 text-white',
-  'bg-cyan-500 text-white',
-];
-
-// Variant mappings
 const variantClasses: Record<AvatarVariant, string> = {
-  primary: 'bg-primary/20 text-primary',
+  primary: 'bg-primary text-white',
   success: 'bg-success/20 text-success-dark',
-  slate: 'bg-slate-light/30 text-slate-medium',
-  auto: '', // Will be computed based on name
-};
-
-const getAutoColor = (name: string): string => {
-  const index = name.charCodeAt(0) % autoColors.length;
-  return autoColors[index];
+  info: 'bg-surface-highest text-slate-dark',
 };
 
 export default function UserAvatar({
   name,
+  jobTitle,
   size = 'md',
-  variant = 'primary',
+  variant = 'info',
   showName = false,
   className = '',
   containerClassName = '',
 }: UserAvatarProps) {
   const hasName = name && name.trim().length > 0;
   const avatarSize = sizeClasses[size];
+  const colorClass = variantClasses[variant];
 
-  // Determine the color class
-  let colorClass = variantClasses[variant];
-  if (variant === 'auto' && hasName) {
-    colorClass = getAutoColor(name);
-  }
-
-  // Unassigned state
   if (!hasName) {
     return (
-      <div className={containerClassName}>
+      <div className={`flex items-center gap-2 ${containerClassName}`}>
         <div
           className={`${avatarSize.container} rounded-lg bg-slate-light/20 flex items-center justify-center ${className}`}
           title="Unassigned"
@@ -76,13 +54,14 @@ export default function UserAvatar({
           <UnassignedIcon className={avatarSize.icon} />
         </div>
         {showName && (
-          <span className="text-body-sm text-slate-light ml-2">Unassigned</span>
+          <span className="text-sm text-slate-medium font-medium">
+            Unassigned
+          </span>
         )}
       </div>
     );
   }
 
-  // Assigned state
   const initials = getInitials(name);
 
   return (
@@ -94,7 +73,12 @@ export default function UserAvatar({
         {initials}
       </div>
       {showName && (
-        <span className="text-body-sm text-slate-medium">{name}</span>
+        <div className="flex flex-col">
+          <span className="text-sm text-slate-dark font-semibold">{name}</span>
+          {jobTitle && (
+            <span className="text-xs text-slate-medium">{jobTitle}</span>
+          )}
+        </div>
       )}
     </div>
   );

@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import { useAppDispatch } from '../../../redux/hooks';
+import { openTaskDetails } from '../../../redux/slices/taskModalSlice';
 import Badge from '../../ui/badge';
 import UserAvatar from '../../ui/UserAvatar';
 import TasksPagination from './TasksPagination';
@@ -9,6 +11,7 @@ import { TaskStatus, TASK_STATUS_LABELS } from '../../../types/task';
 import { getAllProjectTasks } from '../../../api/taskApi';
 import { useInfiniteScroll } from '../../../hooks/useInfiniteScroll';
 import { formatDate } from '../../../utils/formatDate';
+import { getStatusBadgeStyle } from '../../../constants/taskStyles';
 import toast from 'react-hot-toast';
 import MoreVerticalIcon from '../../../assets/icons/more-vertical.svg?react';
 import MoreHorizontalIcon from '../../../assets/icons/more-horizontal.svg?react';
@@ -20,14 +23,13 @@ interface TaskData {
   status: string;
   due_date: string | null;
   assignee: {
-    sub: string;
     name: string;
-    email: string;
   } | null;
 }
 
 const TasksList: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
+  const dispatch = useAppDispatch();
   const [initialTasks, setInitialTasks] = useState<TaskData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -128,29 +130,6 @@ const TasksList: React.FC = () => {
     'text-secondary py-3 px-6 font-bold text-label-sm uppercase tracking-wide text-left';
   const tdStyle = 'py-3.5 px-6 text-body text-slate-dark';
 
-  const getStatusBadgeStyle = (status: string) => {
-    switch (status) {
-      case TaskStatus.TO_DO:
-        return 'bg-slate-light/30 text-slate-dark';
-      case TaskStatus.IN_PROGRESS:
-        return 'bg-blue-100 text-blue-700';
-      case TaskStatus.BLOCKED:
-        return 'bg-error-background text-error-dark';
-      case TaskStatus.IN_REVIEW:
-        return 'bg-yellow-100 text-yellow-700';
-      case TaskStatus.READY_FOR_QA:
-        return 'bg-purple-100 text-purple-700';
-      case TaskStatus.REOPENED:
-        return 'bg-orange-100 text-orange-700';
-      case TaskStatus.READY_FOR_PRODUCTION:
-        return 'bg-teal-100 text-teal-700';
-      case TaskStatus.DONE:
-        return 'bg-success-background text-success-dark';
-      default:
-        return 'bg-slate-light/30 text-slate-dark';
-    }
-  };
-
   if (isLoading) {
     return <TasksListSkeleton />;
   }
@@ -183,7 +162,8 @@ const TasksList: React.FC = () => {
               {initialTasks.map(task => (
                 <tr
                   key={task.id}
-                  className="border-b border-slate-light/20 hover:bg-surface-low/20 transition-colors"
+                  className="border-b border-slate-light/20 hover:bg-surface-low/20 transition-colors cursor-pointer"
+                  onClick={() => dispatch(openTaskDetails(task.id))}
                 >
                   <td className={tdStyle}>
                     <span className="uppercase text-primary font-medium">
@@ -213,11 +193,7 @@ const TasksList: React.FC = () => {
 
                   <td className={tdStyle}>
                     <div className="flex items-center gap-3">
-                      <UserAvatar
-                        name={task.assignee?.name}
-                        size="sm"
-                        variant="auto"
-                      />
+                      <UserAvatar name={task.assignee?.name} size="sm" />
                       <span className="text-slate-dark">
                         {task.assignee?.name || 'Unassigned'}
                       </span>
@@ -253,7 +229,8 @@ const TasksList: React.FC = () => {
         {displayedTasks.map(task => (
           <div
             key={task.id}
-            className="bg-white rounded-lg p-4 border border-surface-high"
+            className="bg-white rounded-lg p-4 border border-surface-high cursor-pointer"
+            onClick={() => dispatch(openTaskDetails(task.id))}
           >
             <div className="flex items-start justify-between mb-3">
               <p className="text-label-sm text-secondary uppercase font-semibold">
@@ -281,7 +258,7 @@ const TasksList: React.FC = () => {
             </h3>
 
             <div className="flex items-center gap-3">
-              <UserAvatar name={task.assignee?.name} size="sm" variant="auto" />
+              <UserAvatar name={task.assignee?.name} size="sm" variant="info" />
 
               <div className="flex flex-col">
                 <span className="text-label-xs font-bold text-secondary uppercase tracking-wide">

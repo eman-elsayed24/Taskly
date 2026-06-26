@@ -1,3 +1,7 @@
+import { useAppDispatch } from '../../../redux/hooks';
+import {
+  openTaskDetails,
+} from '../../../redux/slices/taskModalSlice';
 import Button from '../../ui/button';
 import type { EpicTask } from '../../../api/taskApi';
 import EpicTaskItem from './EpicTaskItem';
@@ -17,6 +21,8 @@ export default function EpicTasksList({
   hasError,
   onAddTask,
 }: EpicTasksListProps) {
+  const dispatch = useAppDispatch();
+
   return (
     <section className="space-y-4 pt-4">
       <div className="flex justify-between items-center">
@@ -42,8 +48,6 @@ export default function EpicTasksList({
             Failed to load tasks
           </p>
         </div>
-
-  
       ) : tasks.length === 0 ? (
         <div className="bg-surface-low flex flex-col items-center gap-6 rounded-lg p-10">
           <div className="bg-surface-highest rounded-xl p-3">
@@ -63,6 +67,7 @@ export default function EpicTasksList({
               key={task.id}
               task={task}
               isLast={index === tasks.length - 1}
+              onClick={() => dispatch(openTaskDetails(task.id))}
             />
           ))}
         </div>

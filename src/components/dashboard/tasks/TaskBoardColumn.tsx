@@ -1,9 +1,14 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useAppDispatch } from '../../../redux/hooks';
+import {
+  openTaskDetails,
+} from '../../../redux/slices/taskModalSlice';
 import { TaskStatus, TASK_STATUS_LABELS } from '../../../types/task';
 import { getTasksByStatus } from '../../../api/taskApi';
 import TaskCard from './TaskCard';
 import TaskCardSkeleton from './TaskCardSkeleton';
+import { getStatusDotColor } from '../../../constants/taskStyles';
 import toast from 'react-hot-toast';
 import { ROUTES } from '../../../constants/routes';
 import PlusCircleIcon from '../../../assets/icons/plusCircle.svg?react';
@@ -17,15 +22,14 @@ interface TaskData {
   title: string;
   due_date: string | null;
   assignee: {
-    sub: string;
     name: string;
-    email: string;
   } | null;
 }
 
 const TaskBoardColumn: React.FC<TaskBoardColumnProps> = ({ status }) => {
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const [tasks, setTasks] = useState<TaskData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -112,47 +116,23 @@ const TaskBoardColumn: React.FC<TaskBoardColumnProps> = ({ status }) => {
     navigate(`${ROUTES.ADD_TASK(projectId)}?status=${status}`);
   };
 
-  const getHeaderDotColor = () => {
-    switch (status) {
-      case TaskStatus.TO_DO:
-        return 'bg-slate-dark';
-      case TaskStatus.IN_PROGRESS:
-        return 'bg-primary-container';
-      case TaskStatus.BLOCKED:
-        return 'bg-error';
-      case TaskStatus.IN_REVIEW:
-        return 'bg-slate-dark';
-      case TaskStatus.READY_FOR_QA:
-        return 'bg-slate-medium';
-      case TaskStatus.REOPENED:
-        return 'bg-surface-dark';
-      case TaskStatus.READY_FOR_PRODUCTION:
-        return 'bg-warning';
-      case TaskStatus.DONE:
-        return 'bg-success';
-      default:
-        return 'bg-slate-400';
-    }
-  };
-
-  const getCountBadgeStyle = () => {
-    if (status === TaskStatus.BLOCKED) {
-      return 'bg-error-background text-error';
-    }
-    return 'bg-slate-light/60 text-slate-dark';
-  };
-
   return (
     <div className="flex flex-col gap-4 min-w-[320px] shrink-0">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className={`w-2 h-2 rounded-full ${getHeaderDotColor()}`} />
+          <div
+            className={`w-2 h-2 rounded-full ${getStatusDotColor(status)}`}
+          />
           <h3 className="text-label-sm font-bold uppercase text-slate-dark">
             {TASK_STATUS_LABELS[status]}
           </h3>
           <span
-            className={`text-label-sm font-bold px-1.5 py-0.5 rounded-sm min-w-5 flex items-center justify-center ${getCountBadgeStyle()}`}
+            className={`text-label-sm font-bold px-1.5 py-0.5 rounded-sm min-w-5 flex items-center justify-center ${
+              status === TaskStatus.BLOCKED
+                ? 'bg-error-background text-error'
+                : 'bg-slate-light/60 text-slate-dark'
+            }`}
           >
             {totalCount}
           </span>
@@ -168,7 +148,6 @@ const TaskBoardColumn: React.FC<TaskBoardColumnProps> = ({ status }) => {
 
       {/* Tasks List */}
       <div className="flex flex-col gap-3 p-3 rounded-lg min-h-[400px] overflow-y-auto max-h-[calc(100vh-250px)]">
-      
         <button
           onClick={handleAddTask}
           className="flex items-center justify-center gap-2 p-3 rounded-lg border-2 border-dashed border-slate-light/60 hover:border-primary/40 hover:bg-primary/5 transition-all text-slate-medium hover:text-primary"
@@ -199,6 +178,7 @@ const TaskBoardColumn: React.FC<TaskBoardColumnProps> = ({ status }) => {
                       title={task.title}
                       dueDate={task.due_date}
                       assignee={task.assignee}
+                      onClick={() => dispatch(openTaskDetails(task.id))}
                     />
                   </div>
                 );
@@ -210,11 +190,11 @@ const TaskBoardColumn: React.FC<TaskBoardColumnProps> = ({ status }) => {
                   title={task.title}
                   dueDate={task.due_date}
                   assignee={task.assignee}
+                  onClick={() => dispatch(openTaskDetails(task.id))}
                 />
               );
             })}
 
-           
             {isLoadingMore && (
               <div className="flex justify-center py-4">
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />

@@ -6,14 +6,20 @@ import CheckCircleIcon from '../../../assets/icons/checkCircle.svg?react';
 interface EpicTaskItemProps {
   task: EpicTask;
   isLast: boolean;
+  onClick?: () => void;
 }
 
-export default function EpicTaskItem({ task, isLast }: EpicTaskItemProps) {
+export default function EpicTaskItem({
+  task,
+  isLast,
+  onClick,
+}: EpicTaskItemProps) {
   return (
     <div
-      className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 bg-white hover:bg-surface-low transition-colors ${
+      className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 bg-white hover:bg-surface-low transition-colors cursor-pointer ${
         !isLast ? 'border-b border-slate-light/30' : ''
       }`}
+      onClick={onClick}
     >
       <div className="flex items-center gap-3 flex-1 min-w-0">
         <div className="shrink-0">

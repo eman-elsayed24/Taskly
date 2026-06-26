@@ -22,19 +22,6 @@ export const TASK_STATUS_LABELS: Record<TaskStatus, string> = {
   [TaskStatus.DONE]: 'DONE',
 };
 
-export interface Task {
-  id: string;
-  project_id: string;
-  epic_id?: string;
-  title: string;
-  description?: string;
-  assignee_id?: string;
-  due_date?: string;
-  status: TaskStatus;
-  created_at: string;
-  updated_at: string;
-}
-
 export interface CreateTaskPayload {
   project_id: string;
   epic_id?: string;
@@ -43,4 +30,28 @@ export interface CreateTaskPayload {
   assignee_id?: string;
   due_date?: string;
   status?: string;
+}
+
+export interface TaskDetails {
+  id: string;
+  task_id: string;
+  title: string;
+  description: string | null;
+  status: string;
+  due_date: string | null;
+  created_at: string;
+  epic_id: string | null;
+  epic?: {
+    id: string;
+    epic_id: string;
+    title: string;
+  } | null;
+  assignee: {
+    name: string;
+    department: string | null;
+  } | null;
+  created_by: {
+    name: string;
+    department: string | null;
+  } | null;
 }

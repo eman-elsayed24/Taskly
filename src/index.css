@@ -15,14 +15,24 @@
   --color-slate-medium: #4f5f7b;
   --color-slate-light: #c3c6d6;
   --color-slate-muted: #737685;
+  --color-slate-lighter: #d7e2ff;
+  --color-slate-text: #434664;
+
+  --color-blue-lighter: #c5dcff;
+  --color-blue-text: #002e7d;
 
   --color-success: #6fd3a3;
   --color-success-dark: #004e32;
+  --color-success-darker: #002413;
   --color-success-background: #d1fae5;
+  --color-success-light: #b2f8be;
+
   --color-error: #ba1a1a;
   --color-error-low: #ffdad6;
   --color-error-dark: #991b1b;
   --color-error-background: #fee2e2;
+  --color-error-lighter: #ffd9d6;
+
   --color-warning: #f4a300;
 
   /* Toast Colors */
@@ -43,6 +53,8 @@
   /* Shadows */
   --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.05);
   --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.1);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 body {
