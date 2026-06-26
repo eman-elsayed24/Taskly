@@ -1,6 +1,5 @@
 import { TaskStatus } from '../types/task';
 
-
 export const TASK_STATUS_BADGE_STYLES: Record<TaskStatus, string> = {
   [TaskStatus.TO_DO]: 'bg-slate-lighter text-slate-text',
   [TaskStatus.IN_PROGRESS]: 'bg-blue-lighter text-blue-text',
@@ -24,14 +23,12 @@ export const TASK_STATUS_DOT_COLORS: Record<TaskStatus, string> = {
   [TaskStatus.DONE]: 'bg-success',
 };
 
-
 export function getStatusBadgeStyle(status: TaskStatus | string): string {
   return (
     TASK_STATUS_BADGE_STYLES[status as TaskStatus] ||
     'bg-slate-light/30 text-slate-dark'
   );
 }
-
 
 export function getStatusDotColor(status: TaskStatus | string): string {
   return TASK_STATUS_DOT_COLORS[status as TaskStatus] || 'bg-slate-400';

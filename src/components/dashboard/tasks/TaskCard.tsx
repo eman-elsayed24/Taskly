@@ -6,9 +6,7 @@ interface TaskCardProps {
   title: string;
   dueDate: string | null;
   assignee: {
-    sub: string;
     name: string;
-    email: string;
   } | null;
   onClick?: () => void;
 }
@@ -57,16 +55,16 @@ const TaskCard: React.FC<TaskCardProps> = ({
 
   // Get avatar style based on date
   const getAvatarVariantAndClass = (): {
-    variant: 'auto' | 'primary';
+    variant: 'primary' | 'info';
     className?: string;
   } => {
     if (isToday(dueDate)) {
       return {
         variant: 'primary',
-        className: 'bg-primary-container text-white border border-white',
+        className: 'border border-white',
       };
     }
-    return { variant: 'auto' };
+    return { variant: 'info' };
   };
 
   const avatarConfig = getAvatarVariantAndClass();

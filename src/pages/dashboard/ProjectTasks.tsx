@@ -2,12 +2,17 @@ import { useParams, useSearchParams, Link } from 'react-router-dom';
 import TasksBoard from '../../components/dashboard/tasks/TasksBoard';
 import TasksList from '../../components/dashboard/tasks/TasksList';
 import TasksHeader from '../../components/dashboard/tasks/TasksHeader';
+import TaskDetailsModal from '../../components/dashboard/tasks/TaskDetailsModal';
 import Button from '../../components/ui/button';
 import { ROUTES } from '../../constants/routes';
+import { useAppSelector } from '../../redux/hooks';
 
 export default function ProjectTasks() {
   const { projectId } = useParams<{ projectId: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
+  const selectedTaskId = useAppSelector(
+    state => state.taskModal.selectedTaskId
+  );
 
   const view = searchParams.get('view') || 'board';
 
@@ -50,6 +55,8 @@ export default function ProjectTasks() {
       <div className="block lg:hidden">
         <TasksList />
       </div>
+
+      {selectedTaskId && <TaskDetailsModal />}
     </div>
   );
 }

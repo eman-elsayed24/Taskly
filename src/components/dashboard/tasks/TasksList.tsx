@@ -1,16 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
-import {
-  openTaskDetails,
-  closeTaskDetails,
-} from '../../../redux/slices/taskModalSlice';
+import { useAppDispatch } from '../../../redux/hooks';
+import { openTaskDetails } from '../../../redux/slices/taskModalSlice';
 import Badge from '../../ui/badge';
 import UserAvatar from '../../ui/UserAvatar';
 import TasksPagination from './TasksPagination';
 import InfiniteScrollLoader from '../../ui/InfiniteScrollLoader';
 import TasksListSkeleton from './TasksListSkeleton';
-import TaskDetailsModal from './TaskDetailsModal';
 import { TaskStatus, TASK_STATUS_LABELS } from '../../../types/task';
 import { getAllProjectTasks } from '../../../api/taskApi';
 import { useInfiniteScroll } from '../../../hooks/useInfiniteScroll';
@@ -27,18 +23,13 @@ interface TaskData {
   status: string;
   due_date: string | null;
   assignee: {
-    sub: string;
     name: string;
-    email: string;
   } | null;
 }
 
 const TasksList: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const dispatch = useAppDispatch();
-  const selectedTaskId = useAppSelector(
-    state => state.taskModal.selectedTaskId
-  );
   const [initialTasks, setInitialTasks] = useState<TaskData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -202,11 +193,7 @@ const TasksList: React.FC = () => {
 
                   <td className={tdStyle}>
                     <div className="flex items-center gap-3">
-                      <UserAvatar
-                        name={task.assignee?.name}
-                        size="sm"
-                        variant="auto"
-                      />
+                      <UserAvatar name={task.assignee?.name} size="sm" />
                       <span className="text-slate-dark">
                         {task.assignee?.name || 'Unassigned'}
                       </span>
@@ -271,7 +258,7 @@ const TasksList: React.FC = () => {
             </h3>
 
             <div className="flex items-center gap-3">
-              <UserAvatar name={task.assignee?.name} size="sm" variant="auto" />
+              <UserAvatar name={task.assignee?.name} size="sm" variant="info" />
 
               <div className="flex flex-col">
                 <span className="text-label-xs font-bold text-secondary uppercase tracking-wide">
@@ -292,15 +279,6 @@ const TasksList: React.FC = () => {
         hasMore={hasMore}
         observerTarget={observerTarget}
       />
-
-      {/* Task Details Modal */}
-      {selectedTaskId && projectId && (
-        <TaskDetailsModal
-          taskId={selectedTaskId}
-          projectId={projectId}
-          onClose={() => dispatch(closeTaskDetails())}
-        />
-      )}
     </>
   );
 };

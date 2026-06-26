@@ -1,12 +1,10 @@
-import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
+import { useAppDispatch } from '../../../redux/hooks';
 import {
   openTaskDetails,
-  closeTaskDetails,
 } from '../../../redux/slices/taskModalSlice';
 import Button from '../../ui/button';
 import type { EpicTask } from '../../../api/taskApi';
 import EpicTaskItem from './EpicTaskItem';
-import TaskDetailsModal from '../tasks/TaskDetailsModal';
 import TasksListIcon from '../../../assets/icons/tasksList.svg?react';
 import Skeleton from '../../ui/skeleton';
 
@@ -15,7 +13,6 @@ interface EpicTasksListProps {
   isLoading: boolean;
   hasError: boolean;
   onAddTask: () => void;
-  projectId: string;
 }
 
 export default function EpicTasksList({
@@ -23,12 +20,8 @@ export default function EpicTasksList({
   isLoading,
   hasError,
   onAddTask,
-  projectId,
 }: EpicTasksListProps) {
   const dispatch = useAppDispatch();
-  const selectedTaskId = useAppSelector(
-    state => state.taskModal.selectedTaskId
-  );
 
   return (
     <section className="space-y-4 pt-4">
@@ -78,15 +71,6 @@ export default function EpicTasksList({
             />
           ))}
         </div>
-      )}
-
-      {/* Task Details Modal */}
-      {selectedTaskId && (
-        <TaskDetailsModal
-          taskId={selectedTaskId}
-          projectId={projectId}
-          onClose={() => dispatch(closeTaskDetails())}
-        />
       )}
     </section>
   );

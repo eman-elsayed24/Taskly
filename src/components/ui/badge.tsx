@@ -15,7 +15,7 @@ const Badge = ({ children, className, variant = 'primary' }: BadgeProps) => {
 
   return (
     <div
-      className={`inline-flex items-center justify-center px-3 py-1 rounded-full uppercase text-xs font-bold tracking-wide ${variants[variant]} ${className}`}
+      className={`inline-flex items-center justify-center px-3 py-1 rounded-full uppercase text-xs font-bold tracking-wide ${className || variants[variant]}`}
     >
       {children}
     </div>

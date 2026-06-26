@@ -11,8 +11,10 @@ import InfiniteScrollLoader from '../../components/ui/InfiniteScrollLoader';
 import EpicCard from '../../components/dashboard/epics/EpicCard';
 import EpicCardSkeleton from '../../components/dashboard/epics/EpicCardSkeleton';
 import EpicDetailsModal from '../../components/dashboard/epics/EpicDetailsModal';
+import TaskDetailsModal from '../../components/dashboard/tasks/TaskDetailsModal';
 import { getProjectEpics } from '../../api/epicApi';
 import { useInfiniteScroll } from '../../hooks/useInfiniteScroll';
+import { useAppSelector } from '../../redux/hooks';
 import type { Epic } from '../../types/epic';
 import { ROUTES } from '../../constants/routes';
 import EmptyEpicsIcon from '../../assets/icons/emptyEpics.svg';
@@ -31,6 +33,9 @@ export default function ProjectEpics() {
   const [totalCount, setTotalCount] = useState(0);
   const [selectedEpic, setSelectedEpic] = useState<Epic | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const selectedTaskId = useAppSelector(
+    state => state.taskModal.selectedTaskId
+  );
   const pageSize = 10;
 
   const totalPages = Math.ceil(totalCount / pageSize);
@@ -329,6 +334,8 @@ export default function ProjectEpics() {
           onUpdate={handleEpicUpdate}
         />
       )}
+
+      {selectedTaskId && <TaskDetailsModal />}
 
       {/* Infinite Scroll Loader for Mobile */}
       <InfiniteScrollLoader
