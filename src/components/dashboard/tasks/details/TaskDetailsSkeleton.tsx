@@ -1,11 +1,9 @@
-import Skeleton from '../../ui/skeleton';
+import Skeleton from '../../../ui/skeleton';
 
 export default function TaskDetailsSkeleton() {
   return (
     <div className="h-full grid grid-cols-[1fr_320px]">
-   
       <div className="flex flex-col">
-      
         <div className="border-b border-slate-light/20 p-8">
           <div className="mb-4 flex items-center gap-3">
             <Skeleton className="h-6 w-20 rounded-md" />
@@ -31,16 +29,13 @@ export default function TaskDetailsSkeleton() {
         </div>
       </div>
 
-   
       <aside className="border-l border-slate-light/20 bg-surface-low p-6 overflow-y-auto">
         <div className="space-y-6">
-  
           <div>
             <Skeleton className="h-3 w-12 mb-3" />
             <Skeleton className="h-10 w-full rounded-lg" />
           </div>
 
- 
           <div>
             <Skeleton className="h-3 w-16 mb-3" />
             <div className="rounded-xl bg-white p-3">
@@ -51,7 +46,6 @@ export default function TaskDetailsSkeleton() {
             </div>
           </div>
 
-         
           <div>
             <Skeleton className="h-3 w-16 mb-3" />
             <div className="flex items-center gap-3">
@@ -62,7 +56,6 @@ export default function TaskDetailsSkeleton() {
 
           <hr className="border-slate-light/20" />
 
-     
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <Skeleton className="h-4 w-16" />

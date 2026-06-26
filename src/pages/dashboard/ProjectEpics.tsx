@@ -11,7 +11,7 @@ import InfiniteScrollLoader from '../../components/ui/InfiniteScrollLoader';
 import EpicCard from '../../components/dashboard/epics/EpicCard';
 import EpicCardSkeleton from '../../components/dashboard/epics/EpicCardSkeleton';
 import EpicDetailsModal from '../../components/dashboard/epics/EpicDetailsModal';
-import TaskDetailsModal from '../../components/dashboard/tasks/TaskDetailsModal';
+import TaskDetailsModal from '../../components/dashboard/tasks/details/TaskDetailsModal';
 import { getProjectEpics } from '../../api/epicApi';
 import { useInfiniteScroll } from '../../hooks/useInfiniteScroll';
 import { useAppSelector } from '../../redux/hooks';

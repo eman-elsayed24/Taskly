@@ -1,5 +1,5 @@
 import Select from 'react-select';
-import { TASK_STATUS_LABELS } from '../../../types/task';
+import { TASK_STATUS_LABELS } from '../../../../types/task';
 
 interface TaskStatusSelectProps {
   value: string;

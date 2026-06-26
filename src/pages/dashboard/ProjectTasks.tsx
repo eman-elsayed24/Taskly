@@ -2,7 +2,7 @@ import { useParams, useSearchParams, Link } from 'react-router-dom';
 import TasksBoard from '../../components/dashboard/tasks/TasksBoard';
 import TasksList from '../../components/dashboard/tasks/TasksList';
 import TasksHeader from '../../components/dashboard/tasks/TasksHeader';
-import TaskDetailsModal from '../../components/dashboard/tasks/TaskDetailsModal';
+import TaskDetailsModal from '../../components/dashboard/tasks/details/TaskDetailsModal';
 import Button from '../../components/ui/button';
 import { ROUTES } from '../../constants/routes';
 import { useAppSelector } from '../../redux/hooks';
