@@ -1,52 +1,32 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { useProjectDetails } from '../../hooks/queries/useProjects';
 import ProjectForm from '../../components/dashboard/projects/ProjectForm';
 import Spinner from '../../components/ui/spinner';
 import ErrorState from '../../components/ui/ErrorState';
 import Breadcrumb from '../../components/ui/Breadcrumb';
 import type { ProjectFormData } from '../../lib/validations/projectSchema';
-import { getProjectById, updateProject } from '../../api/projectApi';
+import { updateProject } from '../../api/projectApi';
 import { ROUTES } from '../../constants/routes';
 
 export default function ProjectDetails() {
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const [isFetching, setIsFetching] = useState(true);
-  const [hasError, setHasError] = useState(false);
-  const [defaultValues, setDefaultValues] = useState<ProjectFormData>({
-    name: '',
-    description: '',
-  });
 
-  useEffect(() => {
-    if (!projectId) {
-      navigate(ROUTES.PROJECTS);
-      return;
-    }
+  
+  const {
+    data: project,
+    isLoading: isFetching,
+    isError,
+    refetch,
+  } = useProjectDetails(projectId || '');
 
-    const loadProject = async () => {
-      try {
-        setIsFetching(true);
-        setHasError(false);
-        const project = await getProjectById(projectId);
-        setDefaultValues({
-          name: project.name,
-          description: project.description || '',
-        });
-      } catch (error) {
-        setHasError(true);
-        toast.error(
-          error instanceof Error ? error.message : 'Failed to load project'
-        );
-      } finally {
-        setIsFetching(false);
-      }
-    };
-
-    loadProject();
-  }, [projectId, navigate]);
+  const defaultValues: ProjectFormData = {
+    name: project?.name || '',
+    description: project?.description || '',
+  };
 
   const handleSubmit = async (data: ProjectFormData) => {
     if (!projectId) return;
@@ -74,14 +54,14 @@ export default function ProjectDetails() {
   };
 
   const handleRetry = () => {
-    window.location.reload();
+    refetch();
   };
 
   if (isFetching) {
     return <Spinner />;
   }
 
-  if (hasError) {
+  if (isError) {
     return (
       <div className="w-full h-full flex items-center justify-center">
         <ErrorState onRetry={handleRetry} />

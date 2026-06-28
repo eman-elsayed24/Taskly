@@ -1,14 +1,11 @@
-import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import toast from 'react-hot-toast';
 import { useProject } from '../../hooks/useProject';
+import { useProjectMembers } from '../../hooks/queries/useMembers';
 import Button from '../../components/ui/button';
 import Badge from '../../components/ui/badge';
 import Breadcrumb from '../../components/ui/Breadcrumb';
 import ErrorState from '../../components/ui/ErrorState';
 import MemberTableSkeleton from '../../components/dashboard/members/MemberTableSkeleton';
-import { getProjectMembers } from '../../api/memberApi';
-import type { ProjectMember } from '../../types/member';
 import { getMemberName, getMemberEmail } from '../../types/member';
 import { ROUTES } from '../../constants/routes';
 import { getInitials } from '../../utils/stringHelpers';
@@ -29,65 +26,17 @@ function normalizeRole(role: string): string {
 export default function ProjectMembers() {
   const { projectId } = useParams<{ projectId: string }>();
   const { project } = useProject(projectId);
-  const [members, setMembers] = useState<ProjectMember[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [hasError, setHasError] = useState(false);
 
-  useEffect(() => {
-    if (!projectId) return;
-
-    let isMounted = true;
-
-    const loadData = async () => {
-      try {
-        setIsLoading(true);
-        setHasError(false);
-        const membersData = await getProjectMembers(projectId);
-
-        if (isMounted) {
-          setMembers(membersData);
-          setIsLoading(false);
-        }
-      } catch (error) {
-        if (isMounted) {
-          setHasError(true);
-          setIsLoading(false);
-          toast.error(
-            error instanceof Error
-              ? error.message
-              : 'Failed to load project members'
-          );
-        }
-      }
-    };
-
-    loadData();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [projectId]);
+  
+  const {
+    data: members = [],
+    isLoading,
+    isError,
+    refetch,
+  } = useProjectMembers(projectId || '');
 
   const handleRetry = () => {
-    if (!projectId) return;
-
-    setIsLoading(true);
-    setHasError(false);
-
-    getProjectMembers(projectId)
-      .then(membersData => {
-        setMembers(membersData);
-        setIsLoading(false);
-      })
-      .catch(error => {
-        setHasError(true);
-        setIsLoading(false);
-        toast.error(
-          error instanceof Error
-            ? error.message
-            : 'Failed to load project members'
-        );
-      });
+    refetch();
   };
 
   if (isLoading) {
@@ -105,7 +54,7 @@ export default function ProjectMembers() {
     );
   }
 
-  if (hasError) {
+  if (isError) {
     return (
       <div className="w-full h-full flex items-center justify-center">
         <ErrorState
