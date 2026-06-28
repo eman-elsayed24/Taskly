@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import Button from '../../components/ui/button';
@@ -8,21 +8,30 @@ import ProjectCard from '../../components/dashboard/projects/ProjectCard';
 import ProjectCardSkeleton from '../../components/dashboard/projects/ProjectCardSkeleton';
 import ErrorState from '../../components/ui/ErrorState';
 import { ROUTES } from '../../constants/routes';
+import { useProjects } from '../../hooks/queries/useProjects';
 import { getProjects } from '../../api/projectApi';
 import { useInfiniteScroll } from '../../hooks/useInfiniteScroll';
-import type { Project } from '../../types/project';
 import EmptyIcon from '../../assets/icons/empty.svg';
 import PlusCircleIcon from '../../assets/icons/plusCircle.svg?react';
 
 export default function Projects() {
   const navigate = useNavigate();
-  const [initialProjects, setInitialProjects] = useState<Project[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [hasError, setHasError] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalCount, setTotalCount] = useState(0);
   const pageSize = 9; // 3x3 grid
 
+  const offset = (currentPage - 1) * pageSize;
+
+  // React Query - fetch projects
+  const {
+    data: projectsResponse,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useProjects(pageSize, offset);
+
+  const initialProjects = projectsResponse?.data || [];
+  const totalCount = projectsResponse?.totalCount || 0;
   const totalPages = Math.ceil(totalCount / pageSize);
 
   // Infinite scroll hook for mobile
@@ -41,100 +50,22 @@ export default function Projects() {
     },
   });
 
-  // Load initial data
-  useEffect(() => {
-    let isMounted = true;
-
-    const loadProjects = async () => {
-      try {
-        setIsLoading(true);
-        setHasError(false);
-        setCurrentPage(1);
-        const response = await getProjects(pageSize, 0);
-
-        if (isMounted) {
-          setInitialProjects(response.data);
-          setTotalCount(response.totalCount);
-          setIsLoading(false);
-        }
-      } catch (error) {
-        if (isMounted) {
-          setHasError(true);
-          setIsLoading(false);
-          toast.error(
-            error instanceof Error ? error.message : 'Failed to load projects'
-          );
-        }
-      }
-    };
-
-    loadProjects();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  // Load page when currentPage changes (desktop pagination only)
-  useEffect(() => {
-    if (currentPage === 1) return;
-
-    let isMounted = true;
-
-    const loadPage = async () => {
-      try {
-        setIsLoading(true);
-        setHasError(false);
-        const offset = (currentPage - 1) * pageSize;
-        const response = await getProjects(pageSize, offset);
-
-        if (isMounted) {
-          setInitialProjects(response.data);
-          setTotalCount(response.totalCount);
-          setIsLoading(false);
-        }
-      } catch (error) {
-        if (isMounted) {
-          setHasError(true);
-          setIsLoading(false);
-          toast.error(
-            error instanceof Error ? error.message : 'Failed to load projects'
-          );
-        }
-      }
-    };
-
-    loadPage();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [currentPage]);
-
+  // Handle retry on error
   const handleRetry = () => {
-    setIsLoading(true);
-    setHasError(false);
-    const offset = (currentPage - 1) * pageSize;
-
-    getProjects(pageSize, offset)
-      .then(response => {
-        setInitialProjects(response.data);
-        setTotalCount(response.totalCount);
-        setIsLoading(false);
-      })
-      .catch(error => {
-        setHasError(true);
-        setIsLoading(false);
-        toast.error(
-          error instanceof Error ? error.message : 'Failed to load projects'
-        );
-      });
+    refetch();
   };
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  // Show error toast when error occurs
+  if (isError && error) {
+    toast.error(
+      error instanceof Error ? error.message : 'Failed to load projects'
+    );
+  }
 
   if (isLoading) {
     return (
@@ -148,7 +79,7 @@ export default function Projects() {
     );
   }
 
-  if (hasError) {
+  if (isError) {
     return (
       <div className="w-full h-full flex items-center justify-center">
         <ErrorState onRetry={handleRetry} />

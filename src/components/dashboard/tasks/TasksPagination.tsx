@@ -18,19 +18,15 @@ export default function TasksPagination({
   // Don't show pagination if there are no items or only one page
   if (totalCount === 0 || totalPages <= 1) return null;
 
-  
   const endItem = Math.min(currentPage * pageSize, totalCount);
 
   return (
     <div className="flex items-center justify-between py-4 px-6 bg-white border-t border-slate-light/20">
-      
       <p className="text-body-sm text-slate-medium">
         Showing {endItem} of {totalCount} tasks
       </p>
 
-      
       <div className="flex items-center gap-4">
-    
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
@@ -40,12 +36,10 @@ export default function TasksPagination({
           <ArrowIcon className="w-2 h-3" />
         </button>
 
-    
         <span className="text-body-sm text-slate-dark font-medium">
           Page {currentPage} of {totalPages}
         </span>
 
-     
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}

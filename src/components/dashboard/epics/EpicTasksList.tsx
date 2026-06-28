@@ -1,7 +1,5 @@
 import { useAppDispatch } from '../../../redux/hooks';
-import {
-  openTaskDetails,
-} from '../../../redux/slices/taskModalSlice';
+import { openTaskDetails } from '../../../redux/slices/taskModalSlice';
 import Button from '../../ui/button';
 import type { EpicTask } from '../../../api/taskApi';
 import EpicTaskItem from './EpicTaskItem';

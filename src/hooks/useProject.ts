@@ -8,7 +8,6 @@ const projectCache = new Map<string, { data: Project; cachedAt: number }>();
 
 const CACHE_DURATION = 5 * 60 * 1000; // Cache expires after 5 minutes
 
-
 export function useProject(projectId: string | undefined) {
   // Get cached data if it exists and is still valid
   const getCachedData = (id: string | undefined) => {
@@ -36,7 +35,7 @@ export function useProject(projectId: string | undefined) {
       return;
     }
 
-    // If cached data is valid, use it immediately 
+    // If cached data is valid, use it immediately
     const cachedData = getCachedData(projectId);
     if (cachedData) {
       setProject(cachedData);
@@ -83,7 +82,6 @@ export function useProject(projectId: string | undefined) {
 
   return { project, isLoading, error };
 }
-
 
 export function clearProjectCache(projectId?: string) {
   if (projectId) {

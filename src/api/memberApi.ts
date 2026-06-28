@@ -4,7 +4,6 @@ import { apiFetch } from '../lib/apiFetch';
 export async function getProjectMembers(
   projectId: string
 ): Promise<ProjectMember[]> {
-
   const response = await apiFetch(
     `/rest/v1/get_project_members?project_id=eq.${projectId}`,
     {

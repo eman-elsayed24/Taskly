@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import toast from 'react-hot-toast';
 import { useProject } from '../../hooks/useProject';
 import { useDebounce } from '../../hooks/useDebounce';
+import { useProjectEpics } from '../../hooks/queries/useEpics';
 import Button from '../../components/ui/button';
 import Breadcrumb from '../../components/ui/Breadcrumb';
 import SearchInput from '../../components/ui/SearchInput';
@@ -27,11 +27,7 @@ import TrackVelocityIcon from '../../assets/icons/track Velocity.svg?react';
 export default function ProjectEpics() {
   const { projectId } = useParams<{ projectId: string }>();
   const { project } = useProject(projectId);
-  const [initialEpics, setInitialEpics] = useState<Epic[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [hasError, setHasError] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalCount, setTotalCount] = useState(0);
   const [selectedEpic, setSelectedEpic] = useState<Epic | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const selectedTaskId = useAppSelector(
@@ -42,9 +38,18 @@ export default function ProjectEpics() {
   // Debounce the search query with 400ms delay
   const debouncedSearchQuery = useDebounce(searchQuery, 400);
 
-  // Track the previous debounced search to detect real changes
-  const prevDebouncedSearchRef = useRef(debouncedSearchQuery);
+  const offset = (currentPage - 1) * pageSize;
 
+  // React Query - fetch epics
+  const {
+    data: epicsResponse,
+    isLoading,
+    isError,
+    refetch,
+  } = useProjectEpics(projectId || '', pageSize, offset, debouncedSearchQuery);
+
+  const initialEpics = epicsResponse?.data || [];
+  const totalCount = epicsResponse?.totalCount || 0;
   const totalPages = Math.ceil(totalCount / pageSize);
 
   // Infinite scroll hook for mobile
@@ -69,93 +74,8 @@ export default function ProjectEpics() {
     },
   });
 
-  // Unified effect for loading epics - handles both search and pagination
-  useEffect(() => {
-    if (!projectId) return;
-
-    let isMounted = true;
-
-    // Check if the debounced search actually changed
-    const searchHasChanged =
-      prevDebouncedSearchRef.current !== debouncedSearchQuery;
-
-    // Update ref for next comparison
-    if (searchHasChanged) {
-      prevDebouncedSearchRef.current = debouncedSearchQuery;
-    }
-
-    const loadData = async () => {
-      try {
-        setIsLoading(true);
-        setHasError(false);
-
-        // If search changed, fetch page 1, otherwise use currentPage
-        const pageToFetch = searchHasChanged ? 1 : currentPage;
-        const offset = (pageToFetch - 1) * pageSize;
-
-        const epicsResponse = await getProjectEpics(
-          projectId,
-          pageSize,
-          offset,
-          debouncedSearchQuery
-        );
-
-        if (isMounted) {
-          setInitialEpics(epicsResponse.data);
-          setTotalCount(epicsResponse.totalCount);
-          setIsLoading(false);
-
-          // Reset currentPage state AFTER fetch if search changed
-          if (searchHasChanged && currentPage !== 1) {
-            setCurrentPage(1);
-          }
-        }
-      } catch (error) {
-        if (isMounted) {
-          setHasError(true);
-          setIsLoading(false);
-          toast.error(
-            error instanceof Error
-              ? error.message
-              : debouncedSearchQuery
-                ? 'Failed to search epics'
-                : 'Failed to load epics'
-          );
-        }
-      }
-    };
-
-    loadData();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [projectId, currentPage, debouncedSearchQuery]);
-
   const handleRetry = () => {
-    if (!projectId) return;
-
-    setIsLoading(true);
-    setHasError(false);
-    const offset = (currentPage - 1) * pageSize;
-
-    getProjectEpics(projectId, pageSize, offset, debouncedSearchQuery)
-      .then(epicsResponse => {
-        setInitialEpics(epicsResponse.data);
-        setTotalCount(epicsResponse.totalCount);
-        setIsLoading(false);
-      })
-      .catch(error => {
-        setHasError(true);
-        setIsLoading(false);
-        toast.error(
-          error instanceof Error
-            ? error.message
-            : debouncedSearchQuery
-              ? 'Failed to search epics'
-              : 'Failed to load epics'
-        );
-      });
+    refetch();
   };
 
   const handlePageChange = (page: number) => {
@@ -176,10 +96,8 @@ export default function ProjectEpics() {
   };
 
   const handleEpicUpdate = (updatedEpic: Epic) => {
-    // Update the epic in the displayed list
-    setInitialEpics(prevEpics =>
-      prevEpics.map(epic => (epic.id === updatedEpic.id ? updatedEpic : epic))
-    );
+    // Refetch epics to get the latest data
+    refetch();
     // Update selected epic to reflect changes
     setSelectedEpic(updatedEpic);
   };
@@ -207,7 +125,7 @@ export default function ProjectEpics() {
     );
   }
 
-  if (hasError) {
+  if (isError) {
     return (
       <div className="w-full h-full flex items-center justify-center">
         <ErrorState

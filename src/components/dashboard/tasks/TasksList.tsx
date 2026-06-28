@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAppDispatch } from '../../../redux/hooks';
 import { useTasksSearch } from '../../../hooks/useTasksSearch';
+import { useProjectTasks } from '../../../hooks/queries/useTasks';
 import { openTaskDetails } from '../../../redux/slices/taskModalSlice';
 import Badge from '../../ui/badge';
 import UserAvatar from '../../ui/UserAvatar';
@@ -13,31 +14,27 @@ import { getAllProjectTasks } from '../../../api/taskApi';
 import { useInfiniteScroll } from '../../../hooks/useInfiniteScroll';
 import { formatDate } from '../../../utils/formatDate';
 import { getStatusBadgeStyle } from '../../../constants/taskStyles';
-import toast from 'react-hot-toast';
 import MoreVerticalIcon from '../../../assets/icons/more-vertical.svg?react';
 import MoreHorizontalIcon from '../../../assets/icons/more-horizontal.svg?react';
-
-interface TaskData {
-  id: string;
-  task_id: string;
-  title: string;
-  status: string;
-  due_date: string | null;
-  assignee: {
-    name: string;
-  } | null;
-}
 
 const TasksList: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const dispatch = useAppDispatch();
   const { debouncedSearch } = useTasksSearch();
-  const [initialTasks, setInitialTasks] = useState<TaskData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalCount, setTotalCount] = useState(0);
   const pageSize = 5;
 
+  const offset = (currentPage - 1) * pageSize;
+
+  // React Query - fetch tasks
+  const {
+    data: tasksResponse,
+    isLoading,
+    isError,
+  } = useProjectTasks(projectId || '', pageSize, offset, debouncedSearch);
+
+  const initialTasks = tasksResponse?.data || [];
+  const totalCount = tasksResponse?.totalCount || 0;
   const totalPages = Math.ceil(totalCount / pageSize);
 
   // Infinite scroll hook for mobile
@@ -62,82 +59,6 @@ const TasksList: React.FC = () => {
     },
   });
 
-  // Load initial data when projectId or debouncedSearch changes
-  useEffect(() => {
-    if (!projectId) return;
-
-    let isMounted = true;
-
-    const fetchTasks = async () => {
-      setIsLoading(true);
-      setCurrentPage(1);
-      try {
-        const response = await getAllProjectTasks(
-          projectId,
-          pageSize,
-          0,
-          debouncedSearch
-        );
-        if (isMounted) {
-          setInitialTasks(response.data);
-          setTotalCount(response.totalCount);
-        }
-      } catch {
-        if (isMounted) {
-          toast.error('Failed to load tasks');
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    fetchTasks();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [projectId, debouncedSearch]);
-
-  // Load page when currentPage changes (desktop pagination only)
-  useEffect(() => {
-    if (!projectId || currentPage === 1) return;
-
-    let isMounted = true;
-
-    const loadPage = async () => {
-      setIsLoading(true);
-      try {
-        const offset = (currentPage - 1) * pageSize;
-        const response = await getAllProjectTasks(
-          projectId,
-          pageSize,
-          offset,
-          debouncedSearch
-        );
-        if (isMounted) {
-          setInitialTasks(response.data);
-          setTotalCount(response.totalCount);
-        }
-      } catch {
-        if (isMounted) {
-          toast.error('Failed to load tasks');
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    loadPage();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [projectId, currentPage, debouncedSearch]);
-
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -151,7 +72,7 @@ const TasksList: React.FC = () => {
     return <TasksListSkeleton />;
   }
 
-  if (displayedTasks.length === 0) {
+  if (isError || displayedTasks.length === 0) {
     return (
       <div className="bg-white rounded-lg p-20 text-center border border-surface-high">
         <p className="text-slate-medium text-body-lg">

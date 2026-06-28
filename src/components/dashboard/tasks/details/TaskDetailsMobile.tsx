@@ -26,7 +26,6 @@ export default function TaskDetailsMobile({
       </div>
 
       <div className="p-6">
-   
         <div className="mb-3 flex items-start justify-between">
           <span className="text-xs font-bold uppercase tracking-wider text-slate-medium">
             {task.task_id}
@@ -39,7 +38,6 @@ export default function TaskDetailsMobile({
           </button>
         </div>
 
-  
         <h1 className="mb-5 text-2xl font-semibold leading-tight text-slate-dark">
           {task.title}
         </h1>
@@ -59,9 +57,7 @@ export default function TaskDetailsMobile({
           )}
         </div>
 
-       
         <div className="mb-6 grid grid-cols-2 gap-3">
-        
           <div className="rounded-xl bg-white p-4">
             <p className="mb-3 text-xs font-bold uppercase tracking-wide text-slate-medium">
               Assignee
@@ -74,7 +70,6 @@ export default function TaskDetailsMobile({
             />
           </div>
 
-  
           <div className="rounded-xl bg-white p-4">
             <p className="mb-3 text-xs font-bold uppercase tracking-wide text-slate-medium">
               Due Date
@@ -84,7 +79,6 @@ export default function TaskDetailsMobile({
             </p>
           </div>
 
-        
           <div className="rounded-xl bg-white p-4">
             <p className="mb-3 text-xs font-bold uppercase tracking-wide text-slate-medium">
               Reporter
@@ -103,7 +97,6 @@ export default function TaskDetailsMobile({
             )}
           </div>
 
-     
           <div className="rounded-xl bg-white p-4">
             <p className="mb-3 text-xs font-bold uppercase tracking-wide text-slate-medium">
               Created At
@@ -114,7 +107,6 @@ export default function TaskDetailsMobile({
           </div>
         </div>
 
-      
         <div className="pb-6">
           <p className="mb-3 text-xs font-bold uppercase tracking-wide text-slate-medium">
             Description

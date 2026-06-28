@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '../../../redux/hooks';
 import { useTasksSearch } from '../../../hooks/useTasksSearch';
+import { useTasksByStatus } from '../../../hooks/queries/useTasks';
 import { openTaskDetails } from '../../../redux/slices/taskModalSlice';
 import { TaskStatus, TASK_STATUS_LABELS } from '../../../types/task';
 import { getTasksByStatus } from '../../../api/taskApi';
@@ -11,6 +12,7 @@ import { getStatusDotColor } from '../../../constants/taskStyles';
 import toast from 'react-hot-toast';
 import { ROUTES } from '../../../constants/routes';
 import PlusCircleIcon from '../../../assets/icons/plusCircle.svg?react';
+import { useState } from 'react';
 
 interface TaskBoardColumnProps {
   status: TaskStatus;
@@ -30,53 +32,38 @@ const TaskBoardColumn: React.FC<TaskBoardColumnProps> = ({ status }) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { debouncedSearch } = useTasksSearch();
-  const [tasks, setTasks] = useState<TaskData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [totalCount, setTotalCount] = useState(0);
+  const [displayedTasks, setDisplayedTasks] = useState<TaskData[]>([]);
   const observer = useRef<IntersectionObserver | null>(null);
   const pageSize = 5;
 
-  const hasMore = tasks.length < totalCount;
+  // React Query - fetch initial tasks
+  const { data: tasksResponse, isLoading } = useTasksByStatus(
+    projectId || '',
+    status,
+    pageSize,
+    0,
+    debouncedSearch
+  );
 
-  // Load initial tasks
-  useEffect(() => {
-    if (!projectId) return;
+  const initialTasks = tasksResponse?.data || [];
+  const totalCount = tasksResponse?.totalCount || 0;
 
-    let isMounted = true;
+  // Update displayed tasks when initialTasks change
+  if (initialTasks.length > 0 && displayedTasks.length === 0) {
+    setDisplayedTasks(initialTasks);
+  }
 
-    const fetchTasks = async () => {
-      setIsLoading(true);
-      setTasks([]); // Reset tasks when search changes
-      try {
-        const response = await getTasksByStatus(
-          projectId,
-          status,
-          pageSize,
-          0,
-          debouncedSearch
-        );
-        if (isMounted) {
-          setTasks(response.data);
-          setTotalCount(response.totalCount);
-        }
-      } catch {
-        if (isMounted) {
-          toast.error('Failed to load tasks');
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
-      }
-    };
+  // Reset displayed tasks when search changes
+  if (
+    initialTasks.length > 0 &&
+    displayedTasks.length > 0 &&
+    initialTasks[0]?.id !== displayedTasks[0]?.id
+  ) {
+    setDisplayedTasks(initialTasks);
+  }
 
-    fetchTasks();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [projectId, status, debouncedSearch]);
+  const hasMore = displayedTasks.length < totalCount;
 
   // Load more tasks
   const loadMore = useCallback(async () => {
@@ -84,7 +71,7 @@ const TaskBoardColumn: React.FC<TaskBoardColumnProps> = ({ status }) => {
 
     try {
       setIsLoadingMore(true);
-      const offset = tasks.length;
+      const offset = displayedTasks.length;
       const response = await getTasksByStatus(
         projectId,
         status,
@@ -93,8 +80,7 @@ const TaskBoardColumn: React.FC<TaskBoardColumnProps> = ({ status }) => {
         debouncedSearch
       );
 
-      setTasks(prev => [...prev, ...response.data]);
-      setTotalCount(response.totalCount);
+      setDisplayedTasks(prev => [...prev, ...response.data]);
     } catch {
       toast.error('Failed to load more tasks');
     } finally {
@@ -103,7 +89,7 @@ const TaskBoardColumn: React.FC<TaskBoardColumnProps> = ({ status }) => {
   }, [
     projectId,
     status,
-    tasks.length,
+    displayedTasks.length,
     isLoadingMore,
     hasMore,
     debouncedSearch,
@@ -177,15 +163,15 @@ const TaskBoardColumn: React.FC<TaskBoardColumnProps> = ({ status }) => {
               <TaskCardSkeleton key={index} />
             ))}
           </>
-        ) : tasks.length === 0 ? (
+        ) : displayedTasks.length === 0 ? (
           <div className="flex items-center justify-center py-8">
             <p className="text-slate-medium text-body-sm">No tasks</p>
           </div>
         ) : (
           <>
-            {tasks.map((task, index) => {
+            {displayedTasks.map((task, index) => {
               //  ref to last task for infinite scroll
-              if (index === tasks.length - 1) {
+              if (index === displayedTasks.length - 1) {
                 return (
                   <div key={task.id} ref={lastTaskRef}>
                     <TaskCard

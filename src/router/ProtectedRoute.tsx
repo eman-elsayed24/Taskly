@@ -47,7 +47,6 @@ function ProtectedRoute() {
         setHasNetworkError(true);
         setIsInitializing(false);
       } else {
-        
         setIsInitializing(false);
       }
     }
@@ -78,7 +77,6 @@ function ProtectedRoute() {
     );
   }
 
- 
   if (!isAuthenticated() || !user) {
     return <Navigate to="/login" replace />;
   }

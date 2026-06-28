@@ -9,6 +9,7 @@ Project management application built with React, TypeScript, and Vite.
 - **Vite** - Build tool
 - **React Router** - Navigation
 - **Redux Toolkit** - State management
+- **TanStack Query (React Query)** - Server state management
 - **React Hook Form + Zod** - Form handling and validation
 - **Tailwind CSS** - Styling
 - **React Hot Toast** - Notifications
@@ -80,33 +81,41 @@ src/
 
 ### API Layer
 
+- **TanStack Query** for server state management (Projects, Tasks, Epics)
+- **Redux Toolkit + Thunk** for global UI state (User data)
 - **Direct API calls** for authentication (login, signup, password reset)
-- **Redux Thunk** for user data that needs global state
 - Centralized API configuration (`src/lib/api.ts`)
 - Custom fetch wrapper with error handling (`src/lib/apiFetch.ts`)
 - Token management with cookies (access + refresh tokens)
 
-### API Calls Strategy
+### Data Fetching Strategy
 
-This project uses a **hybrid approach** for API calls:
+This project uses a **hybrid approach** for data management:
 
-**1. Direct API Calls (in components):**
+**1. TanStack Query (Server State):**
+
+- Projects list with pagination
+- Tasks with search & filtering
+- Epics data
+- Automatic caching, refetching, and background updates
+- Optimistic updates for better UX
+
+**2. Redux Toolkit (Global UI State):**
+
+- User authentication state
+- UI state that needs to be accessed globally
+- `fetchCurrentUserThunk()` - Fetch and store user data
+
+**3. Direct API Calls:**
 
 - Authentication endpoints: `login`, `signup`, `forgotPassword`, `resetPassword`
-- Simple, one-time operations that don't need global state
-- Keeps auth flows straightforward without Redux complexity
-
-**2. Redux Thunk (global state management):**
-
-- `fetchCurrentUserThunk()` - Fetch and store user data globally
-- User state that needs to be accessed across multiple components
-- Handles loading states, errors, and success automatically
+- Simple, one-time operations that don't need caching
 
 **Why this separation?**
 
-- Authentication flows remain simple with direct API calls
-- User data is managed globally with Redux for cross-component access
-- Clear separation of concerns: auth actions vs. state management
+- Server data (projects, tasks) benefit from React Query's caching
+- UI state (user, modals) managed with Redux for simplicity
+- Auth flows remain simple with direct API calls
 
 ---
 
