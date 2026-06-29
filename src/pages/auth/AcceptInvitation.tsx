@@ -13,22 +13,22 @@ export default function AcceptInvitation() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const token = searchParams.get('token');
-  const user = useAppSelector(state => state.user.user);
+  const user = useAppSelector(state => state.user.data);
   const [projectName, setProjectName] = useState('new project');
 
   const { mutate: acceptInvitation, isPending } = useAcceptInvitation();
 
-  // Check authentication 
+  
   useEffect(() => {
     if (!user && token) {
-   
+     
       sessionStorage.setItem('invitation_token', token);
       const returnUrl = `/invite?token=${token}`;
       navigate(`${ROUTES.LOGIN}?returnUrl=${encodeURIComponent(returnUrl)}`);
     }
   }, [user, token, navigate]);
 
-
+  // Retrieve token from sessionStorage if user just logged in
   useEffect(() => {
     if (user && !token) {
       const storedToken = sessionStorage.getItem('invitation_token');
@@ -56,13 +56,13 @@ export default function AcceptInvitation() {
             setProjectName(data.project_name);
           }
 
-          // Redirect to project members page if project_id is available
+
           if (data.project_id) {
             setTimeout(() => {
-              navigate(ROUTES.PROJECT_MEMBERS(data.project_id));
+              navigate(ROUTES.PROJECT_MEMBERS(data.project_id!));
             }, 1500);
           } else {
-           
+     
             setTimeout(() => {
               navigate(ROUTES.PROJECTS);
             }, 1500);
@@ -85,11 +85,11 @@ export default function AcceptInvitation() {
     );
   };
 
-
+ 
   if (!user && token) {
     return (
       <div className="min-h-screen bg-surface-low flex items-center justify-center p-4">
-        <Spinner size="lg" />
+        <Spinner />
       </div>
     );
   }
@@ -99,7 +99,9 @@ export default function AcceptInvitation() {
     return (
       <div className="min-h-screen bg-surface-low flex items-center justify-center p-4">
         <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 text-center">
-          <Logo className="mx-auto mb-6" />
+          <div className="flex justify-center mb-6">
+            <Logo />
+          </div>
           <h2 className="text-heading-lg text-slate-dark font-semibold mb-4">
             Invalid Invitation Link
           </h2>
@@ -122,14 +124,16 @@ export default function AcceptInvitation() {
     <div className="min-h-screen bg-surface-low flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-         
+      
           <div className="h-1 bg-primary" />
 
           <div className="p-8">
-           
-            <Logo className="mx-auto mb-8" />
+         
+            <div className="flex justify-center mb-8">
+              <Logo />
+            </div>
 
-           
+   
             <div className="flex justify-center mb-6">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/10 rounded-full">
                 <CheckCircleIcon className="w-4 h-4 text-primary" />
@@ -139,7 +143,7 @@ export default function AcceptInvitation() {
               </div>
             </div>
 
-          
+     
             <h1 className="text-heading-xl text-slate-dark font-semibold text-center mb-2">
               You've been invited to join
             </h1>
@@ -157,7 +161,7 @@ export default function AcceptInvitation() {
               {isPending ? 'Accepting...' : 'Accept Invitation'}
             </Button>
 
-            
+           
             <p className="text-body-sm text-slate-medium text-center mt-6">
               By accepting this invitation, you'll be added as a member of the
               project.
