@@ -8,6 +8,7 @@ import Login from '../pages/auth/Login';
 import Signup from '../pages/auth/Signup';
 import ForgotPassword from '../pages/auth/ForgotPassword';
 import ResetPassword from '../pages/auth/ResetPassword';
+import AcceptInvitation from '../pages/auth/AcceptInvitation';
 import ProtectedRoute from './ProtectedRoute';
 import PublicRoute from './PublicRoute';
 import AuthLayout from '../components/auth/AuthLayout';
@@ -40,6 +41,14 @@ function AppRouter() {
             <Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPassword />} />
             <Route path={ROUTES.RESET_PASSWORD} element={<ResetPassword />} />
           </Route>
+        </Route>
+
+        {/* Accept Invitation - Protected Route (user must be logged in) */}
+        <Route element={<ProtectedRoute />}>
+          <Route
+            path={ROUTES.ACCEPT_INVITATION}
+            element={<AcceptInvitation />}
+          />
         </Route>
 
         <Route element={<ProtectedRoute />}>

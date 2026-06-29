@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import FormField from '../../components/ui/FormField';
 import Button from '../../components/ui/button';
@@ -15,6 +15,8 @@ import { ROUTES } from '../../constants/routes';
 function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const returnUrl = searchParams.get('returnUrl');
 
   const { control, handleSubmit, register } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -38,7 +40,13 @@ function Login() {
       );
 
       toast.success('Welcome back!');
-      navigate(ROUTES.PROJECTS);
+
+      
+      if (returnUrl) {
+        navigate(decodeURIComponent(returnUrl));
+      } else {
+        navigate(ROUTES.PROJECTS);
+      }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Login failed');
     } finally {
