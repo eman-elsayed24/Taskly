@@ -4,6 +4,7 @@ export const ROUTES = {
   SIGNUP: '/signup',
   FORGOT_PASSWORD: '/forgot-password',
   RESET_PASSWORD: '/reset-password',
+  ACCEPT_INVITATION: '/invite',
   PROJECTS: '/project',
   ADD_PROJECT: '/project/add',
   // Dynamic routes - for React Router path definitions
