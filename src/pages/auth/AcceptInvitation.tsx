@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAcceptInvitation } from '../../hooks/queries/useMembers';
@@ -7,37 +7,48 @@ import Logo from '../../components/ui/logo';
 import Button from '../../components/ui/button';
 import Spinner from '../../components/ui/spinner';
 import { ROUTES } from '../../constants/routes';
-import CheckCircleIcon from '../../assets/icons/checkCircle.svg?react';
+import ProjectInvitationIcon from '../../assets/icons/projectInvitation.svg?react';
+
+const INVITATION_TOKEN_KEY = 'invitation_token';
+const NAVIGATION_DELAY = {
+  SUCCESS: 1500,
+  ERROR: 2000,
+};
+
+const PageContainer = ({ children }: { children: React.ReactNode }) => (
+  <div className="min-h-screen bg-surface-low flex items-center justify-center p-4">
+    {children}
+  </div>
+);
 
 export default function AcceptInvitation() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const token = searchParams.get('token');
   const user = useAppSelector(state => state.user.data);
-  const [projectName, setProjectName] = useState('new project');
 
   const { mutate: acceptInvitation, isPending } = useAcceptInvitation();
 
-  
   useEffect(() => {
     if (!user && token) {
-     
-      sessionStorage.setItem('invitation_token', token);
+      sessionStorage.setItem(INVITATION_TOKEN_KEY, token);
       const returnUrl = `/invite?token=${token}`;
       navigate(`${ROUTES.LOGIN}?returnUrl=${encodeURIComponent(returnUrl)}`);
+      return;
     }
-  }, [user, token, navigate]);
 
-  // Retrieve token from sessionStorage if user just logged in
-  useEffect(() => {
     if (user && !token) {
-      const storedToken = sessionStorage.getItem('invitation_token');
+      const storedToken = sessionStorage.getItem(INVITATION_TOKEN_KEY);
       if (storedToken) {
         navigate(`/invite?token=${storedToken}`, { replace: true });
-        sessionStorage.removeItem('invitation_token');
+        sessionStorage.removeItem(INVITATION_TOKEN_KEY);
       }
     }
   }, [user, token, navigate]);
+
+  const navigateWithDelay = (path: string, delay: number) => {
+    setTimeout(() => navigate(path), delay);
+  };
 
   const handleAcceptInvitation = () => {
     if (!token) {
@@ -50,54 +61,34 @@ export default function AcceptInvitation() {
       {
         onSuccess: data => {
           toast.success('Invitation accepted successfully!');
-
-          // Update project name if returned from API
-          if (data.project_name) {
-            setProjectName(data.project_name);
-          }
-
-
-          if (data.project_id) {
-            setTimeout(() => {
-              navigate(ROUTES.PROJECT_MEMBERS(data.project_id!));
-            }, 1500);
-          } else {
-     
-            setTimeout(() => {
-              navigate(ROUTES.PROJECTS);
-            }, 1500);
-          }
+          const destination = data.project_id
+            ? ROUTES.PROJECT_MEMBERS(data.project_id)
+            : ROUTES.PROJECTS;
+          navigateWithDelay(destination, NAVIGATION_DELAY.SUCCESS);
         },
         onError: error => {
           const errorMessage =
             error instanceof Error
               ? error.message
               : 'Failed to accept invitation';
-
           toast.error(errorMessage);
-
-          // Redirect to projects page after error
-          setTimeout(() => {
-            navigate(ROUTES.PROJECTS);
-          }, 2000);
+          navigateWithDelay(ROUTES.PROJECTS, NAVIGATION_DELAY.ERROR);
         },
       }
     );
   };
 
- 
   if (!user && token) {
     return (
-      <div className="min-h-screen bg-surface-low flex items-center justify-center p-4">
+      <PageContainer>
         <Spinner />
-      </div>
+      </PageContainer>
     );
   }
 
-
   if (!token) {
     return (
-      <div className="min-h-screen bg-surface-low flex items-center justify-center p-4">
+      <PageContainer>
         <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 text-center">
           <div className="flex justify-center mb-6">
             <Logo />
@@ -116,42 +107,34 @@ export default function AcceptInvitation() {
             Go to Projects
           </Button>
         </div>
-      </div>
+      </PageContainer>
     );
   }
 
   return (
-    <div className="min-h-screen bg-surface-low flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-surface-low flex flex-col items-center justify-center p-4">
+      <div className="mb-8">
+        <Logo />
+      </div>
+
+      <div className="w-full max-w-lg">
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-      
           <div className="h-1 bg-primary" />
 
-          <div className="p-8">
-         
-            <div className="flex justify-center mb-8">
-              <Logo />
-            </div>
-
-   
+          <div className="p-8 text-center">
             <div className="flex justify-center mb-6">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/10 rounded-full">
-                <CheckCircleIcon className="w-4 h-4 text-primary" />
+                <ProjectInvitationIcon className="w-4 h-4 text-primary" />
                 <span className="text-label-sm text-primary font-semibold uppercase tracking-wide">
                   New Project Invitation
                 </span>
               </div>
             </div>
 
-     
-            <h1 className="text-heading-xl text-slate-dark font-semibold text-center mb-2">
-              You've been invited to join
+            <h1 className="text-heading-2xl text-slate-dark font-bold leading-tight mb-8">
+              You've been invited to join new project
             </h1>
-            <p className="text-heading-lg text-primary text-center mb-8">
-              {projectName}
-            </p>
 
-           
             <Button
               variant="primary"
               onClick={handleAcceptInvitation}
@@ -160,12 +143,6 @@ export default function AcceptInvitation() {
             >
               {isPending ? 'Accepting...' : 'Accept Invitation'}
             </Button>
-
-           
-            <p className="text-body-sm text-slate-medium text-center mt-6">
-              By accepting this invitation, you'll be added as a member of the
-              project.
-            </p>
           </div>
         </div>
       </div>

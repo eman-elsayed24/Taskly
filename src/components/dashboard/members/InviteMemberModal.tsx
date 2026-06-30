@@ -27,12 +27,7 @@ export default function InviteMemberModal({
 }: InviteMemberModalProps) {
   const { mutate: inviteMember, isPending } = useInviteMember();
 
-  const {
-    control,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<InviteMemberFormData>({
+  const { control, handleSubmit, reset } = useForm<InviteMemberFormData>({
     resolver: zodResolver(inviteMemberSchema),
     defaultValues: {
       email: '',
@@ -70,11 +65,16 @@ export default function InviteMemberModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} maxWidth="md">
+    <Modal
+      isOpen={isOpen}
+      onClose={handleClose}
+      maxWidth="md"
+      variant="bottomSheet"
+    >
       <ModalHeader onClose={handleClose}>
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-            <PersonAddIcon className="w-6 h-6 text-primary" />
+          <div className="  w-12 h-12 rounded-lg bg-primary/10  hidden md:flex items-center justify-center">
+            <PersonAddIcon className="  w-6 h-6 text-primary" />
           </div>
           <div>
             <h2 className="text-heading-lg text-slate-dark font-semibold">
@@ -105,19 +105,13 @@ export default function InviteMemberModal({
             </div>
           </div>
 
-          {errors.email && (
-            <p className="text-error text-body-sm mt-1">
-              {errors.email.message}
-            </p>
-          )}
-
-          <div className="flex flex-col-reverse sm:flex-row gap-3 pt-2">
+          <div className="flex flex-col-reverse md:flex-row gap-3 pt-2">
             <Button
               type="button"
               variant="ghost"
               onClick={handleClose}
               disabled={isPending}
-              className="w-full sm:w-auto"
+              className="w-full md:flex-1"
             >
               Cancel
             </Button>
@@ -125,7 +119,7 @@ export default function InviteMemberModal({
               type="submit"
               variant="primary"
               disabled={isPending}
-              className="w-full sm:w-auto"
+              className="w-full md:flex-1"
             >
               {isPending ? 'Sending...' : 'Send Invitation'}
             </Button>
