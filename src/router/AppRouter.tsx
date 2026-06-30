@@ -43,15 +43,12 @@ function AppRouter() {
           </Route>
         </Route>
 
-        {/* Accept Invitation - Protected Route (user must be logged in) */}
         <Route element={<ProtectedRoute />}>
           <Route
             path={ROUTES.ACCEPT_INVITATION}
             element={<AcceptInvitation />}
           />
-        </Route>
 
-        <Route element={<ProtectedRoute />}>
           <Route element={<DashboardLayout />}>
             <Route path={ROUTES.PROJECTS} element={<Projects />} />
             <Route path={ROUTES.ADD_PROJECT} element={<AddProject />} />
