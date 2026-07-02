@@ -56,7 +56,6 @@ export interface TaskDetails {
   } | null;
 }
 
-
 export type TaskAssignee = NonNullable<TaskDetails['assignee']>;
 export type TaskEpic = NonNullable<TaskDetails['epic']>;
 export type TaskCreator = NonNullable<TaskDetails['created_by']>;

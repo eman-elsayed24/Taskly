@@ -135,7 +135,6 @@ export default function AddTask() {
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 mb-6">
-        
             <div>
               <div className="flex items-center gap-1 mb-2">
                 <label

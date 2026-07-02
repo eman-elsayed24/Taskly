@@ -41,7 +41,6 @@ function Login() {
 
       toast.success('Welcome back!');
 
-      
       if (returnUrl) {
         navigate(decodeURIComponent(returnUrl));
       } else {

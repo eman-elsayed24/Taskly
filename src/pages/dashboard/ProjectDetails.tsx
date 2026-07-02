@@ -15,7 +15,6 @@ export default function ProjectDetails() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
 
-  
   const {
     data: project,
     isLoading: isFetching,

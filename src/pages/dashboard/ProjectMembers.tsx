@@ -72,7 +72,6 @@ export default function ProjectMembers() {
     <div className="w-full h-full flex flex-col">
       {/* Header Section */}
       <div className="mb-8">
-    
         <Breadcrumb
           items={[
             { label: 'PROJECTS', href: ROUTES.PROJECTS },
@@ -84,7 +83,6 @@ export default function ProjectMembers() {
           ]}
         />
 
-        
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <h1 className="text-heading-xl text-slate-dark">Project Members</h1>
           <Button
@@ -207,7 +205,6 @@ export default function ProjectMembers() {
         })}
       </div>
 
-     
       <button
         onClick={() => setIsInviteModalOpen(true)}
         className="fixed sm:hidden bg-primary w-14 h-14 bottom-8 right-5 z-50 text-white rounded-md flex items-center justify-center shadow-lg"
@@ -216,7 +213,6 @@ export default function ProjectMembers() {
         <PersonAddIcon className="w-6 h-6" />
       </button>
 
-      
       <InviteMemberModal
         isOpen={isInviteModalOpen}
         onClose={() => setIsInviteModalOpen(false)}

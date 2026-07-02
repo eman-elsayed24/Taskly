@@ -15,6 +15,7 @@ import AuthLayout from '../components/auth/AuthLayout';
 import DashboardLayout from '../components/dashboard/layout/DashboardLayout';
 import Projects from '../pages/dashboard/Projects';
 import AddProject from '../pages/dashboard/AddProject';
+import MyStatistics from '../pages/dashboard/MyStatistics';
 import ProjectEpics from '../pages/dashboard/ProjectEpics';
 import AddEpic from '../pages/dashboard/AddEpic';
 import ProjectTasks from '../pages/dashboard/ProjectTasks';
@@ -52,6 +53,7 @@ function AppRouter() {
           <Route element={<DashboardLayout />}>
             <Route path={ROUTES.PROJECTS} element={<Projects />} />
             <Route path={ROUTES.ADD_PROJECT} element={<AddProject />} />
+            <Route path={ROUTES.MY_STATISTICS} element={<MyStatistics />} />
             <Route path={ROUTES.ADD_EPIC_PATTERN} element={<AddEpic />} />
             <Route
               path={ROUTES.PROJECT_EPICS_PATTERN}

@@ -113,7 +113,6 @@ export default function TaskDetailsDesktop({
         </div>
       </div>
 
-    
       <aside className="border-l border-slate-light/20 bg-surface-low p-6 overflow-y-auto">
         <div className="space-y-6">
           {/* Status */}
@@ -130,7 +129,6 @@ export default function TaskDetailsDesktop({
             </div>
           </div>
 
-         
           <EditableTaskAssignee
             assignee={task.assignee}
             projectMembers={members}
@@ -139,7 +137,6 @@ export default function TaskDetailsDesktop({
             onUpdate={handleAssigneeUpdate}
           />
 
-       
           <div>
             <p className="mb-3 text-xs font-bold uppercase tracking-wide text-slate-medium">
               Reporter
@@ -158,14 +155,12 @@ export default function TaskDetailsDesktop({
 
           <hr className="border-slate-light/20" />
 
-          
           <EditableTaskDueDate
             dueDate={task.due_date}
             isSaving={isSaving}
             onUpdate={handleDueDateUpdate}
           />
 
-     
           <EditableTaskEpic
             epic={task.epic || null}
             projectId={projectId}
@@ -173,7 +168,6 @@ export default function TaskDetailsDesktop({
             onUpdate={handleEpicUpdate}
           />
 
-        
           <div className="flex items-center justify-between">
             <span className="text-sm text-slate-medium">Created At</span>
             <span className="text-sm font-medium text-slate-dark">

@@ -7,7 +7,6 @@ import ArrowIcon from '../../../assets/icons/arrow.svg?react';
 import LogoutIcon from '../../../assets/icons/logout.svg?react';
 import MenuIcon from '../../../assets/icons/menu.svg?react';
 import { menuItems } from '../../../constants/navigation';
-import { ROUTES } from '../../../constants/routes';
 
 export default function Sidebar() {
   const [isExpanded, setIsExpanded] = useState(true);
@@ -24,13 +23,14 @@ export default function Sidebar() {
   // Generate menu items based on context
   const visibleMenuItems = useMemo(() => {
     if (!isInProject) {
-      // Only show Projects link when not in a project
-      return menuItems.filter(item => item.path === ROUTES.PROJECTS);
+      // Show global items when not in a project (Projects + My Statistics)
+      return menuItems.filter(item => item.isGlobal);
     }
 
     // Show all menu items with proper paths when in a project
     return menuItems.map(item => {
-      if (item.path === ROUTES.PROJECTS) {
+      // Global items keep their static path
+      if (item.isGlobal) {
         return item;
       }
 

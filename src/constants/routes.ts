@@ -7,6 +7,7 @@ export const ROUTES = {
   ACCEPT_INVITATION: '/invite',
   PROJECTS: '/project',
   ADD_PROJECT: '/project/add',
+  MY_STATISTICS: '/my-statistics',
   // Dynamic routes - for React Router path definitions
   PROJECT_EPICS_PATTERN: '/project/:projectId/epics',
   ADD_EPIC_PATTERN: '/project/:projectId/epics/new',

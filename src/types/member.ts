@@ -28,7 +28,6 @@ export interface InviteMemberResponse {
   message?: string;
 }
 
-
 export interface AcceptInvitationRequest {
   p_token: string;
 }
