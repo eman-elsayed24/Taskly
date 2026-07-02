@@ -41,7 +41,7 @@ export default function InviteMemberModal({
 
   const onSubmit = (data: InviteMemberFormData) => {
     const baseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const appUrl = window.location.origin;
+    const appUrl = import.meta.env.VITE_APP_URL || window.location.origin;
 
     inviteMember(
       {

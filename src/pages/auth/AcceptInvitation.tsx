@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAcceptInvitation } from '../../hooks/queries/useMembers';
@@ -26,6 +26,7 @@ export default function AcceptInvitation() {
   const navigate = useNavigate();
   const token = searchParams.get('token');
   const user = useAppSelector(state => state.user.data);
+  const timeoutRef = useRef<number | null>(null);
 
   const { mutate: acceptInvitation, isPending } = useAcceptInvitation();
 
@@ -46,8 +47,19 @@ export default function AcceptInvitation() {
     }
   }, [user, token, navigate]);
 
-  const navigateWithDelay = (path: string, delay: number) => {
-    setTimeout(() => navigate(path), delay);
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
+  const navigateWithDelay = (path: string, delay: number, replace = false) => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    timeoutRef.current = setTimeout(() => navigate(path, { replace }), delay);
   };
 
   const handleAcceptInvitation = () => {
@@ -64,7 +76,7 @@ export default function AcceptInvitation() {
           const destination = data.project_id
             ? ROUTES.PROJECT_MEMBERS(data.project_id)
             : ROUTES.PROJECTS;
-          navigateWithDelay(destination, NAVIGATION_DELAY.SUCCESS);
+          navigateWithDelay(destination, NAVIGATION_DELAY.SUCCESS, true);
         },
         onError: error => {
           const errorMessage =
@@ -77,14 +89,6 @@ export default function AcceptInvitation() {
       }
     );
   };
-
-  if (!user && token) {
-    return (
-      <PageContainer>
-        <Spinner />
-      </PageContainer>
-    );
-  }
 
   if (!token) {
     return (
@@ -107,6 +111,14 @@ export default function AcceptInvitation() {
             Go to Projects
           </Button>
         </div>
+      </PageContainer>
+    );
+  }
+
+  if (!user) {
+    return (
+      <PageContainer>
+        <Spinner />
       </PageContainer>
     );
   }

@@ -74,6 +74,42 @@ export async function apiFetch<T>(
   const data = await response.json().catch(() => null);
 
   if (!response.ok) {
+
+    if (response.status === 403) {
+      throw new Error(
+        data?.msg ||
+          data?.message ||
+          'You do not have permission to perform this action'
+      );
+    }
+
+    if (response.status === 401) {
+      throw new Error(
+        data?.msg || data?.message || 'Session expired, please login again'
+      );
+    }
+
+    if (response.status === 400) {
+      throw new Error(data?.msg || data?.message || 'Invalid request data');
+    }
+
+    if (response.status === 404) {
+      throw new Error(data?.msg || data?.message || 'Resource not found');
+    }
+
+    if (response.status === 409) {
+      throw new Error(
+        data?.msg || data?.message || 'This resource already exists'
+      );
+    }
+
+    if (response.status >= 500) {
+      throw new Error(
+        data?.msg || data?.message || 'Server error. Please try again later'
+      );
+    }
+
+    // Generic fallback for other status codes
     throw new Error(data?.msg || data?.message || 'Request failed');
   }
 
