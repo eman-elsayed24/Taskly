@@ -55,3 +55,8 @@ export interface TaskDetails {
     department: string | null;
   } | null;
 }
+
+
+export type TaskAssignee = NonNullable<TaskDetails['assignee']>;
+export type TaskEpic = NonNullable<TaskDetails['epic']>;
+export type TaskCreator = NonNullable<TaskDetails['created_by']>;

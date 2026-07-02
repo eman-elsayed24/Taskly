@@ -1,4 +1,5 @@
 import { useParams } from 'react-router-dom';
+import { useState } from 'react';
 import { useProject } from '../../hooks/useProject';
 import { useProjectMembers } from '../../hooks/queries/useMembers';
 import Button from '../../components/ui/button';
@@ -6,6 +7,7 @@ import Badge from '../../components/ui/badge';
 import Breadcrumb from '../../components/ui/Breadcrumb';
 import ErrorState from '../../components/ui/ErrorState';
 import MemberTableSkeleton from '../../components/dashboard/members/MemberTableSkeleton';
+import InviteMemberModal from '../../components/dashboard/members/InviteMemberModal';
 import { getMemberName, getMemberEmail } from '../../types/member';
 import { ROUTES } from '../../constants/routes';
 import { getInitials } from '../../utils/stringHelpers';
@@ -26,8 +28,8 @@ function normalizeRole(role: string): string {
 export default function ProjectMembers() {
   const { projectId } = useParams<{ projectId: string }>();
   const { project } = useProject(projectId);
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
 
-  
   const {
     data: members = [],
     isLoading,
@@ -70,7 +72,7 @@ export default function ProjectMembers() {
     <div className="w-full h-full flex flex-col">
       {/* Header Section */}
       <div className="mb-8">
-        {/* Breadcrumb */}
+    
         <Breadcrumb
           items={[
             { label: 'PROJECTS', href: ROUTES.PROJECTS },
@@ -82,12 +84,13 @@ export default function ProjectMembers() {
           ]}
         />
 
-        {/* Title and Button */}
+        
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <h1 className="text-heading-xl text-slate-dark">Project Members</h1>
           <Button
             variant="primary"
             className="hidden sm:flex items-center gap-2 w-full sm:w-auto"
+            onClick={() => setIsInviteModalOpen(true)}
           >
             <PersonAddIcon className="w-5 h-5" />
             Invite Member
@@ -204,10 +207,22 @@ export default function ProjectMembers() {
         })}
       </div>
 
-      {/* Floating Add Button - Mobile Only */}
-      <button className="fixed sm:hidden bg-primary w-14 h-14 bottom-8 right-5 z-50 text-white rounded-md flex items-center justify-center shadow-lg">
+     
+      <button
+        onClick={() => setIsInviteModalOpen(true)}
+        className="fixed sm:hidden bg-primary w-14 h-14 bottom-8 right-5 z-50 text-white rounded-md flex items-center justify-center shadow-lg"
+        aria-label="Invite member"
+      >
         <PersonAddIcon className="w-6 h-6" />
       </button>
+
+      
+      <InviteMemberModal
+        isOpen={isInviteModalOpen}
+        onClose={() => setIsInviteModalOpen(false)}
+        projectId={projectId || ''}
+        projectName={project?.name}
+      />
     </div>
   );
 }

@@ -1,8 +1,8 @@
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '../../../redux/hooks';
 import { useTasksSearch } from '../../../hooks/useTasksSearch';
-import { useTasksByStatus } from '../../../hooks/queries/useTasks';
+import { useTasksByStatus } from '../../../hooks/tasks';
 import { openTaskDetails } from '../../../redux/slices/taskModalSlice';
 import { TaskStatus, TASK_STATUS_LABELS } from '../../../types/task';
 import { getTasksByStatus } from '../../../api/taskApi';
@@ -12,7 +12,6 @@ import { getStatusDotColor } from '../../../constants/taskStyles';
 import toast from 'react-hot-toast';
 import { ROUTES } from '../../../constants/routes';
 import PlusCircleIcon from '../../../assets/icons/plusCircle.svg?react';
-import { useState } from 'react';
 
 interface TaskBoardColumnProps {
   status: TaskStatus;
@@ -38,30 +37,18 @@ const TaskBoardColumn: React.FC<TaskBoardColumnProps> = ({ status }) => {
   const pageSize = 5;
 
   // React Query - fetch initial tasks
-  const { data: tasksResponse, isLoading } = useTasksByStatus(
-    projectId || '',
-    status,
-    pageSize,
-    0,
-    debouncedSearch
-  );
+  const {
+    data: tasksResponse,
+    isLoading,
+    dataUpdatedAt,
+  } = useTasksByStatus(projectId || '', status, pageSize, 0, debouncedSearch);
 
   const initialTasks = tasksResponse?.data || [];
   const totalCount = tasksResponse?.totalCount || 0;
 
-  // Update displayed tasks when initialTasks change
-  if (initialTasks.length > 0 && displayedTasks.length === 0) {
+  useEffect(() => {
     setDisplayedTasks(initialTasks);
-  }
-
-  // Reset displayed tasks when search changes
-  if (
-    initialTasks.length > 0 &&
-    displayedTasks.length > 0 &&
-    initialTasks[0]?.id !== displayedTasks[0]?.id
-  ) {
-    setDisplayedTasks(initialTasks);
-  }
+  }, [dataUpdatedAt, debouncedSearch]);
 
   const hasMore = displayedTasks.length < totalCount;
 

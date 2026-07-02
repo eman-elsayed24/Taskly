@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAppDispatch } from '../../../redux/hooks';
 import { useTasksSearch } from '../../../hooks/useTasksSearch';
-import { useProjectTasks } from '../../../hooks/queries/useTasks';
+import { useProjectTasks } from '../../../hooks/tasks';
 import { openTaskDetails } from '../../../redux/slices/taskModalSlice';
 import Badge from '../../ui/badge';
 import UserAvatar from '../../ui/UserAvatar';

@@ -20,6 +20,7 @@ import {
 import { getProjectMembers } from '../../api/memberApi';
 import { getMemberName } from '../../types/member';
 import type { ProjectMember } from '../../types/member';
+import { getTodayDateString } from '../../utils/formatDate';
 
 export default function AddTask() {
   const { projectId } = useParams<{ projectId: string }>();
@@ -100,10 +101,6 @@ export default function AddTask() {
     }
   };
 
-  // Get today's date in YYYY-MM-DD format for min attribute
-  const today = new Date().toISOString().split('T')[0];
-
-  // Truncate epic title if longer than 100 characters
   const truncateEpicTitle = (title: string) => {
     return title.length > 100 ? `${title.substring(0, 100)}...` : title;
   };
@@ -138,7 +135,7 @@ export default function AddTask() {
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 mb-6">
-            {/* Title Field */}
+        
             <div>
               <div className="flex items-center gap-1 mb-2">
                 <label
@@ -213,7 +210,7 @@ export default function AddTask() {
                 control={control}
                 name="due_date"
                 type="date"
-                min={today}
+                min={getTodayDateString()}
                 placeholder="mm/dd/yyyy"
                 className="cursor-pointer"
               />

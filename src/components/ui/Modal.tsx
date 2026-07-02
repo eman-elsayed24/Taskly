@@ -1,11 +1,14 @@
 import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import type { ReactNode } from 'react';
+import CloseIcon from '../../assets/icons/close.svg?react';
 
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   children: ReactNode;
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl';
+  variant?: 'modal' | 'bottomSheet';
 }
 
 export default function Modal({
@@ -13,6 +16,7 @@ export default function Modal({
   onClose,
   children,
   maxWidth = '3xl',
+  variant = 'modal',
 }: ModalProps) {
   useEffect(() => {
     if (isOpen) {
@@ -34,7 +38,39 @@ export default function Modal({
     '3xl': 'max-w-3xl',
   };
 
-  return (
+  if (variant === 'bottomSheet') {
+    const content = (
+      <div
+        className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm"
+        onClick={onClose}
+      >
+        <div className="hidden md:flex md:items-center md:justify-center md:h-full md:p-4">
+          <div
+            className={`relative w-full ${maxWidthClasses[maxWidth]} bg-white rounded-2xl shadow-xl overflow-hidden`}
+            onClick={e => e.stopPropagation()}
+          >
+            {children}
+          </div>
+        </div>
+
+        <div className="md:hidden flex items-end h-full">
+          <div
+            className="w-full max-h-[90vh] overflow-y-auto rounded-t-2xl bg-white shadow-xl"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex justify-center pt-3">
+              <div className="h-1 w-12 rounded-full bg-slate-light" />
+            </div>
+            {children}
+          </div>
+        </div>
+      </div>
+    );
+
+    return createPortal(content, document.getElementById('modal-root')!);
+  }
+
+  const content = (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
       onClick={onClose}
@@ -47,33 +83,33 @@ export default function Modal({
       </div>
     </div>
   );
+
+  return createPortal(content, document.getElementById('modal-root')!);
 }
 
 interface ModalHeaderProps {
   children: ReactNode;
   onClose: () => void;
+  showCloseButton?: boolean;
 }
 
-export function ModalHeader({ children, onClose }: ModalHeaderProps) {
+export function ModalHeader({
+  children,
+  onClose,
+  showCloseButton = true,
+}: ModalHeaderProps) {
   return (
-    <div className="relative p-4 sm:p-6 border-b border-slate-light/20">
-      <div className="pr-10">{children}</div>
-      <button
-        onClick={onClose}
-        className="absolute top-4 right-4 text-slate-medium hover:text-error transition-colors p-2 cursor-pointer"
-        aria-label="Close modal"
-      >
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
+    <div className="relative p-4 sm:p-6 border-b border-slate-light/20 md:border-b">
+      <div className={showCloseButton ? 'pr-10' : ''}>{children}</div>
+      {showCloseButton && (
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-slate-medium hover:text-error transition-colors p-2 cursor-pointer "
+          aria-label="Close modal"
         >
-          <path d="M18 6L6 18M6 6l12 12" />
-        </svg>
-      </button>
+          <CloseIcon className="w-3 h-3" />
+        </button>
+      )}
     </div>
   );
 }

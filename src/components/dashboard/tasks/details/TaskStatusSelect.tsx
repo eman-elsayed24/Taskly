@@ -53,6 +53,22 @@ const TaskStatusSelect: React.FC<TaskStatusSelectProps> = ({
           fontSize: '12px',
           textTransform: 'uppercase' as const,
         }),
+        // Fix dropdown menu colors
+        menu: provided => ({
+          ...provided,
+          backgroundColor: '#ffffff',
+        }),
+        option: (provided, state) => ({
+          ...provided,
+          backgroundColor: state.isFocused ? '#f1f5f9' : '#ffffff',
+          color: '#1e293b', // slate-dark color
+          cursor: 'pointer',
+          fontWeight: state.isSelected ? 700 : 400,
+          fontSize: '14px',
+          ':active': {
+            backgroundColor: '#e2e8f0',
+          },
+        }),
       }}
     />
   );

@@ -8,6 +8,7 @@ import Login from '../pages/auth/Login';
 import Signup from '../pages/auth/Signup';
 import ForgotPassword from '../pages/auth/ForgotPassword';
 import ResetPassword from '../pages/auth/ResetPassword';
+import AcceptInvitation from '../pages/auth/AcceptInvitation';
 import ProtectedRoute from './ProtectedRoute';
 import PublicRoute from './PublicRoute';
 import AuthLayout from '../components/auth/AuthLayout';
@@ -43,6 +44,11 @@ function AppRouter() {
         </Route>
 
         <Route element={<ProtectedRoute />}>
+          <Route
+            path={ROUTES.ACCEPT_INVITATION}
+            element={<AcceptInvitation />}
+          />
+
           <Route element={<DashboardLayout />}>
             <Route path={ROUTES.PROJECTS} element={<Projects />} />
             <Route path={ROUTES.ADD_PROJECT} element={<AddProject />} />
