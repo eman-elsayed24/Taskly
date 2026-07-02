@@ -26,11 +26,10 @@ export default function TaskDetailsModal() {
   const dispatch = useAppDispatch();
   const taskId = useAppSelector(state => state.taskModal.selectedTaskId);
 
-  const {
-    data: task,
-    isLoading,
-    isError: error,
-  } = useTaskDetails(projectId || '', taskId || '');
+  const { data: task, isLoading } = useTaskDetails(
+    projectId || '',
+    taskId || ''
+  );
 
   const onClose = useCallback(() => {
     dispatch(closeTaskDetails());
