@@ -1,13 +1,11 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import TaskDetailsSkeleton from './TaskDetailsSkeleton';
 import TaskDetailsDesktop from './TaskDetailsDesktop';
 import TaskDetailsMobile from './TaskDetailsMobile';
-import { getTaskById } from '../../../../api/taskApi';
-import type { TaskDetails } from '../../../../types/task';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
 import { closeTaskDetails } from '../../../../redux/slices/taskModalSlice';
-import toast from 'react-hot-toast';
+import { useTaskDetails } from '../../../../hooks/tasks';
 
 const ErrorState = ({ onClose }: { onClose: () => void }) => (
   <div className="flex flex-col items-center justify-center py-12 px-6">
@@ -23,57 +21,20 @@ const ErrorState = ({ onClose }: { onClose: () => void }) => (
   </div>
 );
 
-const NotFoundState = () => (
-  <div className="flex flex-col items-center justify-center py-12 px-6">
-    <div className="text-slate-medium text-body-lg">Task not found</div>
-  </div>
-);
-
 export default function TaskDetailsModal() {
   const { projectId } = useParams<{ projectId: string }>();
   const dispatch = useAppDispatch();
   const taskId = useAppSelector(state => state.taskModal.selectedTaskId);
 
-  const [task, setTask] = useState<TaskDetails | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const {
+    data: task,
+    isLoading,
+    isError: error,
+  } = useTaskDetails(projectId || '', taskId || '');
 
   const onClose = useCallback(() => {
     dispatch(closeTaskDetails());
   }, [dispatch]);
-
-  useEffect(() => {
-    if (!taskId || !projectId) return;
-
-    let isMounted = true;
-
-    const fetchTaskDetails = async () => {
-      setIsLoading(true);
-      setError(false);
-
-      try {
-        const data = await getTaskById(projectId, taskId);
-        if (isMounted) {
-          setTask(data);
-        }
-      } catch {
-        if (isMounted) {
-          setError(true);
-          toast.error('Failed to load task details');
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    fetchTaskDetails();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [taskId, projectId]);
 
   useEffect(() => {
     const handleEscKey = (event: KeyboardEvent) => {
@@ -104,12 +65,14 @@ export default function TaskDetailsModal() {
         >
           {isLoading ? (
             <TaskDetailsSkeleton />
-          ) : error ? (
-            <ErrorState onClose={onClose} />
           ) : !task ? (
-            <NotFoundState />
+            <ErrorState onClose={onClose} />
           ) : (
-            <TaskDetailsDesktop task={task} onClose={onClose} />
+            <TaskDetailsDesktop
+              task={task}
+              onClose={onClose}
+              projectId={projectId}
+            />
           )}
         </div>
       </div>
@@ -124,12 +87,14 @@ export default function TaskDetailsModal() {
             <div className="p-6">
               <TaskDetailsSkeleton />
             </div>
-          ) : error ? (
-            <ErrorState onClose={onClose} />
           ) : !task ? (
-            <NotFoundState />
+            <ErrorState onClose={onClose} />
           ) : (
-            <TaskDetailsMobile task={task} onClose={onClose} />
+            <TaskDetailsMobile
+              task={task}
+              onClose={onClose}
+              projectId={projectId}
+            />
           )}
         </div>
       </div>

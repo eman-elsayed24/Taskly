@@ -136,3 +136,23 @@ export async function getTaskById(
 
   return response[0];
 }
+
+export interface UpdateTaskRequest {
+  title?: string;
+  description?: string | null;
+  assignee_id?: string | null;
+  due_date?: string | null;
+  epic_id?: string | null;
+  status?: string;
+}
+
+export async function updateTask(
+  taskId: string,
+  data: UpdateTaskRequest
+): Promise<void> {
+  await apiFetch(`/rest/v1/tasks?id=eq.${taskId}`, {
+    method: 'PATCH',
+    body: data,
+    includeAuth: true,
+  });
+}

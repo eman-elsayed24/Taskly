@@ -6,3 +6,7 @@ export function formatDate(dateString: string): string {
     year: 'numeric',
   });
 }
+
+export function getTodayDateString(): string {
+  return new Date().toISOString().split('T')[0];
+}

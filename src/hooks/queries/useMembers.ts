@@ -15,7 +15,6 @@ export const memberKeys = {
   list: (projectId: string) => [...memberKeys.lists(), projectId] as const,
 };
 
-
 export function useProjectMembers(projectId: string) {
   return useQuery({
     queryKey: memberKeys.list(projectId),
@@ -24,21 +23,18 @@ export function useProjectMembers(projectId: string) {
   });
 }
 
-
 export function useInviteMember() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (data: InviteMemberRequest) => inviteMember(data),
     onSuccess: (_, variables) => {
-      
       queryClient.invalidateQueries({
         queryKey: memberKeys.list(variables.p_project_id),
       });
     },
   });
 }
-
 
 export function useAcceptInvitation() {
   return useMutation({

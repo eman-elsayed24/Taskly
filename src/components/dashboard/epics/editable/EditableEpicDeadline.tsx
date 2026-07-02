@@ -1,4 +1,5 @@
 import EventIcon from '../../../../assets/icons/event.svg?react';
+import { getTodayDateString } from '../../../../utils/formatDate';
 
 interface EditableEpicDeadlineProps {
   deadline: string | null | undefined;
@@ -37,7 +38,7 @@ export default function EditableEpicDeadline({
             id="deadline-input"
             type="date"
             value={deadline || ''}
-            min={new Date().toISOString().split('T')[0]}
+            min={getTodayDateString()}
             onChange={e => handleChange(e.target.value || null)}
             className="text-body-md font-medium border-0 bg-transparent focus:outline-none focus:ring-2 focus:ring-primary/20 rounded px-2 py-1 cursor-pointer w-full [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
             disabled={isSaving}

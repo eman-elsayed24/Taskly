@@ -10,6 +10,8 @@ export const epicKeys = {
   details: () => [...epicKeys.all, 'detail'] as const,
   detail: (projectId: string, epicId: string) =>
     [...epicKeys.details(), { projectId, epicId }] as const,
+  byProject: (projectId: string) =>
+    [...epicKeys.all, 'byProject', projectId] as const,
 };
 
 //  Get project epics with pagination and search
@@ -32,5 +34,14 @@ export function useEpicDetails(projectId: string, epicId: string) {
     queryKey: epicKeys.detail(projectId, epicId),
     queryFn: () => getEpicById(projectId, epicId),
     enabled: !!projectId && !!epicId,
+  });
+}
+
+export function useProjectEpicsAll(projectId: string) {
+  return useQuery({
+    queryKey: epicKeys.byProject(projectId),
+    queryFn: () => getProjectEpics(projectId, 1000, 0),
+    enabled: !!projectId,
+    select: data => data.data,
   });
 }

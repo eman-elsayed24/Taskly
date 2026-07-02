@@ -15,6 +15,7 @@ import { getProjectMembers } from '../../api/memberApi';
 import { getMemberName } from '../../types/member';
 import type { ProjectMember } from '../../types/member';
 import { ROUTES } from '../../constants/routes';
+import { getTodayDateString } from '../../utils/formatDate';
 
 export default function AddEpic() {
   const { projectId } = useParams<{ projectId: string }>();
@@ -82,9 +83,6 @@ export default function AddEpic() {
       navigate(ROUTES.PROJECTS);
     }
   };
-
-  // Get today's date in YYYY-MM-DD format
-  const today = new Date().toISOString().split('T')[0];
 
   return (
     <div className="w-full h-full flex flex-col">
@@ -188,7 +186,7 @@ export default function AddEpic() {
                     control={control}
                     name="deadline"
                     type="date"
-                    min={today}
+                    min={getTodayDateString()}
                     placeholder="mm/dd/yyyy"
                     className="cursor-pointer"
                   />
